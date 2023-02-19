@@ -1,8 +1,9 @@
-import Mongoose, { Schema } from 'mongoose';
+import { connect, Schema, set } from 'mongoose';
 import { config } from '../../config';
 
 export async function connectDB() {
-  return Mongoose.connect(config.db.host, {
+  set('strictQuery', true);
+  return connect(config.db.host, {
     dbName: config.db.dbName
   });
 }
