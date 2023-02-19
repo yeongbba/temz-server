@@ -1,9 +1,12 @@
 import { Server } from 'socket.io';
-import jwt from 'jsonwebtoken';
+import * as http from 'http';
+import jwt, { Jwt, JwtPayload, VerifyErrors } from 'jsonwebtoken';
 import { config } from '../../config';
 
 class Socket {
-  constructor(server) {
+  io: Server;
+
+  constructor(private server: http.Server) {
     this.io = new Server(server, {
       cors: {
         origin: '*',
@@ -15,7 +18,8 @@ class Socket {
       if (!token) {
         return next(new Error('Authentication error'));
       }
-      jwt.verify(token, config.jwt.secretKey, (error, decoded) => {
+
+      jwt.verify(token, config.jwt.secretKey, (error: VerifyErrors | null, decoded: Jwt | JwtPayload | string | undefined) => {
         if (error) {
           return next(new Error('Authentication error'));
         }
@@ -29,8 +33,8 @@ class Socket {
   }
 }
 
-let socket;
-export function initSocket(server) {
+let socket: Socket;
+export function initSocket(server: http.Server) {
   if (!socket) {
     socket = new Socket(server);
   }

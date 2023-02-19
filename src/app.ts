@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import authRouter from './router/auth';
 import { config } from '../config';
 import { connectDB } from './database/database';
+import { initSocket } from './connection/socket';
 
 const app = express();
 
@@ -27,8 +28,9 @@ app.use((error: any, req: Request, res: Response, next: NextFunction) => {
 
 connectDB()
   .then(db => {
-    console.log("init", db);
+    console.log("success to connect with mongodb");
     const server = app.listen(config.host.port);
-    // initSocket(server);
+    console.log(`start to listen server ${config.host.port}`);
+    initSocket(server);
   })
   .catch(console.error);
