@@ -4,12 +4,12 @@ import { config } from '../../config';
 export async function connectDB() {
   set('strictQuery', true);
   return connect(config.db.host, {
-    dbName: config.db.dbName
+    dbName: config.db.dbName,
   });
 }
 
 export function useVirtualId(schema: Schema) {
-  schema.virtual('id').get(function() {
+  schema.virtual('id').get(function () {
     // _id number??
     console.log(this._id);
     return (this._id as number).toString();

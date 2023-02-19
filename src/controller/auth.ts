@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import * as userRepository from '../data/auth';
 import { config } from '../../config';
-import { NextFunction, Request, Response } from 'express';
+import { Request, Response } from 'express';
 
 export async function signup(req: Request, res: Response) {
   const { username, password, name, email, url } = req.body;
@@ -42,7 +42,7 @@ function createJwtToken(id: any) {
   });
 }
 
-export async function me(req: Request, res: Response, next: NextFunction) {
+export async function me(req: Request, res: Response) {
   const user = await userRepository.findById((req as any).userId);
   if (!user) {
     return res.status(404).json({ message: 'User not found' });

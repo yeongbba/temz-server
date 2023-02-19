@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
@@ -16,19 +16,19 @@ app.use(morgan('tiny'));
 
 app.use('/auth', authRouter);
 
-app.use((req: Request, res: Response, next: NextFunction) => {
+app.use((req: Request, res: Response) => {
   console.log(req);
   res.sendStatus(404);
 });
 
-app.use((error: any, req: Request, res: Response, next: NextFunction) => {
+app.use((error: any, req: Request, res: Response) => {
   console.error(error);
   res.sendStatus(500);
 });
 
 connectDB()
-  .then(db => {
-    console.log("success to connect with mongodb");
+  .then(() => {
+    console.log('success to connect with mongodb');
     const server = app.listen(config.host.port);
     console.log(`start to listen server ${config.host.port}`);
     initSocket(server);

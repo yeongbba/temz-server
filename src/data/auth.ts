@@ -14,7 +14,7 @@ useVirtualId(userSchema);
 const User = model('User', userSchema);
 
 export async function findByUsername(username: string) {
-  return User.findOne({ username }); 
+  return User.findOne({ username });
 }
 
 export async function findById(id: string) {

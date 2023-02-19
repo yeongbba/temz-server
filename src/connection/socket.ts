@@ -1,6 +1,6 @@
 import { Server } from 'socket.io';
 import * as http from 'http';
-import jwt, { Jwt, JwtPayload, VerifyErrors } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { config } from '../../config';
 
 class Socket {
@@ -19,15 +19,16 @@ class Socket {
         return next(new Error('Authentication error'));
       }
 
-      jwt.verify(token, config.jwt.secretKey, (error: VerifyErrors | null, decoded: Jwt | JwtPayload | string | undefined) => {
+      jwt.verify(token, config.jwt.secretKey, async (error: any, decoded: any) => {
         if (error) {
           return next(new Error('Authentication error'));
         }
+        console.log(decoded);
         next();
       });
     });
 
-    this.io.on('connection', (socket) => {
+    this.io.on('connection', () => {
       console.log('Socket client connected');
     });
   }
