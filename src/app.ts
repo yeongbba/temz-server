@@ -3,6 +3,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
 import authRouter from './router/auth';
+import verifyRouter from './router/verify';
 import { config } from '../config';
 import { connectDB } from './database/database';
 import { initSocket } from './connection/socket';
@@ -15,6 +16,7 @@ app.use(cors());
 app.use(morgan('tiny'));
 
 app.use('/auth', authRouter);
+app.use('/verify', verifyRouter);
 
 app.use((req: Request, res: Response) => {
   console.log(req);

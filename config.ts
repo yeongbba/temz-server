@@ -24,4 +24,9 @@ export const config = {
     host: required('DB_HOST'),
     dbName: required('DB_NAME', 'test'),
   },
+  twilio: {
+    accountSid: required('TWILIO_ACCOUNT_SID'),
+    serviceSid: required('TWILIO_SERVICE_SID'),
+    authToken: required('TWILIO_AUTH_TOKEN'),
+  },
 };
