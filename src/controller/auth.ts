@@ -36,7 +36,7 @@ export async function login(req: Request, res: Response) {
   res.status(200).json({ token, username });
 }
 
-function createJwtToken(id: any) {
+function createJwtToken(id: string) {
   return jwt.sign({ id }, config.jwt.secretKey, {
     expiresIn: config.jwt.expiresInSec,
   });

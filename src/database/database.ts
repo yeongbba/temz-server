@@ -1,4 +1,4 @@
-import { connect, Schema, set } from 'mongoose';
+import { connect, ObjectId, Schema, set } from 'mongoose';
 import { config } from '../../config';
 
 export async function connectDB() {
@@ -10,9 +10,7 @@ export async function connectDB() {
 
 export function useVirtualId(schema: Schema) {
   schema.virtual('id').get(function () {
-    // _id number??
-    console.log(this._id);
-    return (this._id as number).toString();
+    return (this._id as ObjectId).toString();
   });
   schema.set('toJSON', { virtuals: true });
   schema.set('toObject', { virtuals: true });

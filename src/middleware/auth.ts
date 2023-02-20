@@ -16,7 +16,7 @@ export const isAuth = async (req: Request, res: Response, next: NextFunction) =>
     if (error) {
       return res.status(401).json(AUTH_ERROR);
     }
-    console.log(decoded);
+
     const user = await userRepository.findById((decoded as JwtPayload).id);
     if (!user) {
       return res.status(401).json(AUTH_ERROR);
