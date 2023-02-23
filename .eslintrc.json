@@ -10,5 +10,8 @@
         "plugin:@typescript-eslint/eslint-recommended",
         "plugin:prettier/recommended"
     ],
+    "rules": {
+        "no-unused-vars": "off"
+    },
     "parser": "@typescript-eslint/parser"
 }
