@@ -24,6 +24,9 @@ export const config = {
     host: required('DB_HOST'),
     dbName: required('DB_NAME', 'test'),
   },
+  cors: {
+    allowedOrigin: required('CORS_ALLOW_ORIGIN'),
+  },
   twilio: {
     accountSid: required('TWILIO_ACCOUNT_SID'),
     serviceSid: required('TWILIO_SERVICE_SID'),

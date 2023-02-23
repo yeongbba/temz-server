@@ -1,6 +1,6 @@
 import Mongoose from 'mongoose';
 import auth from 'auth';
-import { useVirtualId } from '../database/database';
+import { MongoDB } from '../database/database';
 
 const userSchema = new Mongoose.Schema({
   username: { type: String, required: true },
@@ -10,7 +10,7 @@ const userSchema = new Mongoose.Schema({
   url: String,
 });
 
-useVirtualId(userSchema);
+MongoDB.useVirtualId(userSchema);
 const User = Mongoose.model('User', userSchema);
 
 export async function findByUsername(username: string) {

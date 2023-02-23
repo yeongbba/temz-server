@@ -1,5 +1,5 @@
 import { Server } from 'socket.io';
-import * as http from 'http';
+import http from 'http';
 import jwt from 'jsonwebtoken';
 import { config } from '../../config';
 
@@ -23,7 +23,6 @@ class Socket {
         if (error) {
           return next(new Error('Authentication error'));
         }
-        console.log(decoded);
         next();
       });
     });
