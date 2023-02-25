@@ -2,7 +2,7 @@ import httpMocks from 'node-mocks-http';
 import { faker } from '@faker-js/faker';
 import { validate } from '../validator';
 import * as validator from 'express-validator';
-import { setValueToOnlyReadProp } from '../../common/test.util';
+import { setValueToOnlyReadProp } from '../../util/test.util';
 
 jest.mock('express-validator');
 

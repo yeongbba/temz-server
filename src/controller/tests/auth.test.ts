@@ -3,7 +3,7 @@ import { signup } from '../auth';
 // import { faker } from '@faker-js/faker';
 // import * as jwt from 'jsonwebtoken';
 import * as userRepository from '../../data/auth';
-import { setValueToOnlyReadProp } from '../../common/test.util';
+import { setValueToOnlyReadProp } from '../../util/test.util';
 
 jest.mock('jsonwebtoken');
 jest.mock('../../data/auth');
