@@ -26,3 +26,21 @@ export const isAuth = async (req: Request, res: Response, next: NextFunction) =>
     next();
   });
 };
+
+export const authHandler = async (req: Request) => {
+  const authHeader = req.get('Authorization');
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, config.jwt.secretKey);
+    const user = await userRepository.findById((decoded as JwtPayload).id);
+    if (!user) {
+      throw { status: 401, ...AUTH_ERROR };
+    }
+    (req as any).userId = user.id;
+    (req as any).token = decoded;
+    return true;
+  } catch (err) {
+    console.error(err);
+    throw { status: 401, ...AUTH_ERROR };
+  }
+};

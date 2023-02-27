@@ -11,13 +11,14 @@ import verifyRouter from './router/verify';
 import { config } from '../config';
 import { MongoDB } from './database/database';
 import { initSocket } from './connection/socket';
+import { validator } from './middleware/validator';
 
 const corsOption = {
   origin: config.cors.allowedOrigin,
   optionsSuccessStatus: 200,
 };
 
-const openApiDocument = yaml.load(path.resolve(__dirname, './api/openapi.yaml'));
+const openApiDocument = yaml.load(path.join(__dirname, './api/openapi.yaml'));
 
 export async function startServer(port: number) {
   const app = express();
@@ -27,8 +28,9 @@ export async function startServer(port: number) {
   app.use(morgan('tiny'));
 
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiDocument));
-  app.use('/auth', authRouter);
+  // app.use('/auth', authRouter);
   app.use('/verify', verifyRouter);
+  app.use(validator(openApiDocument));
 
   app.use((req: Request, res: Response) => {
     console.log(req);
@@ -37,7 +39,9 @@ export async function startServer(port: number) {
 
   app.use((error: any, req: Request, res: Response) => {
     console.error(error);
-    res.sendStatus(500);
+    res.status(error.status || 500).json({
+      message: error.message,
+    });
   });
 
   const db = await MongoDB.createConnection(config.db.host, config.db.dbName);
