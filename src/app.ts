@@ -1,8 +1,11 @@
 import express, { Request, Response } from 'express';
+import path from 'path';
 import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
 import http from 'http';
+import yaml from 'yamljs';
+import swaggerUi from 'swagger-ui-express';
 import authRouter from './router/auth';
 import verifyRouter from './router/verify';
 import { config } from '../config';
@@ -14,6 +17,8 @@ const corsOption = {
   optionsSuccessStatus: 200,
 };
 
+const openApiDocument = yaml.load(path.resolve(__dirname, './api/openapi.yaml'));
+
 export async function startServer(port: number) {
   const app = express();
   app.use(express.json());
@@ -21,6 +26,7 @@ export async function startServer(port: number) {
   app.use(cors(corsOption));
   app.use(morgan('tiny'));
 
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiDocument));
   app.use('/auth', authRouter);
   app.use('/verify', verifyRouter);
 
