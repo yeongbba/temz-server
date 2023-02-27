@@ -1,10 +1,19 @@
 openapi: 3.0.3
 info:
-  description: This is TEMZ API Service.
-  version: 1.0.0
   title: TEMZ API
+  description: |-
+    This is a TEMZ Server based on the OpenAPI 3.0 specification.
+
+    Some useful links:
+    - [TEMZ server repository](https://github.com/yeongbba/temz-server)
+    - [The source API definition for TEMZ](https://github.com/yeongbba/temz-server/blob/dev/src/api/openapi.yaml)
+  termsOfService: https://temz.io/terms
   contact:
     email: info@temz.com
+  version: 1.0.0
+externalDocs:
+  description: Go to TEMZ website
+  url: https://temz.io
 servers:
   - url: 'http://localhost:8080'
 tags:
@@ -12,7 +21,6 @@ tags:
     description: Methods to handle authentication
   - name: verify
     description: Methods to verify mobile phone
-
 paths:
   /auth/signup:
     post:
@@ -25,7 +33,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserRegistration'
+              $ref: '#/components/schemas/User'
         required: true
       responses:
         '201':
@@ -34,6 +42,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuthApiResponse'
+          headers: 
+            Set-Cookie:
+              schema:
+                type: string
+                example: JSESSIONID=abcde12345; Path=/; HttpOnly
         '400':
           description: Bad request
           content:
@@ -46,12 +59,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorApiResponse'
-
+      security: []
 components:
   schemas:
-    UserRegistration:
+    User:
       type: object
-      title: User registration details
       properties:
         username:
           type: string
@@ -100,8 +112,10 @@ components:
       example:
         message: "Something went wrong 🤪"
   securitySchemes:
-    jwt_auth:
+    jwtAuth:
       description: Bearer token authorization with JWT
       type: http
       scheme: bearer
       bearerFormat: JWT
+security:
+  - jwtAuth: []
