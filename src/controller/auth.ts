@@ -2,9 +2,9 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import * as userRepository from '../data/auth';
 import { config } from '../../config';
-import { Request, Response } from 'express';
+import { CookieOptions, Request, Response } from 'express';
 import { FailureObject } from '../util/error.util';
-import { ErrorCode } from 'util';
+import { ErrorCode } from '../types/error.util';
 
 export async function signup(req: Request, res: Response) {
   const { nickname, password, email, phone, domain, profile, wallet } = req.body;
@@ -24,12 +24,14 @@ export async function signup(req: Request, res: Response) {
     wallet,
   });
   const token = createJwtToken(userId);
+  setToken(res, token);
   res.status(201).json({ token });
 }
 
 export async function login(req: Request, res: Response) {
   const { email, password } = req.body;
   const user = await userRepository.findByEmail(email);
+  user.password = null;
   const failure = new FailureObject(ErrorCode.INVALID_VALUE, 'Invalid user or password');
   if (user) {
     return res.status(401).json(failure);
@@ -39,14 +41,13 @@ export async function login(req: Request, res: Response) {
     return res.status(401).json(failure);
   }
   const token = createJwtToken(user.id);
-  user.password = null;
+  setToken(res, token);
   res.status(200).json({ token, user });
 }
 
-function createJwtToken(id: string) {
-  return jwt.sign({ id }, config.jwt.secretKey, {
-    expiresIn: config.jwt.expiresInSec,
-  });
+export async function logout(req: Request, res: Response) {
+  res.cookie('token', '');
+  res.sendStatus(200);
 }
 
 export async function me(req: Request, res: Response) {
@@ -82,6 +83,22 @@ export async function checkWallet(req: Request, res: Response) {
   const { wallet } = req.body;
   const user = await userRepository.findByDomain(wallet);
   res.status(200).json({ isValid: !user });
+}
+
+function createJwtToken(id: string) {
+  return jwt.sign({ id }, config.jwt.secretKey, {
+    expiresIn: config.jwt.expiresInSec,
+  });
+}
+
+function setToken(res: Response, token: string) {
+  const options: CookieOptions = {
+    maxAge: config.jwt.expiresInSec * 1000,
+    httpOnly: true,
+    sameSite: 'none',
+    secure: true,
+  };
+  res.cookie('token', token, options); // HTTP-ONLY 🍪
 }
 
 // 휴면 계정 안내 이메일 전송?

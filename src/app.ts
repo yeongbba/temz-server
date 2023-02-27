@@ -3,6 +3,7 @@ import path from 'path';
 import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import http from 'http';
 import yaml from 'yamljs';
 import swaggerUi from 'swagger-ui-express';
@@ -16,6 +17,7 @@ import { validator } from './middleware/validator';
 const corsOption = {
   origin: config.cors.allowedOrigin,
   optionsSuccessStatus: 200,
+  credentials: true,
 };
 
 const openApiDocument = yaml.load(path.join(__dirname, './api/openapi.yaml'));
@@ -23,6 +25,7 @@ const openApiDocument = yaml.load(path.join(__dirname, './api/openapi.yaml'));
 export async function startServer(port: number) {
   const app = express();
   app.use(express.json());
+  app.use(cookieParser());
   app.use(helmet());
   app.use(cors(corsOption));
   app.use(morgan('tiny'));

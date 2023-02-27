@@ -23,7 +23,7 @@ export const validator = (apiDocPath: string) => {
     },
     validateSecurity: {
       handlers: {
-        jwt_auth: authHandler,
+        jwtAuth: authHandler,
       },
     },
   });

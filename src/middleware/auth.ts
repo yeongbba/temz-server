@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { config } from '../../config';
 import * as userRepository from '../data/auth';
+import { OpenAPIV3 } from 'express-openapi-validator/dist/framework/types';
 
 const AUTH_ERROR = { message: 'Authentication Error' };
 
@@ -27,9 +28,18 @@ export const isAuth = async (req: Request, res: Response, next: NextFunction) =>
   });
 };
 
-export const authHandler = async (req: Request) => {
+export const authHandler = async (req: Request, scopes: string[], schema: OpenAPIV3.SecuritySchemeObject) => {
   const authHeader = req.get('Authorization');
-  const token = authHeader.split(' ')[1];
+  let token = authHeader.split(' ')[1];
+
+  if (!token) {
+    token = req.cookies['token'];
+  }
+
+  if (!token) {
+    throw { status: 401, ...AUTH_ERROR };
+  }
+
   try {
     const decoded = jwt.verify(token, config.jwt.secretKey);
     const user = await userRepository.findById((decoded as JwtPayload).id);
