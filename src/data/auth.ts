@@ -11,10 +11,9 @@ const profileSchema = new Mongoose.Schema({
 
 const userSchema = new Mongoose.Schema(
   {
-    nickname: { type: String, required: true },
+    name: { type: String, required: true },
     profile: profileSchema,
     email: { type: String, required: true },
-    domain: { type: String, required: true },
     phone: { type: String, required: true },
     wallet: { type: String, required: false },
     password: { type: String, required: true },
@@ -26,16 +25,12 @@ const userSchema = new Mongoose.Schema(
 MongoDB.useVirtualId(userSchema);
 const User = Mongoose.model('User', userSchema);
 
-export async function findByNickname(nickname: string) {
-  return User.findOne({ nickname });
+export async function findByName(name: string) {
+  return User.findOne({ name });
 }
 
 export async function findByEmail(email: string) {
   return User.findOne({ email });
-}
-
-export async function findByDomain(domain: string) {
-  return User.findOne({ domain });
 }
 
 export async function findByWallet(wallet: string) {

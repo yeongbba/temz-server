@@ -7,25 +7,24 @@ import { FailureObject } from '../util/error.util';
 import { ErrorCode } from '../types/error.util';
 
 export async function signup(req: Request, res: Response) {
-  const { nickname, password, email, phone, domain, profile, wallet } = req.body;
-  const found = await userRepository.findByNickname(nickname);
+  const { name, password, email, phone, profile, wallet } = req.body;
+
+  const found = await userRepository.findByName(name);
   if (found) {
     const failure = new FailureObject(ErrorCode.DUPLICATED_VALUE, `${name} already exists`, 409);
     throw failure;
   }
+
   const hashed = await bcrypt.hash(password, config.bcrypt.saltRounds);
-  const userId = await userRepository.createUser({
-    nickname,
+  await userRepository.createUser({
+    name,
     password: hashed,
     profile,
     email,
     phone,
-    domain,
     wallet,
   });
-  const token = createJwtToken(userId);
-  setToken(res, token);
-  res.status(201).json({ token });
+  res.sendStatus(201);
 }
 
 export async function login(req: Request, res: Response) {
@@ -68,20 +67,14 @@ export async function checkEmail(req: Request, res: Response) {
 
 export async function checkNickname(req: Request, res: Response) {
   const { nickname } = req.body;
-  const user = await userRepository.findByNickname(nickname);
-  res.status(200).json({ isValid: !user });
-}
-
-export async function checkDomain(req: Request, res: Response) {
-  const { domain } = req.body;
-  const user = await userRepository.findByDomain(domain);
+  const user = await userRepository.findByName(nickname);
   res.status(200).json({ isValid: !user });
 }
 
 // TODO: 필요한지 체크.
 export async function checkWallet(req: Request, res: Response) {
   const { wallet } = req.body;
-  const user = await userRepository.findByDomain(wallet);
+  const user = await userRepository.findByWallet(wallet);
   res.status(200).json({ isValid: !user });
 }
 
@@ -98,7 +91,16 @@ function setToken(res: Response, token: string) {
     sameSite: 'none',
     secure: true,
   };
-  res.cookie('token', token, options); // HTTP-ONLY 🍪
+  res.cookie('token', token, options);
+}
+
+export async function csrf(req: Request, res: Response) {
+  const token = await generateCSRFToken();
+  res.status(200).json({ token });
+}
+
+async function generateCSRFToken() {
+  return bcrypt.hash(config.csrf.plainToken, 1);
 }
 
 // 휴면 계정 안내 이메일 전송?

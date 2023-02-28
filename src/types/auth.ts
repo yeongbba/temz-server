@@ -1,12 +1,11 @@
 declare module 'auth' {
   export type User = {
-    nickname: string;
+    name: string;
+    password?: string;
     profile: Profile;
     email: string;
-    domain: string;
     phone: string;
     wallet?: string;
-    password?: string;
   };
 
   type Profile = {
