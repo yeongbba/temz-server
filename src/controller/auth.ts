@@ -10,8 +10,8 @@ export async function signup(req: Request, res: Response) {
   const { nickname, password, email, phone, domain, profile, wallet } = req.body;
   const found = await userRepository.findByNickname(nickname);
   if (found) {
-    const failure = new FailureObject(ErrorCode.DUPLICATED_VALUE, `${nickname} already exists`);
-    return res.status(409).json(failure);
+    const failure = new FailureObject(ErrorCode.DUPLICATED_VALUE, `${name} already exists`, 409);
+    throw failure;
   }
   const hashed = await bcrypt.hash(password, config.bcrypt.saltRounds);
   const userId = await userRepository.createUser({
@@ -32,13 +32,13 @@ export async function login(req: Request, res: Response) {
   const { email, password } = req.body;
   const user = await userRepository.findByEmail(email);
   user.password = null;
-  const failure = new FailureObject(ErrorCode.INVALID_VALUE, 'Invalid user or password');
+  const failure = new FailureObject(ErrorCode.INVALID_VALUE, 'Invalid user or password', 401);
   if (user) {
-    return res.status(401).json(failure);
+    throw failure;
   }
   const isValidPassword = await bcrypt.compare(password, user.password);
   if (!isValidPassword) {
-    return res.status(401).json(failure);
+    throw failure;
   }
   const token = createJwtToken(user.id);
   setToken(res, token);
@@ -53,8 +53,8 @@ export async function logout(req: Request, res: Response) {
 export async function me(req: Request, res: Response) {
   const user = await userRepository.findById((req as any).userId);
   if (!user) {
-    const failure = new FailureObject(ErrorCode.NOT_FOUND, 'User not found');
-    return res.status(404).json(failure);
+    const failure = new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404);
+    throw failure;
   }
   user.password = null;
   res.status(200).json({ token: (req as any).token, user });

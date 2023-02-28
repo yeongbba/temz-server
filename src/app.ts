@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import path from 'path';
 import cors from 'cors';
 import morgan from 'morgan';
@@ -13,6 +13,8 @@ import { config } from '../config';
 import { MongoDB } from './database/database';
 import { initSocket } from './connection/socket';
 import { validator } from './middleware/validator';
+import { ErrorCode } from './types/error.util';
+import { FailureObject } from './util/error.util';
 import { OpenAPIV3 } from 'express-openapi-validator/dist/framework/types';
 
 const corsOption = {
@@ -34,15 +36,21 @@ export async function startServer(port: number) {
   app.use(validator(openApiDocument));
 
   app.use((req: Request, res: Response) => {
-    console.log(req);
-    res.sendStatus(404);
+    console.error(req);
+    res.status(404).json({
+      code: ErrorCode.NOT_FOUND,
+      message: 'Cannot found the resource',
+      status: 404,
+    });
   });
 
-  app.use((error: any, req: Request, res: Response) => {
+  app.use((error: any, req: Request, res: Response, next: NextFunction) => {
     console.error(error);
-    res.status(error.status || 500).json({
-      message: error.message,
-    });
+    const isFailureObject = error instanceof FailureObject;
+    const failure = isFailureObject
+      ? error
+      : new FailureObject(ErrorCode.INTERNAL_SERVER, 'Internal Server Error', 500);
+    res.status(failure.getStatus).json(failure);
   });
 
   const db = await MongoDB.createConnection(config.db.host, config.db.dbName);

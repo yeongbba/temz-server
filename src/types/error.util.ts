@@ -3,4 +3,6 @@ export enum ErrorCode {
   DUPLICATED_VALUE = 'duplicated-value',
   INVALID_VALUE = 'invalid-value',
   NOT_FOUND = 'not-found',
+  INTERNAL_SERVER = 'internal-server',
+  BAD_REQUEST = 'bad-request',
 }
