@@ -1,8 +1,10 @@
+import path from 'path';
 import { RequestHandler, NextFunction, Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import * as OpenApiValidator from 'express-openapi-validator';
 import * as apis from '../controller';
 import { authHandler } from './auth';
+import { OpenAPIV3 } from 'express-openapi-validator/dist/framework/types';
 
 export const validate = (req: Request, res: Response, next: NextFunction) => {
   const errors = validationResult(req);
@@ -12,9 +14,9 @@ export const validate = (req: Request, res: Response, next: NextFunction) => {
   return res.status(400).json({ message: errors.array()[0].msg });
 };
 
-export const validator = (apiDocPath: string) => {
+export const validator = (apiSpec: OpenAPIV3.Document) => {
   return OpenApiValidator.middleware({
-    apiSpec: apiDocPath,
+    apiSpec,
     validateResponses: true,
 
     operationHandlers: {

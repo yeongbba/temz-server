@@ -8,7 +8,7 @@
   "license": "MIT",
   "scripts": {
     "start": "concurrently \"tsc -w\" \"yarn run copyfile\" \"nodemon dist/src/index\"",
-    "copyfile": "rm -rf dist/src/api && mkdir dist/src/api && cp src/api/openapi.yaml dist/src/api/",
+    "copyfile": "rm -rf dist/src/api && mkdir dist/src/api && cp -r src/api/ dist/src/api/",
     "build": "tsc",
     "lint": "eslint src/**/*.ts",
     "test": "DOTENV_CONFIG_PATH=./.env.test jest",
@@ -21,6 +21,7 @@
     "bcrypt": "^5.1.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
+    "deepmerge": "^4.3.0",
     "dotenv": "^16.0.3",
     "express": "5.0.0-beta.1",
     "express-openapi-validator": "^5.0.2",

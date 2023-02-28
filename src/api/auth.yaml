@@ -1,0 +1,166 @@
+paths:
+  /auth/signup:
+    post:
+      tags:
+        - auth
+      summary: Signs up a user to the TEMZ service
+      operationId: signup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: duplicated-value
+                message: 'jhon_doe already exists'
+                status: 409
+      security: []
+  /auth/login:
+    post:
+      tags:
+        - auth
+      summary: Login to the TEMZ service
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                  writeOnly: true
+              required:
+                - name
+                - password
+            example:
+              name: john_doe
+              password: password098!
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+          headers: 
+            Set-Cookie:
+              schema:
+                type: string
+                example: JSESSIONID=abcde12345; Path=/; HttpOnly
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: invalid-value
+                message: 'Invalid user or password'
+                status: 401
+      security: []
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        name:
+          type: string
+        password:
+          type: string
+          format: password
+          minLength: 8
+          writeOnly: true
+        phone:
+          type: string
+          pattern: '^(010)(\d{4})(\d{4})$'
+        email:
+          type: string
+          format: email
+        wallet:
+          type: string
+          minLength: 25
+          maxLength: 42
+        profile:
+          type: object
+          properties:
+            title:
+              type: string
+            description: 
+              type: string
+            image:
+              type: string
+              format: url
+            background:
+              type: string
+              format: url
+          required:
+            - title
+      required:
+        - name
+        - password
+        - profile
+        - phone
+      example:
+        name: john_doe
+        password: password098!
+        phone: '01012345678'
+        email: john.doe@gmail.com
+        wallet: '0x4DD7e3c6273027458CsdfEW23456F0eeF0998b10'
+        profile: 
+          title: john_doe
+          description: john_doe's profile
+          image: https://localhost/image
+          background: https://localhost/background
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+      required:
+        - token
+        - user
+      example:
+        token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+        user:
+          id: 507f1f77bcf86cd799439011
+          name: john_doe
+          phone: '01012345678'
+          email: john.doe@gmail.com
+          wallet: '0x4DD7e3c6273027458CsdfEW23456F0eeF0998b10'
+          profile: 
+            title: john_doe
+            description: john_doe's profile
+            image: https://localhost/image
+            background: https://localhost/background
