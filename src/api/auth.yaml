@@ -61,7 +61,35 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthResponse'
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    allOf:
+                    - type: object
+                      properties:
+                        id:
+                          type: string
+                      required:
+                        - id
+                    - $ref: '#/components/schemas/User'
+                required:
+                  - token
+                  - user
+                example:
+                  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+                  user:
+                    id: '507f1f77bcf86cd799439011'
+                    name: john_doe
+                    phone: '01012345678'
+                    email: john.doe@gmail.com
+                    wallet: '0x4DD7e3c6273027458CsdfEW23456F0eeF0998b10'
+                    profile: 
+                      title: john_doe
+                      description: john_doe's profile
+                      image: https://localhost/image
+                      background: https://localhost/background
           headers: 
             Set-Cookie:
               schema:
@@ -87,9 +115,6 @@ components:
     User:
       type: object
       properties:
-        id:
-          type: string
-          readOnly: true
         name:
           type: string
         password:
@@ -138,26 +163,3 @@ components:
           description: john_doe's profile
           image: https://localhost/image
           background: https://localhost/background
-    AuthResponse:
-      type: object
-      properties:
-        token:
-          type: string
-        user:
-          $ref: '#/components/schemas/User'
-      required:
-        - token
-        - user
-      example:
-        token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
-        user:
-          id: 507f1f77bcf86cd799439011
-          name: john_doe
-          phone: '01012345678'
-          email: john.doe@gmail.com
-          wallet: '0x4DD7e3c6273027458CsdfEW23456F0eeF0998b10'
-          profile: 
-            title: john_doe
-            description: john_doe's profile
-            image: https://localhost/image
-            background: https://localhost/background
