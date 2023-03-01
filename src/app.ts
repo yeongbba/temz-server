@@ -51,6 +51,7 @@ export async function startServer(port: number) {
     if (isFailureObject) {
       failures.push(error);
       res.status(error.getStatus).json({ failures });
+      return;
     }
 
     if (error.errors) {
@@ -61,10 +62,12 @@ export async function startServer(port: number) {
         return new FailureObject(error.errorCode, error.message, status, reason);
       });
       res.status(status).json({ failures });
+      return;
     } else {
       const failure = new FailureObject(ErrorCode.INTERNAL_SERVER, 'Internal Server Error', 500);
       failures.push(failure);
       res.status(failure.getStatus).json({ failures });
+      return;
     }
   });
 
