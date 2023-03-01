@@ -92,7 +92,7 @@ paths:
             Set-Cookie:
               schema:
                 type: string
-                example: TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzZmY2ZDkxYjgzZjkxMWFkNTc3ODdhNyIsImlhdCI6MTY3NzY4NTc5MiwiZXhwIjoxNjc3NzcyMTkyfQ.oFowTlE08Ixv0Nbl-GWDG52pLZ5co4Z4kc09N9CRPVA; Path=/; HttpOnly
+                example: TEMZ_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzZmY2ZDkxYjgzZjkxMWFkNTc3ODdhNyIsImlhdCI6MTY3NzY4NTc5MiwiZXhwIjoxNjc3NzcyMTkyfQ.oFowTlE08Ixv0Nbl-GWDG52pLZ5co4Z4kc09N9CRPVA; Path=/; HttpOnly
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
