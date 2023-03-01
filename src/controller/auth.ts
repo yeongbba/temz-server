@@ -5,6 +5,7 @@ import { config } from '../../config';
 import { CookieOptions, Request, Response } from 'express';
 import { FailureObject } from '../util/error.util';
 import { ErrorCode } from '../types/error.util';
+import { User } from '../types/auth';
 
 export async function signup(req: Request, res: Response) {
   const { name, password, email, phone, profile, wallet } = req.body;
@@ -16,7 +17,7 @@ export async function signup(req: Request, res: Response) {
   }
 
   const hashed = await bcrypt.hash(password, config.bcrypt.saltRounds);
-  await userRepository.createUser({
+  const user = User.parse({
     name,
     password: hashed,
     profile,
@@ -24,23 +25,24 @@ export async function signup(req: Request, res: Response) {
     phone,
     wallet,
   });
+  await userRepository.createUser(user);
   res.sendStatus(201);
 }
 
 export async function login(req: Request, res: Response) {
-  const { email, password } = req.body;
-  const user = await userRepository.findByEmail(email);
-  user.password = null;
+  const { name, password } = req.body;
+  const user = await userRepository.findByName(name);
   const failure = new FailureObject(ErrorCode.INVALID_VALUE, 'Invalid user or password', 401);
-  if (user) {
+  if (!user) {
     throw failure;
   }
   const isValidPassword = await bcrypt.compare(password, user.password);
   if (!isValidPassword) {
     throw failure;
   }
-  const token = createJwtToken(user.id);
+  const token = createJwtToken(user.userId);
   setToken(res, token);
+  delete user.password;
   res.status(200).json({ token, user });
 }
 
@@ -55,14 +57,8 @@ export async function me(req: Request, res: Response) {
     const failure = new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404);
     throw failure;
   }
-  user.password = null;
+  delete user.password;
   res.status(200).json({ token: (req as any).token, user });
-}
-
-export async function checkEmail(req: Request, res: Response) {
-  const { email } = req.body;
-  const user = await userRepository.findByEmail(email);
-  res.status(200).json({ isValid: !user });
 }
 
 export async function checkNickname(req: Request, res: Response) {

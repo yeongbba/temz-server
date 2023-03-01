@@ -9,7 +9,29 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              allOf:
+                - $ref: '#/components/schemas/User'
+                - type: object
+                  properties:
+                    password:
+                      description: Password between 8 and 20 characters included at least one character, number, special symbol.
+                      type: string
+                      format: password
+                      pattern: '^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,20}$'
+                      writeOnly: true
+                  required:
+                    - password
+                  example:
+                    name: john_doe
+                    password: abcdefg098!
+                    phone: '01012345678'
+                    email: john.doe@gmail.com
+                    wallet: '0x4DD7e3c6273027458CsdfEW23456F0eeF0998b10'
+                    profile:
+                      title: john_doe
+                      description: john_doe's profile
+                      image: https://localhost/image
+                      background: https://localhost/background
         required: true
       responses:
         '201':
@@ -65,41 +87,12 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  token:
-                    type: string
-                  user:
-                    allOf:
-                      - type: object
-                        properties:
-                          id:
-                            type: string
-                            readOnly: true
-                        required:
-                          - id
-                      - $ref: '#/components/schemas/User'
-                required:
-                  - token
-                  - user
-                example:
-                  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
-                  user:
-                    id: '507f1f77bcf86cd799439011'
-                    name: john_doe
-                    phone: '01012345678'
-                    email: john.doe@gmail.com
-                    wallet: '0x4DD7e3c6273027458CsdfEW23456F0eeF0998b10'
-                    profile:
-                      title: john_doe
-                      description: john_doe's profile
-                      image: https://localhost/image
-                      background: https://localhost/background
+                $ref: '#/components/schemas/Auth'
           headers:
             Set-Cookie:
               schema:
                 type: string
-                example: JSESSIONID=abcde12345; Path=/; HttpOnly
+                example: TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzZmY2ZDkxYjgzZjkxMWFkNTc3ODdhNyIsImlhdCI6MTY3NzY4NTc5MiwiZXhwIjoxNjc3NzcyMTkyfQ.oFowTlE08Ixv0Nbl-GWDG52pLZ5co4Z4kc09N9CRPVA; Path=/; HttpOnly
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -125,12 +118,6 @@ components:
           type: string
           minLength: 3
           maxLength: 25
-        password:
-          description: Password between 8 and 20 characters included at least one character, number, special symbol.
-          type: string
-          format: password
-          pattern: '^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,20}$'
-          writeOnly: true
         phone:
           type: string
           pattern: '^(010)(\d{4})(\d{4})$'
@@ -158,12 +145,10 @@ components:
             - title
       required:
         - name
-        - password
         - profile
         - phone
       example:
         name: john_doe
-        password: password098!
         phone: '01012345678'
         email: john.doe@gmail.com
         wallet: '0x4DD7e3c6273027458CsdfEW23456F0eeF0998b10'
@@ -172,3 +157,51 @@ components:
           description: john_doe's profile
           image: https://localhost/image
           background: https://localhost/background
+    Auth:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          allOf:
+            - type: object
+              properties:
+                userId:
+                  type: string
+                  readOnly: true
+                isValid:
+                  type: boolean
+                  readOnly: true
+                createdAt:
+                  type: string
+                  format: date-time
+                  readOnly: true
+                updatedAt:
+                  type: string
+                  format: date-time
+                  readOnly: true
+              required:
+                - userId
+                - isValid
+                - createdAt
+                - updatedAt
+            - $ref: '#/components/schemas/User'
+      required:
+        - token
+        - user
+      example:
+        token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzZmY2ZDkxYjgzZjkxMWFkNTc3ODdhNyIsImlhdCI6MTY3NzY4NTc5MiwiZXhwIjoxNjc3NzcyMTkyfQ.oFowTlE08Ixv0Nbl-GWDG52pLZ5co4Z4kc09N9CRPVA
+        user:
+          userId: '507f1f77bcf86cd799439011'
+          name: john_doe
+          phone: '01012345678'
+          email: john.doe@gmail.com
+          wallet: '0x4DD7e3c6273027458CsdfEW23456F0eeF0998b10'
+          profile:
+            title: john_doe
+            description: john_doe's profile
+            image: https://localhost/image
+            background: https://localhost/background
+          isValid: true
+          createdAt: '2023-03-01T15:21:53.241Z'
+          updatedAt: '2023-03-01T15:21:53.241Z'

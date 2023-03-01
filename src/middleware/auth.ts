@@ -25,7 +25,7 @@ export const authHandler = async (req: Request, scopes: string[], schema: OpenAP
     const failure = new FailureObject(ErrorCode.INVALID_VALUE, 'Authentication token is invalid', 401);
     throw failure;
   }
-  (req as any).userId = user.id;
+  (req as any).userId = user.userId;
   (req as any).token = decoded;
   return true;
 };
