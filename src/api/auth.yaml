@@ -23,9 +23,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
               example:
-                code: duplicated-value
-                message: jhon_doe already exists
-                status: 409
+                failures:
+                  - code: duplicated-value
+                    message: jhon_doe already exists
+                    status: 409
         '500':
           $ref: '#/components/responses/InternerServer'
       security: []
@@ -43,10 +44,13 @@ paths:
               properties:
                 name:
                   type: string
+                  minLength: 3
+                  maxLength: 25
                 password:
+                  description: Password between 8 and 20 characters included at least one character, number, special symbol.
                   type: string
                   format: password
-                  minLength: 8
+                  pattern: '^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,20}$'
                   writeOnly: true
               required:
                 - name
@@ -71,6 +75,7 @@ paths:
                         properties:
                           id:
                             type: string
+                            readOnly: true
                         required:
                           - id
                       - $ref: '#/components/schemas/User'
@@ -104,9 +109,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
               example:
-                code: invalid-value
-                message: Invalid user or password
-                status: 401
+                failures:
+                  - code: invalid-value
+                    message: Invalid user or password
+                    status: 401
         '500':
           $ref: '#/components/responses/InternerServer'
       security: []
@@ -117,10 +123,13 @@ components:
       properties:
         name:
           type: string
+          minLength: 3
+          maxLength: 25
         password:
+          description: Password between 8 and 20 characters included at least one character, number, special symbol.
           type: string
           format: password
-          minLength: 8
+          pattern: '^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,20}$'
           writeOnly: true
         phone:
           type: string

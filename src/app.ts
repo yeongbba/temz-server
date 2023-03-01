@@ -46,11 +46,26 @@ export async function startServer(port: number) {
 
   app.use((error: any, req: Request, res: Response, next: NextFunction) => {
     console.error(error);
+    let failures = [];
     const isFailureObject = error instanceof FailureObject;
-    const failure = isFailureObject
-      ? error
-      : new FailureObject(ErrorCode.INTERNAL_SERVER, 'Internal Server Error', 500);
-    res.status(failure.getStatus).json(failure);
+    if (isFailureObject) {
+      failures.push(error);
+      res.status(error.getStatus).json({ failures });
+    }
+
+    if (error.errors) {
+      const status = error.status;
+      failures = error.errors.map((error: any) => {
+        const path = error.path.split('/');
+        const reason = path[path.length - 1];
+        return new FailureObject(error.errorCode, error.message, status, reason);
+      });
+      res.status(status).json({ failures });
+    } else {
+      const failure = new FailureObject(ErrorCode.INTERNAL_SERVER, 'Internal Server Error', 500);
+      failures.push(failure);
+      res.status(failure.getStatus).json({ failures });
+    }
   });
 
   const db = await MongoDB.createConnection(config.db.host, config.db.dbName);

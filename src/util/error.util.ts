@@ -1,7 +1,12 @@
 import { ErrorCode } from '../types/error.util';
 
 export class FailureObject {
-  constructor(private code: ErrorCode, private message: string, private status?: number) {}
+  constructor(
+    private code: ErrorCode | string,
+    private message: string,
+    private status?: number,
+    private reason?: string
+  ) {}
 
   get getStatus() {
     return this.status;
@@ -13,5 +18,9 @@ export class FailureObject {
 
   get getMessage() {
     return this.message;
+  }
+
+  get getReason() {
+    return this.reason;
   }
 }
