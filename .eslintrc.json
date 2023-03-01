@@ -8,10 +8,34 @@
     "extends": [
         "eslint:recommended",
         "plugin:@typescript-eslint/eslint-recommended",
-        "plugin:prettier/recommended"
+        "plugin:prettier/recommended",
+        "plugin:yml/standard"
     ],
     "rules": {
-        "no-unused-vars": "off"
+        "no-unused-vars": "off",
+        "yml/plain-scalar": [
+          "error",
+          "always",
+          {
+            "ignorePatterns": [
+              "[\\v\\f\\u0085\\u00a0\\u1680\\u180e\\u2000-\\u200b\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]",
+              "[\\u0030\\u0031\\u0032\\u0033\\u0034\\u0035\\u0036\\u0037\\u0038\\u0039]"
+            ]
+          }
+        ],
+        "yml/quotes": [
+            "error",
+            {
+              "prefer": "single",
+              "avoidEscape": true
+            }
+          ]
     },
-    "parser": "@typescript-eslint/parser"
+    "parser": "@typescript-eslint/parser",
+    "overrides": [
+        {
+          "files": ["*.yaml", "*.yml"],
+          "parser": "yaml-eslint-parser"
+        }
+    ]
 }
