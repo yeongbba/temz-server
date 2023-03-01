@@ -47,7 +47,7 @@ export async function login(req: Request, res: Response) {
 }
 
 export async function logout(req: Request, res: Response) {
-  res.cookie('token', '');
+  res.cookie('TEMZ_TOKEN', '');
   res.sendStatus(200);
 }
 
@@ -58,7 +58,7 @@ export async function me(req: Request, res: Response) {
     throw failure;
   }
   delete user.password;
-  res.status(200).json({ token: (req as any).token, user });
+  res.status(200).json({ user });
 }
 
 export async function checkNickname(req: Request, res: Response) {
@@ -87,7 +87,7 @@ function setToken(res: Response, token: string) {
     sameSite: 'none',
     secure: true,
   };
-  res.cookie('token', token, options);
+  res.cookie('TEMZ_TOKEN', token, options);
 }
 
 export async function csrf(req: Request, res: Response) {

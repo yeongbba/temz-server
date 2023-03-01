@@ -67,15 +67,15 @@ components:
               - code: not-found
                 message: The specified resource was not found
                 status: 404
-    InternerServer:
-      description: Interner server
+    InternalServer:
+      description: Internal server
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
           example:
             failures:
-              - code: interner-server
+              - code: internal-server
                 message: Internal Server Error
                 status: 500
   schemas:
