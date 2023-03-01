@@ -7,7 +7,7 @@
   "author": "yeongbba <yeongmo.lee@logpresso.com>",
   "license": "MIT",
   "scripts": {
-    "start": "concurrently \"tsc -w\" \"yarn run copyfile\" \"nodemon dist/src/index\"",
+    "start": "concurrently \"tsc -w\" \"nodemon -e yaml --ignore dist/src/api/ dist/src/index\"",
     "copyfile": "rm -rf dist/src/api && mkdir dist/src/api && cp -r src/api/ dist/src/api/",
     "build": "tsc",
     "lint": "eslint src/**/*.ts",
