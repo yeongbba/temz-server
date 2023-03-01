@@ -43,8 +43,39 @@ paths:
                 example:
                   token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
 components:
+  responses:
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: bad-request
+            message: 'Your browser sent an invalid request'
+            status: 400
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: not-found
+            message: 'The specified resource was not found'
+            status: 404
+    InternerServer:
+      description: Interner server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: interner-server
+            message: 'Internal Server Error'
+            status: 500
   schemas:
-    ErrorResponse:
+    Error:
       type: object
       properties:
         code:
@@ -59,9 +90,9 @@ components:
         - message
         - status
       example:
-        code: bad-request
-        message: 'Your browser sent an invalid request'
-        status: 400
+        code: invalid-value
+        message: 'Invalid user or password'
+        status: 401
   headers:
     CsrfToken:
       schema:

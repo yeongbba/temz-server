@@ -15,27 +15,25 @@ paths:
         '201':
           description: Created
         '400':
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          $ref: '#/components/responses/BadRequest'
         '409':
           description: User already exists
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Error'
               example:
                 code: duplicated-value
                 message: 'jhon_doe already exists'
                 status: 409
+        '500':
+          $ref: '#/components/responses/InternerServer'
       security: []
   /auth/login:
     post:
       tags:
         - auth
-      summary: Login to the TEMZ service
+      summary: Logins to the TEMZ service
       operationId: login
       requestBody:
         content:
@@ -56,6 +54,7 @@ paths:
             example:
               name: john_doe
               password: password098!
+        required: true
       responses:
         '200':
           description: Success
@@ -69,21 +68,19 @@ paths:
                 type: string
                 example: JSESSIONID=abcde12345; Path=/; HttpOnly
         '400':
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          $ref: '#/components/responses/BadRequest'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Error'
               example:
                 code: invalid-value
                 message: 'Invalid user or password'
                 status: 401
+        '500':
+          $ref: '#/components/responses/InternerServer'
       security: []
 components:
   schemas:
