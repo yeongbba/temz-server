@@ -1,5 +1,5 @@
 import Mongoose from 'mongoose';
-import { MongoDB } from '../database/database';
+import { MongoDB } from '../database/mongo';
 import { User } from '../types/auth';
 
 const profileSchema = new Mongoose.Schema({

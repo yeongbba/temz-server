@@ -9,13 +9,15 @@ import cookieParser from 'cookie-parser';
 import http from 'http';
 import yaml from 'yamljs';
 import swaggerUi from 'swagger-ui-express';
+import limiter from './middleware/rate-limiter';
 import { config } from '../config';
-import { MongoDB } from './database/database';
+import { MongoDB } from './database/mongo';
 import { initSocket } from './connection/socket';
 import { validator } from './middleware/validator';
 import { ErrorCode } from './types/error.util';
 import { FailureObject } from './util/error.util';
 import { OpenAPIV3 } from 'express-openapi-validator/dist/framework/types';
+import { Redis } from './database/redis';
 
 const corsOption = {
   origin: config.cors.allowedOrigin,
@@ -25,11 +27,15 @@ const corsOption = {
 
 export async function startServer(port: number) {
   const app = express();
+  const db = await MongoDB.createConnection(config.db.host, config.db.dbName);
+  const redis = await Redis.createConnection(config.redis.url, parseInt(config.redis.rateLimitDb));
+
   app.use(express.json());
   app.use(cookieParser());
   app.use(helmet());
   app.use(cors(corsOption));
   app.use(morgan('tiny'));
+  app.use(limiter(redis.client));
 
   const openApiDocument = createOpenApiDoc();
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiDocument));
@@ -71,18 +77,18 @@ export async function startServer(port: number) {
     }
   });
 
-  const db = await MongoDB.createConnection(config.db.host, config.db.dbName);
   console.log(`Server is started to listen ${config.host.port} port`);
   const server = app.listen(port);
   initSocket(server);
-  return { server, db };
+  return { server, db, redis };
 }
 
-export async function stopServer(server: http.Server, db: MongoDB): Promise<void> {
+export async function stopServer(server: http.Server, db: MongoDB, redis: Redis): Promise<void> {
   return new Promise((resolve, reject) => {
     server.close(async () => {
       try {
         await db.close();
+        await redis.close();
         resolve();
       } catch (error) {
         reject(error);

@@ -24,11 +24,19 @@ export const config = {
     host: required('DB_HOST'),
     dbName: required('DB_NAME', 'test'),
   },
+  redis: {
+    url: required('REDIS_URL'),
+    rateLimitDb: required('RATE_LIMIT_DB'),
+  },
   cors: {
     allowedOrigin: required('CORS_ALLOW_ORIGIN'),
   },
   csrf: {
     plainToken: required('CSRF_SECRET_KEY'),
+  },
+  rateLimit: {
+    windowMs: parseInt(required('RATE_LIMIT_WINDOW_MS')),
+    maxRequest: parseInt(required('RATE_LIMIT_MAX_REQUEST')),
   },
   twilio: {
     accountSid: required('TWILIO_ACCOUNT_SID'),
