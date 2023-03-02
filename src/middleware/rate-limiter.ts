@@ -10,10 +10,7 @@ export default function limiter(client: RedisClientType) {
     standardHeaders: true,
     legacyHeaders: false,
     store: new RedisStore({
-      sendCommand: (...args: string[]) => {
-        console.log(args);
-        return client.sendCommand(args);
-      },
+      sendCommand: (...args: string[]) => client.sendCommand(args),
     }),
   });
 }
