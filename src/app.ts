@@ -10,14 +10,14 @@ import http from 'http';
 import yaml from 'yamljs';
 import swaggerUi from 'swagger-ui-express';
 import limiter from './middleware/rate-limiter';
-import { config } from '../config';
 import { MongoDB } from './database/mongo';
+import { Redis } from './database/redis';
+import { config } from '../config';
 import { initSocket } from './connection/socket';
 import { validator } from './middleware/validator';
 import { ErrorCode } from './types/error.util';
 import { FailureObject } from './util/error.util';
 import { OpenAPIV3 } from 'express-openapi-validator/dist/framework/types';
-import { Redis } from './database/redis';
 
 const corsOption = {
   origin: config.cors.allowedOrigin,

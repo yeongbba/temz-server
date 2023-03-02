@@ -35,6 +35,10 @@ export class User {
   }
 
   static parse(raw: any) {
+    if (!raw) {
+      return null;
+    }
+
     const user = new User(raw);
     user.profile = Profile.parse(user.profile);
     return user;
