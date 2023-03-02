@@ -27,21 +27,26 @@ MongoDB.useVirtualId(userSchema);
 const UserModel = Mongoose.model('User', userSchema);
 
 export async function createUser(user: User) {
-  const data = await new UserModel(user).save();
-  return data.id;
+  const result = await new UserModel(user).save();
+  return result.id;
 }
 
 export async function findByName(name: string) {
-  const user = await UserModel.findOne({ name });
-  return User.parse(user);
+  const result = await UserModel.findOne({ name });
+  return User.parse(result);
 }
 
 export async function findById(id: string) {
-  const user = await UserModel.findById(id);
-  return User.parse(user);
+  const result = await UserModel.findById(id);
+  return User.parse(result);
 }
 
 export async function findByWallet(wallet: string) {
-  const user = await UserModel.findOne({ wallet });
-  return User.parse(user);
+  const result = await UserModel.findOne({ wallet });
+  return User.parse(result);
+}
+
+export async function updateUser(id: string, user: User) {
+  const result = await UserModel.findByIdAndUpdate(id, user, { returnOriginal: false });
+  return User.parse(result);
 }

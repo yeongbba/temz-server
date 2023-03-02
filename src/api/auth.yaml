@@ -123,35 +123,30 @@ paths:
               schema:
                 $ref: '#/components/schemas/FullUser'
         '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                invalid-value:
-                  value:
-                    failures:
-                      - code: invalid-value
-                        message: Authentication token is invalid
-                        status: 401
-                null-arguments:
-                  value:
-                    failures:
-                      - code: null-arguments
-                        message: Authentication token should not be null
-                        status: 401
+          $ref: '#/components/responses/Unauthorized'
         '404':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                failures:
-                  - code: not-found
-                    message: User not found
-                    status: 400
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+  /auth/update:
+    put:
+      tags:
+        - auth
+      summary: Updates User Info
+      operationId: update
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        '201':
+          description: Updated
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServer'
 components:
@@ -209,9 +204,6 @@ components:
           allOf:
             - type: object
               properties:
-                userId:
-                  type: string
-                  readOnly: true
                 isValid:
                   type: boolean
                   readOnly: true
@@ -224,14 +216,12 @@ components:
                   format: date-time
                   readOnly: true
               required:
-                - userId
                 - isValid
                 - createdAt
                 - updatedAt
             - $ref: '#/components/schemas/User'
       example:
         user:
-          userId: '507f1f77bcf86cd799439011'
           name: john_doe
           phone: '01012345678'
           email: john.doe@gmail.com
@@ -257,7 +247,6 @@ components:
       example:
         token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzZmY2ZDkxYjgzZjkxMWFkNTc3ODdhNyIsImlhdCI6MTY3NzY4NTc5MiwiZXhwIjoxNjc3NzcyMTkyfQ.oFowTlE08Ixv0Nbl-GWDG52pLZ5co4Z4kc09N9CRPVA
         user:
-          userId: '507f1f77bcf86cd799439011'
           name: john_doe
           phone: '01012345678'
           email: john.doe@gmail.com

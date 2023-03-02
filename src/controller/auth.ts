@@ -7,6 +7,7 @@ import { FailureObject } from '../util/error.util';
 import { ErrorCode } from '../types/error.util';
 import { User } from '../types/auth';
 
+// 휴대폰 체크
 export async function signup(req: Request, res: Response) {
   const { name, password, email, phone, profile, wallet } = req.body;
 
@@ -17,7 +18,7 @@ export async function signup(req: Request, res: Response) {
   }
 
   const hashed = await bcrypt.hash(password, config.bcrypt.saltRounds);
-  const user = User.parse({
+  const data = User.parse({
     name,
     password: hashed,
     profile,
@@ -25,7 +26,7 @@ export async function signup(req: Request, res: Response) {
     phone,
     wallet,
   });
-  await userRepository.createUser(user);
+  await userRepository.createUser(data);
   res.sendStatus(201);
 }
 
@@ -43,7 +44,26 @@ export async function login(req: Request, res: Response) {
   const token = createJwtToken(user.userId);
   setToken(res, token);
   delete user.password;
+  delete user.userId;
   res.status(200).json({ token, user });
+}
+
+export async function update(req: Request, res: Response) {
+  const { profile, email, phone, wallet } = req.body;
+  const data = User.parse({
+    profile,
+    email,
+    phone,
+    wallet,
+  });
+
+  const user = await userRepository.updateUser((req as any).userId, data);
+  if (!user) {
+    const failure = new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404);
+    throw failure;
+  }
+
+  res.sendStatus(200);
 }
 
 export async function logout(req: Request, res: Response) {
@@ -58,6 +78,7 @@ export async function me(req: Request, res: Response) {
     throw failure;
   }
   delete user.password;
+  delete user.userId;
   res.status(200).json({ user });
 }
 
