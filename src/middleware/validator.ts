@@ -1,4 +1,3 @@
-import path from 'path';
 import { RequestHandler, NextFunction, Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import * as OpenApiValidator from 'express-openapi-validator';
