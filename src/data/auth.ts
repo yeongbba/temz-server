@@ -11,10 +11,10 @@ const profileSchema = new Mongoose.Schema({
 
 const userSchema = new Mongoose.Schema(
   {
-    name: { type: String, required: true },
+    name: { type: String, required: true, unique: true },
     profile: profileSchema,
     email: { type: String, required: true },
-    phone: { type: String, required: true },
+    phone: { type: String, required: true, unique: true },
     wallet: { type: String, required: false },
     password: { type: String, required: true },
     isValid: { type: Boolean, required: true, default: true },
@@ -36,6 +36,11 @@ export async function findByName(name: string) {
   return User.parse(result);
 }
 
+export async function findByPhone(phone: string) {
+  const result = await UserModel.findOne({ phone });
+  return User.parse(result);
+}
+
 export async function findById(id: string) {
   const result = await UserModel.findById(id);
   return User.parse(result);
@@ -49,4 +54,9 @@ export async function findByWallet(wallet: string) {
 export async function updateUser(id: string, user: User) {
   const result = await UserModel.findByIdAndUpdate(id, user, { returnOriginal: false });
   return User.parse(result);
+}
+
+export async function removeUser(id: string) {
+  const result = await UserModel.findByIdAndRemove(id);
+  console.log(result);
 }

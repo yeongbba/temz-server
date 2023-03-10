@@ -7,14 +7,19 @@ import { FailureObject } from '../util/error.util';
 import { ErrorCode } from '../types/error.util';
 import { User } from '../types/auth';
 
-// 휴대폰 체크
 export async function signup(req: Request, res: Response) {
   const { name, password, email, phone, profile, wallet } = req.body;
 
-  const found = await userRepository.findByName(name);
-  if (found) {
+  const userByName = await userRepository.findByName(name);
+  if (userByName) {
     const failure = new FailureObject(ErrorCode.DUPLICATED_VALUE, `${name} already exists`, 409);
     throw failure;
+  }
+
+  const userByPhone = await userRepository.findByPhone(phone);
+  if (userByPhone) {
+    userByPhone.phone = null;
+    await userRepository.updateUser(userByPhone.userId, userByPhone);
   }
 
   const hashed = await bcrypt.hash(password, config.bcrypt.saltRounds);
@@ -33,14 +38,22 @@ export async function signup(req: Request, res: Response) {
 export async function login(req: Request, res: Response) {
   const { name, password } = req.body;
   const user = await userRepository.findByName(name);
+
   const failure = new FailureObject(ErrorCode.INVALID_VALUE, 'Invalid user or password', 401);
   if (!user) {
     throw failure;
   }
+
   const isValidPassword = await bcrypt.compare(password, user.password);
   if (!isValidPassword) {
     throw failure;
   }
+
+  if (!user.phone) {
+    const failure = new FailureObject(ErrorCode.NOT_FOUND, 'Phone number was not found', 404);
+    throw failure;
+  }
+
   const token = createJwtToken(user.userId);
   setToken(res, token);
   delete user.password;
@@ -57,40 +70,77 @@ export async function update(req: Request, res: Response) {
     wallet,
   });
 
-  const user = await userRepository.updateUser((req as any).userId, data);
-  if (!user) {
-    const failure = new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404);
-    throw failure;
-  }
-
-  res.sendStatus(200);
+  await userRepository.updateUser((req as any).userId, data);
+  res.sendStatus(201);
 }
 
 export async function logout(req: Request, res: Response) {
-  res.cookie('TEMZ_TOKEN', '');
-  res.sendStatus(200);
+  removeToken(res);
+  res.sendStatus(201);
+}
+
+export async function remove(req: Request, res: Response) {
+  await userRepository.removeUser((req as any).userId);
+  removeToken(res);
+  res.sendStatus(201);
 }
 
 export async function me(req: Request, res: Response) {
   const user = await userRepository.findById((req as any).userId);
-  if (!user) {
-    const failure = new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404);
-    throw failure;
-  }
   delete user.password;
   delete user.userId;
   res.status(200).json({ user });
 }
 
-export async function checkNickname(req: Request, res: Response) {
-  const { nickname } = req.body;
-  const user = await userRepository.findByName(nickname);
+export async function findName(req: Request, res: Response) {
+  const { phone } = req.body;
+  const user = await userRepository.findByPhone(phone);
+  if (!user) {
+    const failure = new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404);
+    throw failure;
+  }
+  res.status(200).json({ name: user.name });
+}
+
+export async function resetPassword(req: Request, res: Response) {
+  const { name, password } = req.body;
+
+  const user = await userRepository.findByName(name);
+  if (!user) {
+    const failure = new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404);
+    throw failure;
+  }
+
+  user.password = await bcrypt.hash(password, config.bcrypt.saltRounds);
+  await userRepository.updateUser(user.userId, user);
+  res.sendStatus(201);
+}
+
+export async function checkPhone(req: Request, res: Response) {
+  const { name, phone } = req.body;
+  const user = await userRepository.findByPhone(phone);
+  if (!user) {
+    const failure = new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404);
+    throw failure;
+  }
+
+  if (user.name !== name) {
+    const failure = new FailureObject(ErrorCode.INVALID_VALUE, 'Name does not match the owner of the phone', 400);
+    throw failure;
+  }
+
+  res.sendStatus(200);
+}
+
+export async function checkName(req: Request, res: Response) {
+  const name = req.query.name as string;
+  const user = await userRepository.findByName(name);
   res.status(200).json({ isValid: !user });
 }
 
-// TODO: 필요한지 체크.
+// TODO: write on auth.yaml later..
 export async function checkWallet(req: Request, res: Response) {
-  const { wallet } = req.body;
+  const wallet = req.query.wallet as string;
   const user = await userRepository.findByWallet(wallet);
   res.status(200).json({ isValid: !user });
 }
@@ -120,7 +170,7 @@ async function generateCSRFToken() {
   return bcrypt.hash(config.csrf.plainToken, 1);
 }
 
+function removeToken(res: Response) {
+  res.cookie('TEMZ_TOKEN', '');
+}
 // 휴면 계정 안내 이메일 전송?
-
-// remove user
-// update user
