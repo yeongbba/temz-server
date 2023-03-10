@@ -244,14 +244,17 @@ paths:
       responses:
         '200':
           description: Success
-          type: object
-          properties:
-            isValid:
-              type: boolean
-          required:
-            - isValid
-          example:
-            isValid: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isValid:
+                    type: boolean
+                required:
+                  - isValid
+                example:
+                  isValid: true
         '400':
           $ref: '#/components/responses/BadRequest'
         '500':
