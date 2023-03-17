@@ -26,7 +26,8 @@ export const config = {
   },
   redis: {
     url: required('REDIS_URL'),
-    rateLimitDb: required('RATE_LIMIT_DB'),
+    rateLimitDB: required('RATE_LIMIT_DB', 0),
+    verfiyCodeDB: required('VERIFY_CODE_DB', 1),
   },
   cors: {
     allowedOrigin: required('CORS_ALLOW_ORIGIN'),
@@ -37,6 +38,15 @@ export const config = {
   rateLimit: {
     windowMs: parseInt(required('RATE_LIMIT_WINDOW_MS')),
     maxRequest: parseInt(required('RATE_LIMIT_MAX_REQUEST')),
+  },
+  sens: {
+    hostPhone: required('SENS_HOST_PHONE'),
+    serviceId: required('SENS_SERVICE_ID'),
+    accessKey: required('SENS_ACCESS_KEY'),
+    secretKey: required('SENS_SECRET_KEY'),
+  },
+  verification: {
+    allowCount: parseInt(required('VERIFICATION_ALLOW_COUNT', 10)),
   },
   twilio: {
     accountSid: required('TWILIO_ACCOUNT_SID'),

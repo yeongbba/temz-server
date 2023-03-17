@@ -18,6 +18,7 @@ import { validator } from './middleware/validator';
 import { ErrorCode } from './types/error.util';
 import { FailureObject } from './util/error.util';
 import { OpenAPIV3 } from 'express-openapi-validator/dist/framework/types';
+import verifyRouter from './router/verify';
 
 const corsOption = {
   origin: config.cors.allowedOrigin,
@@ -28,18 +29,21 @@ const corsOption = {
 export async function startServer(port: number) {
   const app = express();
   const db = await MongoDB.createConnection(config.db.host, config.db.dbName);
-  const redis = await Redis.createConnection(config.redis.url, parseInt(config.redis.rateLimitDb));
+  const rateLimitDB = await Redis.createConnection(config.redis.url, parseInt(config.redis.rateLimitDB));
+  const verifyCodeDB = await Redis.createConnection(config.redis.url, parseInt(config.redis.verfiyCodeDB));
+  const redis = { rateLimitDB, verifyCodeDB };
 
   app.use(express.json());
   app.use(cookieParser());
   app.use(helmet());
   app.use(cors(corsOption));
   app.use(morgan('tiny'));
-  app.use(limiter(redis.client));
+  app.use(limiter(rateLimitDB.client));
 
-  const openApiDocument = createOpenApiDoc();
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiDocument));
-  app.use(validator(openApiDocument));
+  app.use('/verify', verifyRouter);
+  const openAPIDocument = createOpenAPIDoc();
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openAPIDocument));
+  app.use(validator(openAPIDocument));
 
   app.use((req: Request, res: Response) => {
     console.error(req);
@@ -83,12 +87,14 @@ export async function startServer(port: number) {
   return { server, db, redis };
 }
 
-export async function stopServer(server: http.Server, db: MongoDB, redis: Redis): Promise<void> {
+export async function stopServer(server: http.Server, db: MongoDB, redis: Redis[]): Promise<void> {
   return new Promise((resolve, reject) => {
     server.close(async () => {
       try {
         await db.close();
-        await redis.close();
+        for (const connection of redis) {
+          await connection.close();
+        }
         resolve();
       } catch (error) {
         reject(error);
@@ -97,8 +103,8 @@ export async function stopServer(server: http.Server, db: MongoDB, redis: Redis)
   });
 }
 
-function createOpenApiDoc() {
-  const openApiFiles = fs.readdirSync(path.join(__dirname, '/api'));
-  const yamlObj = openApiFiles.map((file) => yaml.load(path.join(__dirname, `./api/${file}`)));
+function createOpenAPIDoc() {
+  const openAPIFiles = fs.readdirSync(path.join(__dirname, '/api'));
+  const yamlObj = openAPIFiles.map((file) => yaml.load(path.join(__dirname, `./api/${file}`)));
   return deepmerge.all(yamlObj) as OpenAPIV3.Document;
 }

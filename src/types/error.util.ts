@@ -5,4 +5,5 @@ export enum ErrorCode {
   NOT_FOUND = 'not-found',
   INTERNAL_SERVER = 'internal-server',
   BAD_REQUEST = 'bad-request',
+  TOO_MANY_REQUEST = 'too-many-request',
 }

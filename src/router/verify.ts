@@ -27,8 +27,8 @@ router.post('/token', validatePhoneNumber, verifyController.sendVerificationToke
 
 router.post('/check', validateCheckVerification, verifyController.checkVerificationToken);
 
-router.put('/cancel', validateCancel, verifyController.cancelVerificationStatus);
+router.put('/cancel', verifyController.cancelVerificationToken);
 
-router.post('/fetch', validateCancel, verifyController.fetchVerificationInfo);
+// router.post('/fetch', validateCancel, verifyController.fetchVerificationInfo);
 
 export default router;

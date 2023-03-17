@@ -1,6 +1,6 @@
 import { RequestHandler, NextFunction, Request, Response } from 'express';
 import { validationResult } from 'express-validator';
-import * as OpenApiValidator from 'express-openapi-validator';
+import * as OpenAPIValidator from 'express-openapi-validator';
 import * as apis from '../controller';
 import { authHandler } from './auth';
 import { csrfCheck } from './csrf';
@@ -15,7 +15,7 @@ export const validate = (req: Request, res: Response, next: NextFunction) => {
 };
 
 export const validator = (apiSpec: OpenAPIV3.Document) => {
-  return OpenApiValidator.middleware({
+  return OpenAPIValidator.middleware({
     apiSpec,
     validateResponses: true,
 
@@ -33,7 +33,7 @@ export const validator = (apiSpec: OpenAPIV3.Document) => {
 };
 
 function modulePathResolver(basePath: string, route: any, apiDoc: any): RequestHandler {
-  const pathKey = route.openApiRoute.slice(route.basePath.length);
+  const pathKey = route.openAPIRoute.slice(route.basePath.length);
   const operation = apiDoc.paths[pathKey][route.method.toLowerCase()];
   const methodName: string = operation.operationId;
   return apis[methodName];
