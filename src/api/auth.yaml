@@ -351,7 +351,11 @@ paths:
                 required:
                   - token
                 example:
-                  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+                  token: $2b$04$VcCt.82PcVWv.W7RXRwJae32BUifnbEkaomvNeK8PANmAGWF1fCVu
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServer'
       security:
         - jwtAuth: []
 components:
