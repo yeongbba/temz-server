@@ -21,27 +21,6 @@ tags:
     description: Methods to handle authentication
   - name: verify
     description: Methods to verify mobile phone
-paths:
-  /auth/csrf:
-    get:
-      tags:
-        - auth
-      summary: Generates token to prevent csrf
-      operationId: csrf
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  token:
-                    type: string
-                required:
-                  - token
-                example:
-                  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
 components:
   responses:
     BadRequest:
@@ -130,11 +109,6 @@ components:
             message: must NOT have fewer than 3 characters
             status: 400
             reason: name
-  headers:
-    CsrfToken:
-      schema:
-        type: string
-      required: true
   securitySchemes:
     jwtAuth:
       description: Bearer token authorization with JWT
@@ -143,8 +117,8 @@ components:
       bearerFormat: JWT
     csrf:
       type: apiKey
-      name: temz-csrf-token
       in: header
+      name: temz-csrf-token
 security:
   - jwtAuth: []
-  - csrf: []
+    csrf: []

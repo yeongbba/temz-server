@@ -33,7 +33,7 @@ export const validator = (apiSpec: OpenAPIV3.Document) => {
 };
 
 function modulePathResolver(basePath: string, route: any, apiDoc: any): RequestHandler {
-  const pathKey = route.openAPIRoute.slice(route.basePath.length);
+  const pathKey = route.openApiRoute.slice(route.basePath.length);
   const operation = apiDoc.paths[pathKey][route.method.toLowerCase()];
   const methodName: string = operation.operationId;
   return apis[methodName];
