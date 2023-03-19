@@ -1,4 +1,78 @@
 paths:
+  /auth/check-name:
+    get:
+      tags:
+        - auth
+      summary: Checks User Name
+      operationId: checkName
+      parameters:
+        - in: query
+          name: name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isValid:
+                    type: boolean
+                required:
+                  - isValid
+                example:
+                  isValid: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+      security: []
+  /auth/me:
+    get:
+      tags:
+        - auth
+      summary: Gets My Info
+      operationId: me
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FullUser'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+  /auth/csrf:
+    get:
+      tags:
+        - auth
+      summary: Generates token to prevent csrf
+      operationId: csrf
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                required:
+                  - token
+                example:
+                  token: $2b$04$VcCt.82PcVWv.W7RXRwJae32BUifnbEkaomvNeK8PANmAGWF1fCVu
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+      security:
+        - jwtAuth: []
   /auth/signup:
     post:
       tags:
@@ -82,7 +156,7 @@ paths:
               password: password098!
         required: true
       responses:
-        '200':
+        '201':
           description: Success
           content:
             application/json:
@@ -229,50 +303,20 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServer'
       security: []
-  /auth/check-name:
-    get:
+  /auth/logout:
+    post:
       tags:
         - auth
-      summary: Checks User Name
-      operationId: checkName
-      parameters:
-        - in: query
-          name: name
-          required: true
-          schema:
-            type: string
+      summary: Logouts to the TEMZ service
+      operationId: logout
       responses:
-        '200':
+        '201':
           description: Success
-          content:
-            application/json:
+          headers:
+            Set-Cookie:
               schema:
-                type: object
-                properties:
-                  isValid:
-                    type: boolean
-                required:
-                  - isValid
-                example:
-                  isValid: true
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '500':
-          $ref: '#/components/responses/InternalServer'
-      security: []
-  /auth/me:
-    get:
-      tags:
-        - auth
-      summary: Gets My Info
-      operationId: me
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FullUser'
+                type: string
+                example: TEMZ_TOKEN=; Path=/;
         '401':
           $ref: '#/components/responses/Unauthorized'
         '500':
@@ -296,26 +340,9 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalServer'
-  /auth/logout:
-    post:
-      tags:
-        - auth
-      summary: Logouts to the TEMZ service
-      operationId: logout
-      responses:
-        '201':
-          description: Success
-          headers:
-            Set-Cookie:
-              schema:
-                type: string
-                example: TEMZ_TOKEN=; Path=/;
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '500':
-          $ref: '#/components/responses/InternalServer'
+
   /auth/remove:
-    post:
+    delete:
       tags:
         - auth
       summary: Removes User Info
@@ -332,32 +359,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalServer'
-  /auth/csrf:
-    get:
-      tags:
-        - auth
-      summary: Generates token to prevent csrf
-      operationId: csrf
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  token:
-                    type: string
-                required:
-                  - token
-                example:
-                  token: $2b$04$VcCt.82PcVWv.W7RXRwJae32BUifnbEkaomvNeK8PANmAGWF1fCVu
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '500':
-          $ref: '#/components/responses/InternalServer'
-      security:
-        - jwtAuth: []
 components:
   schemas:
     User:
