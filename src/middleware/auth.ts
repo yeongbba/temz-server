@@ -11,7 +11,7 @@ export const authHandler = async (req: Request, scopes: string[], schema: OpenAP
   let token = authHeader.split(' ')[1];
 
   if (!token) {
-    token = req.cookies['TEMZ_TOKEN'];
+    token = req.cookies[config.cookie.tokenKey];
   }
 
   if (!token) {

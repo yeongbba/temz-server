@@ -14,6 +14,9 @@ export const config = {
     secretKey: required('JWT_SECRET'),
     expiresInSec: parseInt(required('JWT_EXPIRES_SEC', 86400)),
   },
+  cookie: {
+    tokenKey: required('TOKEN_KEY'),
+  },
   bcrypt: {
     saltRounds: parseInt(required('BCRYPT_SALT_ROUNDS', 12)),
   },

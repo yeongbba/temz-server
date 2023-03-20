@@ -9,6 +9,24 @@ import { User } from '../types/auth';
 export class AuthController {
   constructor(private userRepository: any) {}
 
+  checkName = async (req: Request, res: Response) => {
+    const name = req.query.name as string;
+    const user = await this.userRepository.findByName(name);
+    res.status(200).json({ isValid: !user });
+  };
+
+  me = async (req: Request, res: Response) => {
+    const user = await this.userRepository.findById((req as any).userId);
+    delete user.password;
+    delete user.userId;
+    res.status(200).json({ user });
+  };
+
+  csrf = async (req: Request, res: Response) => {
+    const token = await this.generateCSRFToken();
+    res.status(200).json({ token });
+  };
+
   signup = async (req: Request, res: Response) => {
     const { name, password, email, phone, profile, wallet } = req.body;
 
@@ -60,7 +78,7 @@ export class AuthController {
     this.setToken(res, token);
     delete user.password;
     delete user.userId;
-    res.status(200).json({ token, user });
+    res.status(201).json({ token, user });
   };
 
   update = async (req: Request, res: Response) => {
@@ -85,13 +103,6 @@ export class AuthController {
     await this.userRepository.removeUser((req as any).userId);
     this.removeToken(res);
     res.sendStatus(201);
-  };
-
-  me = async (req: Request, res: Response) => {
-    const user = await this.userRepository.findById((req as any).userId);
-    delete user.password;
-    delete user.userId;
-    res.status(200).json({ user });
   };
 
   findName = async (req: Request, res: Response) => {
@@ -134,12 +145,6 @@ export class AuthController {
     res.sendStatus(200);
   };
 
-  checkName = async (req: Request, res: Response) => {
-    const name = req.query.name as string;
-    const user = await this.userRepository.findByName(name);
-    res.status(200).json({ isValid: !user });
-  };
-
   // TODO: write on auth.yaml later..
   checkWallet = async (req: Request, res: Response) => {
     const wallet = req.query.wallet as string;
@@ -160,12 +165,7 @@ export class AuthController {
       sameSite: 'none',
       secure: true,
     };
-    res.cookie('TEMZ_TOKEN', token, options);
-  };
-
-  csrf = async (req: Request, res: Response) => {
-    const token = await this.generateCSRFToken();
-    res.status(200).json({ token });
+    res.cookie(config.cookie.tokenKey, token, options);
   };
 
   private generateCSRFToken = async () => {
@@ -173,7 +173,7 @@ export class AuthController {
   };
 
   private removeToken = (res: Response) => {
-    res.cookie('TEMZ_TOKEN', '');
+    res.cookie(config.cookie.tokenKey, '');
   };
   // 휴면 계정 안내 이메일 전송?
 }
