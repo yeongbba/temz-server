@@ -1,32 +1,99 @@
 import httpMocks from 'node-mocks-http';
-import { signup } from '../auth';
-// import { faker } from '@faker-js/faker';
-// import * as jwt from 'jsonwebtoken';
-import * as userRepository from '../../data/auth';
-import { setValueToOnlyReadProp } from '../../util/test.util';
+import bcrypt from 'bcrypt';
+import { AuthController } from '../auth';
+import { faker } from '@faker-js/faker';
+import { User } from '../../types/auth';
+import { FailureObject } from '../../util/error.util';
+import { ErrorCode } from '../../types/error.util';
+import { config } from '../../../config';
 
-jest.mock('jsonwebtoken');
-jest.mock('../../data/auth');
+jest.mock('bcrypt');
 
 describe('Auth Controller', () => {
-  it('returns 409 for the request if user has already signed up', async () => {
-    const request = httpMocks.createRequest({
+  let authController: AuthController;
+  let userRepository: any;
+
+  beforeEach(() => {
+    userRepository = {};
+    authController = new AuthController(userRepository);
+  });
+
+  describe('signup', () => {
+    let user: User;
+    let oldUser: User;
+    let request = httpMocks.createRequest({
       method: 'POST',
       url: '/auth/signup',
-      body: {
-        username: 'abcdef',
-      },
     });
-    const response = httpMocks.createResponse();
-    setValueToOnlyReadProp(
-      userRepository,
-      'findByUsername',
-      jest.fn((user) => Promise.resolve({ user }))
-    );
-    await signup(request, response);
-    expect(response.statusCode).toBe(409);
-    expect(response._getJSONData().message).toBe(`abcdef already exists`);
+    let response = httpMocks.createResponse();
+
+    beforeEach(() => {
+      const name = faker.internet.userName();
+      user = {
+        name,
+        password: faker.internet.password(),
+        phone: faker.phone.number('010########'),
+        email: faker.internet.email(),
+        profile: {
+          title: name,
+          description: faker.random.words(3),
+          image: faker.internet.avatar(),
+          background: faker.internet.avatar(),
+        },
+        wallet: `0x${faker.random.numeric(40)}`,
+      };
+      oldUser = User.parse({ userId: 1, ...user });
+
+      request = httpMocks.createRequest({
+        method: 'POST',
+        url: '/auth/signup',
+        body: user,
+      });
+      response = httpMocks.createResponse();
+    });
+
+    it('returns 409 for the request if user has already signed up', async () => {
+      userRepository.findByName = jest.fn(() => oldUser);
+      const signup = async () => authController.signup(request, response);
+
+      await expect(signup()).rejects.toThrow(
+        new FailureObject(ErrorCode.DUPLICATED_VALUE, `${user.name} already exists`, 409)
+      );
+      expect(userRepository.findByName).toHaveBeenCalledWith(user.name);
+    });
+
+    it('If there is a user with the same phone number, update the phone number to null.', async () => {
+      userRepository.findByName = jest.fn();
+      userRepository.findByPhone = jest.fn(() => oldUser);
+      userRepository.updateUser = jest.fn();
+      userRepository.createUser = jest.fn();
+
+      await authController.signup(request, response);
+      expect(userRepository.findByPhone).toHaveBeenCalledWith(user.phone);
+      expect(oldUser.phone).toBeNull();
+      expect(userRepository.updateUser).toHaveBeenCalledWith(oldUser.userId, oldUser);
+    });
+
+    it('returns 201 with created tweet object including userId', async () => {
+      userRepository.findByName = jest.fn();
+      userRepository.findByPhone = jest.fn();
+      userRepository.updateUser = jest.fn();
+      userRepository.createUser = jest.fn();
+
+      const hashed = faker.random.alphaNumeric(60);
+      bcrypt.hash = jest.fn(async () => hashed);
+      const data = User.parse({
+        ...user,
+        password: hashed,
+      });
+      await authController.signup(request, response);
+
+      expect(bcrypt.hash).toHaveBeenCalledWith(user.password, config.bcrypt.saltRounds);
+      expect(userRepository.createUser).toHaveBeenCalledWith(data);
+      expect(response.statusCode).toBe(201);
+    });
   });
+
   // it('returns 401 for the request with unsupported Authorization header', async () => {
   //   const request = httpMocks.createRequest({
   //     method: 'GET',
