@@ -11,7 +11,7 @@
     "copyfile": "rm -rf dist/src/api && mkdir dist/src/api && cp -r src/api/ dist/src/api/",
     "build": "tsc",
     "lint": "eslint src/**/*.ts",
-    "test": "DOTENV_CONFIG_PATH=./.env.test jest",
+    "test": "DOTENV_CONFIG_PATH=./.env.test jest --verbose",
     "test:watch": "DOTENV_CONFIG_PATH=./.env.test jest --watch",
     "test:watch:verbose": "DOTENV_CONFIG_PATH=./.env.test jest --watch --verbose",
     "test:verbose": "DOTENV_CONFIG_PATH=./.env.test jest --verbose",
