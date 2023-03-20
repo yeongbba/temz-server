@@ -1,14 +1,14 @@
 export class User {
   userId?: string;
-  name: string;
+  name?: string;
   password?: string;
-  profile: Profile;
-  email: string;
-  phone: string;
+  profile?: Profile;
+  email?: string;
+  phone?: string;
   wallet?: string;
-  isValid: boolean = true;
-  createdAt: Date;
-  updatedAt: Date;
+  isValid?: boolean = true;
+  createdAt?: Date;
+  updatedAt?: Date;
 
   constructor(user: {
     id?: string;
@@ -22,16 +22,16 @@ export class User {
     createdAt?: Date;
     updatedAt?: Date;
   }) {
-    this.userId = user.id;
-    this.name = user.name;
-    this.password = user.password;
-    this.profile = user.profile;
-    this.email = user.email;
-    this.phone = user.phone;
-    this.wallet = user.wallet;
-    this.isValid = user.isValid;
-    this.createdAt = user.createdAt;
-    this.updatedAt = user.updatedAt;
+    this.userId = user?.id;
+    this.name = user?.name;
+    this.password = user?.password;
+    this.profile = user?.profile;
+    this.email = user?.email;
+    this.phone = user?.phone;
+    this.wallet = user?.wallet;
+    this.isValid = user?.isValid;
+    this.createdAt = user?.createdAt;
+    this.updatedAt = user?.updatedAt;
   }
 
   static parse(raw: any) {
@@ -46,16 +46,16 @@ export class User {
 }
 
 export class Profile {
-  title: string;
+  title?: string;
   description?: string;
   image?: string;
   background?: string;
 
   constructor(profile: { id?: string; title?: string; description?: string; image?: string; background?: string }) {
-    this.title = profile.title;
-    this.description = profile.description;
-    this.image = profile.image;
-    this.background = profile.background;
+    this.title = profile?.title;
+    this.description = profile?.description;
+    this.image = profile?.image;
+    this.background = profile?.background;
   }
 
   static parse(raw: any) {
