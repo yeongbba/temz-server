@@ -81,30 +81,6 @@ export class AuthController {
     res.status(201).json({ token, user });
   };
 
-  update = async (req: Request, res: Response) => {
-    const { profile, email, phone, wallet } = req.body;
-    const data = User.parse({
-      profile,
-      email,
-      phone,
-      wallet,
-    });
-
-    await this.userRepository.updateUser((req as any).userId, data);
-    res.sendStatus(201);
-  };
-
-  logout = async (req: Request, res: Response) => {
-    this.removeToken(res);
-    res.sendStatus(201);
-  };
-
-  remove = async (req: Request, res: Response) => {
-    await this.userRepository.removeUser((req as any).userId);
-    this.removeToken(res);
-    res.sendStatus(201);
-  };
-
   findName = async (req: Request, res: Response) => {
     const { phone } = req.body;
     const user = await this.userRepository.findByPhone(phone);
@@ -143,6 +119,30 @@ export class AuthController {
     }
 
     res.sendStatus(200);
+  };
+
+  update = async (req: Request, res: Response) => {
+    const { profile, email, phone, wallet } = req.body;
+    const data = User.parse({
+      profile,
+      email,
+      phone,
+      wallet,
+    });
+
+    await this.userRepository.updateUser((req as any).userId, data);
+    res.sendStatus(201);
+  };
+
+  logout = async (req: Request, res: Response) => {
+    this.removeToken(res);
+    res.sendStatus(201);
+  };
+
+  remove = async (req: Request, res: Response) => {
+    await this.userRepository.removeUser((req as any).userId);
+    this.removeToken(res);
+    res.sendStatus(201);
   };
 
   // TODO: write on auth.yaml later..

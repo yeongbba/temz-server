@@ -144,10 +144,7 @@ describe('Auth Controller', () => {
 
   describe('signup', () => {
     let oldUser: User;
-    let request = httpMocks.createRequest({
-      method: 'POST',
-      url: '/auth/signup',
-    });
+    let request = httpMocks.createRequest();
     let response = httpMocks.createResponse();
 
     beforeEach(() => {
@@ -192,6 +189,8 @@ describe('Auth Controller', () => {
       userRepository.createUser = jest.fn();
 
       await authController.signup(request, response);
+
+      expect(userRepository.findByName).toHaveBeenCalledWith(request.body.name);
       expect(userRepository.findByPhone).toHaveBeenCalledWith(request.body.phone);
       expect(oldUser.phone).toBeNull();
       expect(userRepository.updateUser).toHaveBeenCalledWith(oldUser.userId, oldUser);
@@ -211,6 +210,8 @@ describe('Auth Controller', () => {
       });
       await authController.signup(request, response);
 
+      expect(userRepository.findByName).toHaveBeenCalledWith(request.body.name);
+      expect(userRepository.findByPhone).toHaveBeenCalledWith(request.body.phone);
       expect(bcrypt.hash).toHaveBeenCalledWith(request.body.password, config.bcrypt.saltRounds);
       expect(userRepository.createUser).toHaveBeenCalledWith(data);
       expect(response.statusCode).toBe(201);
@@ -219,19 +220,16 @@ describe('Auth Controller', () => {
 
   describe('login', () => {
     let user: User;
-    let request = httpMocks.createRequest({
-      method: 'POST',
-      url: '/auth/login',
-    });
+    let request = httpMocks.createRequest();
     let response = httpMocks.createResponse();
 
     beforeEach(() => {
       const name = faker.internet.userName();
       const password = faker.internet.password();
       user = User.parse({
-        userId: 1,
+        id: 1,
         name,
-        password: faker.internet.password(),
+        password: password,
         phone: faker.phone.number('010########'),
         email: faker.internet.email(),
         profile: {
@@ -248,7 +246,7 @@ describe('Auth Controller', () => {
         url: '/auth/login',
         body: {
           name,
-          password,
+          password: password,
         },
       });
       response = httpMocks.createResponse();
@@ -272,6 +270,7 @@ describe('Auth Controller', () => {
       await expect(login()).rejects.toThrow(
         new FailureObject(ErrorCode.INVALID_VALUE, 'Invalid user or password', 401)
       );
+      expect(userRepository.findByName).toHaveBeenCalledWith(request.body.name);
       expect(bcrypt.compare).toHaveBeenCalledWith(request.body.password, user.password);
     });
 
@@ -284,9 +283,13 @@ describe('Auth Controller', () => {
       const login = async () => authController.login(request, response);
 
       await expect(login()).rejects.toThrow(new FailureObject(ErrorCode.NOT_FOUND, 'Phone number was not found', 404));
+      expect(userRepository.findByName).toHaveBeenCalledWith(request.body.name);
+      expect(bcrypt.compare).toHaveBeenCalledWith(request.body.password, user.password);
     });
 
-    it('If login is successful, returns 200 for the request', async () => {
+    it('If login is successful, returns 201 for the request', async () => {
+      const id = user.userId;
+      const password = user.password;
       userRepository.findByName = jest.fn(() => user);
       bcrypt.compare = jest.fn(async () => true);
       const token = faker.random.alphaNumeric(189);
@@ -301,13 +304,225 @@ describe('Auth Controller', () => {
 
       await authController.login(request, response);
 
-      expect(jwt.sign).toHaveBeenCalledWith({ id: user.userId }, config.jwt.secretKey, {
+      expect(userRepository.findByName).toHaveBeenCalledWith(request.body.name);
+      expect(bcrypt.compare).toHaveBeenCalledWith(request.body.password, password);
+      expect(jwt.sign).toHaveBeenCalledWith({ id }, config.jwt.secretKey, {
         expiresIn: config.jwt.expiresInSec,
       });
       expect(response.cookie).toHaveBeenCalledWith(config.cookie.tokenKey, token, options);
       expect(response._getJSONData()).toEqual({ token, user });
       expect(response._getJSONData().userId).toBeUndefined();
       expect(response._getJSONData().password).toBeUndefined();
+      expect(response.statusCode).toBe(201);
+    });
+  });
+
+  describe('findName', () => {
+    let user: User;
+    let request = httpMocks.createRequest();
+    let response = httpMocks.createResponse();
+
+    beforeEach(() => {
+      const name = faker.internet.userName();
+      const phone = faker.phone.number('010########');
+      user = User.parse({
+        id: 1,
+        name,
+        password: faker.internet.password(),
+        phone,
+        email: faker.internet.email(),
+        profile: {
+          title: name,
+          description: faker.random.words(3),
+          image: faker.internet.avatar(),
+          background: faker.internet.avatar(),
+        },
+        wallet: `0x${faker.random.numeric(40)}`,
+      });
+
+      request = httpMocks.createRequest({
+        method: 'POST',
+        url: '/auth/find-name',
+        body: {
+          phone,
+        },
+      });
+      response = httpMocks.createResponse();
+    });
+
+    it('If the user cannot be found, returns 404 for the request', async () => {
+      userRepository.findByPhone = jest.fn();
+
+      const findName = async () => authController.findName(request, response);
+
+      await expect(findName()).rejects.toThrow(new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404));
+      expect(userRepository.findByPhone).toHaveBeenCalledWith(request.body.phone);
+    });
+
+    it('If the user found successfully, returns 200 for the request', async () => {
+      userRepository.findByPhone = jest.fn(() => user);
+
+      await authController.findName(request, response);
+
+      expect(userRepository.findByPhone).toHaveBeenCalledWith(request.body.phone);
+      expect(response._getJSONData()).toEqual({ name: user.name });
+      expect(response.statusCode).toBe(200);
+    });
+  });
+
+  describe('resetPassword', () => {
+    let user: User;
+    let request = httpMocks.createRequest();
+    let response = httpMocks.createResponse();
+
+    beforeEach(() => {
+      const name = faker.internet.userName();
+      user = User.parse({
+        id: 1,
+        name,
+        password: faker.internet.password(),
+        phone: faker.phone.number('010########'),
+        email: faker.internet.email(),
+        profile: {
+          title: name,
+          description: faker.random.words(3),
+          image: faker.internet.avatar(),
+          background: faker.internet.avatar(),
+        },
+        wallet: `0x${faker.random.numeric(40)}`,
+      });
+
+      request = httpMocks.createRequest({
+        method: 'POST',
+        url: '/auth/reset-password',
+        body: {
+          name,
+          password: faker.internet.password(),
+        },
+      });
+      response = httpMocks.createResponse();
+    });
+
+    it('If the user cannot be found, returns 404 for the request', async () => {
+      userRepository.findByName = jest.fn();
+
+      const resetPassword = async () => authController.resetPassword(request, response);
+
+      await expect(resetPassword()).rejects.toThrow(new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404));
+      expect(userRepository.findByName).toHaveBeenCalledWith(request.body.name);
+    });
+
+    it('If the password is changed, returns 201 for the request', async () => {
+      userRepository.findByName = jest.fn(() => user);
+      userRepository.updateUser = jest.fn();
+      const hashed = faker.random.alphaNumeric(60);
+      bcrypt.hash = jest.fn(async () => hashed);
+      user.password = hashed;
+
+      await authController.resetPassword(request, response);
+
+      expect(userRepository.findByName).toHaveBeenCalledWith(request.body.name);
+      expect(bcrypt.hash).toHaveBeenCalledWith(request.body.password, config.bcrypt.saltRounds);
+      expect(userRepository.updateUser).toHaveBeenCalledWith(user.userId, user);
+      expect(response.statusCode).toBe(201);
+    });
+  });
+
+  describe('checkPhone', () => {
+    let user: User;
+    let request = httpMocks.createRequest();
+    let response = httpMocks.createResponse();
+
+    beforeEach(() => {
+      const name = faker.internet.userName();
+      const phone = faker.phone.number('010########');
+      user = User.parse({
+        id: 1,
+        name,
+        password: faker.internet.password(),
+        phone,
+        email: faker.internet.email(),
+        profile: {
+          title: name,
+          description: faker.random.words(3),
+          image: faker.internet.avatar(),
+          background: faker.internet.avatar(),
+        },
+        wallet: `0x${faker.random.numeric(40)}`,
+      });
+
+      request = httpMocks.createRequest({
+        method: 'POST',
+        url: '/auth/check-phone',
+        body: {
+          name,
+          phone,
+        },
+      });
+      response = httpMocks.createResponse();
+    });
+
+    it('If the user cannot be found, returns 404 for the request', async () => {
+      userRepository.findByPhone = jest.fn();
+
+      const checkPhone = async () => authController.checkPhone(request, response);
+
+      await expect(checkPhone()).rejects.toThrow(new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404));
+      expect(userRepository.findByPhone).toHaveBeenCalledWith(request.body.phone);
+    });
+
+    it('If the user does not match, returns 400 for the request', async () => {
+      user.name = faker.internet.userName();
+      userRepository.findByPhone = jest.fn(() => user);
+
+      const checkPhone = async () => authController.checkPhone(request, response);
+
+      await expect(checkPhone()).rejects.toThrow(
+        new FailureObject(ErrorCode.INVALID_VALUE, 'Name does not match the owner of the phone', 400)
+      );
+      expect(userRepository.findByPhone).toHaveBeenCalledWith(request.body.phone);
+    });
+
+    it('If the user match, returns 200 for the request', async () => {
+      userRepository.findByPhone = jest.fn(() => user);
+
+      await authController.checkPhone(request, response);
+
+      expect(userRepository.findByPhone).toHaveBeenCalledWith(request.body.phone);
+      expect(response.statusCode).toBe(200);
+    });
+  });
+
+  describe('update', () => {
+    let request = httpMocks.createRequest();
+    let response = httpMocks.createResponse();
+
+    beforeEach(() => {
+      request = httpMocks.createRequest({
+        method: 'POST',
+        url: '/auth/update',
+        body: {
+          phone: faker.phone.number('010########'),
+          email: faker.internet.email(),
+          profile: {
+            title: faker.internet.userName(),
+            description: faker.random.words(3),
+            image: faker.internet.avatar(),
+            background: faker.internet.avatar(),
+          },
+          wallet: `0x${faker.random.numeric(40)}`,
+        },
+      });
+      response = httpMocks.createResponse();
+    });
+
+    it('If update is successful, returns 201 for the request', async () => {
+      userRepository.updateUser = jest.fn();
+      request.userId = 1;
+
+      await authController.update(request, response);
+
+      expect(userRepository.updateUser).toHaveBeenCalledWith(request.userId, User.parse(request.body));
       expect(response.statusCode).toBe(201);
     });
   });
