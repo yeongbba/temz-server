@@ -8,6 +8,7 @@ import { FailureObject } from '../../util/error.util';
 import { ErrorCode } from '../../types/error.util';
 import { config } from '../../../config';
 import { CookieOptions } from 'express';
+import { fakeUser } from '../../util/tests/auth.util';
 
 jest.mock('jsonwebtoken');
 jest.mock('bcrypt');
@@ -27,26 +28,12 @@ describe('Auth Controller', () => {
     let response = httpMocks.createResponse();
 
     beforeEach(() => {
-      const name = faker.internet.userName();
-      user = User.parse({
-        id: 1,
-        name,
-        password: faker.internet.password(),
-        phone: faker.phone.number('010########'),
-        email: faker.internet.email(),
-        profile: {
-          title: name,
-          description: faker.random.words(3),
-          image: faker.internet.avatar(),
-          background: faker.internet.avatar(),
-        },
-        wallet: `0x${faker.random.numeric(40)}`,
-      });
+      user = User.parse(fakeUser());
 
       request = httpMocks.createRequest({
         method: 'GET',
-        url: `/auth/check-name?name=${name}`,
-        query: { name },
+        url: `/auth/check-name?name=${user.name}`,
+        query: { name: user.name },
       });
       response = httpMocks.createResponse();
     });
@@ -81,22 +68,7 @@ describe('Auth Controller', () => {
     let response = httpMocks.createResponse();
 
     beforeEach(() => {
-      const name = faker.internet.userName();
-      const user = {
-        id: 1,
-        name,
-        password: faker.internet.password(),
-        phone: faker.phone.number('010########'),
-        email: faker.internet.email(),
-        profile: {
-          title: name,
-          description: faker.random.words(3),
-          image: faker.internet.avatar(),
-          background: faker.internet.avatar(),
-        },
-        wallet: `0x${faker.random.numeric(40)}`,
-      };
-      me = User.parse(user);
+      me = User.parse(fakeUser());
 
       request = httpMocks.createRequest({
         method: 'GET',
@@ -143,26 +115,13 @@ describe('Auth Controller', () => {
   });
 
   describe('signup', () => {
-    let oldUser: User;
+    let registeredUser: User;
     let request = httpMocks.createRequest();
     let response = httpMocks.createResponse();
 
     beforeEach(() => {
-      const name = faker.internet.userName();
-      const user = {
-        name,
-        password: faker.internet.password(),
-        phone: faker.phone.number('010########'),
-        email: faker.internet.email(),
-        profile: {
-          title: name,
-          description: faker.random.words(3),
-          image: faker.internet.avatar(),
-          background: faker.internet.avatar(),
-        },
-        wallet: `0x${faker.random.numeric(40)}`,
-      };
-      oldUser = User.parse({ id: 1, ...user });
+      const user = fakeUser(false);
+      registeredUser = User.parse({ id: 1, ...user });
 
       request = httpMocks.createRequest({
         method: 'POST',
@@ -173,7 +132,7 @@ describe('Auth Controller', () => {
     });
 
     it('returns 409 for the request if user has already signed up', async () => {
-      userRepository.findByName = jest.fn(() => oldUser);
+      userRepository.findByName = jest.fn(() => registeredUser);
       const signup = async () => authController.signup(request, response);
 
       await expect(signup()).rejects.toThrow(
@@ -184,7 +143,7 @@ describe('Auth Controller', () => {
 
     it('If there is a user with the same phone number, update the phone number to null.', async () => {
       userRepository.findByName = jest.fn();
-      userRepository.findByPhone = jest.fn(() => oldUser);
+      userRepository.findByPhone = jest.fn(() => registeredUser);
       userRepository.updateUser = jest.fn();
       userRepository.createUser = jest.fn();
 
@@ -192,8 +151,8 @@ describe('Auth Controller', () => {
 
       expect(userRepository.findByName).toHaveBeenCalledWith(request.body.name);
       expect(userRepository.findByPhone).toHaveBeenCalledWith(request.body.phone);
-      expect(oldUser.phone).toBeNull();
-      expect(userRepository.updateUser).toHaveBeenCalledWith(oldUser.userId, oldUser);
+      expect(registeredUser.phone).toBeNull();
+      expect(userRepository.updateUser).toHaveBeenCalledWith(registeredUser.userId, registeredUser);
     });
 
     it('returns 201 with created tweet object including userId', async () => {
@@ -224,29 +183,14 @@ describe('Auth Controller', () => {
     let response = httpMocks.createResponse();
 
     beforeEach(() => {
-      const name = faker.internet.userName();
-      const password = faker.internet.password();
-      user = User.parse({
-        id: 1,
-        name,
-        password: password,
-        phone: faker.phone.number('010########'),
-        email: faker.internet.email(),
-        profile: {
-          title: name,
-          description: faker.random.words(3),
-          image: faker.internet.avatar(),
-          background: faker.internet.avatar(),
-        },
-        wallet: `0x${faker.random.numeric(40)}`,
-      });
+      user = User.parse(fakeUser());
 
       request = httpMocks.createRequest({
         method: 'POST',
         url: '/auth/login',
         body: {
-          name,
-          password: password,
+          name: user.name,
+          password: user.password,
         },
       });
       response = httpMocks.createResponse();
@@ -323,28 +267,13 @@ describe('Auth Controller', () => {
     let response = httpMocks.createResponse();
 
     beforeEach(() => {
-      const name = faker.internet.userName();
-      const phone = faker.phone.number('010########');
-      user = User.parse({
-        id: 1,
-        name,
-        password: faker.internet.password(),
-        phone,
-        email: faker.internet.email(),
-        profile: {
-          title: name,
-          description: faker.random.words(3),
-          image: faker.internet.avatar(),
-          background: faker.internet.avatar(),
-        },
-        wallet: `0x${faker.random.numeric(40)}`,
-      });
+      user = User.parse(fakeUser());
 
       request = httpMocks.createRequest({
         method: 'POST',
         url: '/auth/find-name',
         body: {
-          phone,
+          phone: user.phone,
         },
       });
       response = httpMocks.createResponse();
@@ -376,27 +305,13 @@ describe('Auth Controller', () => {
     let response = httpMocks.createResponse();
 
     beforeEach(() => {
-      const name = faker.internet.userName();
-      user = User.parse({
-        id: 1,
-        name,
-        password: faker.internet.password(),
-        phone: faker.phone.number('010########'),
-        email: faker.internet.email(),
-        profile: {
-          title: name,
-          description: faker.random.words(3),
-          image: faker.internet.avatar(),
-          background: faker.internet.avatar(),
-        },
-        wallet: `0x${faker.random.numeric(40)}`,
-      });
+      user = User.parse(fakeUser());
 
       request = httpMocks.createRequest({
         method: 'POST',
         url: '/auth/reset-password',
         body: {
-          name,
+          name: user.name,
           password: faker.internet.password(),
         },
       });
@@ -434,29 +349,14 @@ describe('Auth Controller', () => {
     let response = httpMocks.createResponse();
 
     beforeEach(() => {
-      const name = faker.internet.userName();
-      const phone = faker.phone.number('010########');
-      user = User.parse({
-        id: 1,
-        name,
-        password: faker.internet.password(),
-        phone,
-        email: faker.internet.email(),
-        profile: {
-          title: name,
-          description: faker.random.words(3),
-          image: faker.internet.avatar(),
-          background: faker.internet.avatar(),
-        },
-        wallet: `0x${faker.random.numeric(40)}`,
-      });
+      user = User.parse(fakeUser());
 
       request = httpMocks.createRequest({
         method: 'POST',
         url: '/auth/check-phone',
         body: {
-          name,
-          phone,
+          name: user.name,
+          phone: user.phone,
         },
       });
       response = httpMocks.createResponse();
@@ -493,6 +393,28 @@ describe('Auth Controller', () => {
     });
   });
 
+  describe('logout', () => {
+    let request = httpMocks.createRequest();
+    let response = httpMocks.createResponse();
+
+    beforeEach(() => {
+      request = httpMocks.createRequest({
+        method: 'POST',
+        url: '/auth/logout',
+      });
+      response = httpMocks.createResponse();
+    });
+
+    it('If logout is successful, returns 201 for the request', async () => {
+      response.cookie = jest.fn();
+
+      authController.logout(request, response);
+
+      expect(response.cookie).toHaveBeenCalledWith(config.cookie.tokenKey, '');
+      expect(response.statusCode).toBe(201);
+    });
+  });
+
   describe('update', () => {
     let request = httpMocks.createRequest();
     let response = httpMocks.createResponse();
@@ -523,6 +445,31 @@ describe('Auth Controller', () => {
       await authController.update(request, response);
 
       expect(userRepository.updateUser).toHaveBeenCalledWith(request.userId, User.parse(request.body));
+      expect(response.statusCode).toBe(201);
+    });
+  });
+
+  describe('remove', () => {
+    let request = httpMocks.createRequest();
+    let response = httpMocks.createResponse();
+
+    beforeEach(() => {
+      request = httpMocks.createRequest({
+        method: 'DELETE',
+        url: '/auth/remove',
+      });
+      response = httpMocks.createResponse();
+    });
+
+    it('If the user is removed, returns 201 for the request', async () => {
+      request.userId = 1;
+      userRepository.removeUser = jest.fn();
+      response.cookie = jest.fn();
+
+      await authController.remove(request, response);
+
+      expect(userRepository.removeUser).toHaveBeenCalledWith(request.userId);
+      expect(response.cookie).toHaveBeenCalledWith(config.cookie.tokenKey, '');
       expect(response.statusCode).toBe(201);
     });
   });

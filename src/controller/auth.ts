@@ -121,6 +121,11 @@ export class AuthController {
     res.sendStatus(200);
   };
 
+  logout = (req: Request, res: Response) => {
+    this.removeToken(res);
+    res.sendStatus(201);
+  };
+
   update = async (req: Request, res: Response) => {
     const { profile, email, phone, wallet } = req.body;
     const data = User.parse({
@@ -131,11 +136,6 @@ export class AuthController {
     });
 
     await this.userRepository.updateUser((req as any).userId, data);
-    res.sendStatus(201);
-  };
-
-  logout = async (req: Request, res: Response) => {
-    this.removeToken(res);
     res.sendStatus(201);
   };
 
