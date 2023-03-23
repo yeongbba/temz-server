@@ -91,7 +91,7 @@ paths:
                       description: Password between 8 and 20 characters included at least one character, number, special symbol.
                       type: string
                       format: password
-                      pattern: '^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,20}$'
+                      pattern: '(?=.*[0-9])(?=.*[a-z])(?=.*\W)(?=\S+$).{8,20}'
                       writeOnly: true
                   required:
                     - password
@@ -146,7 +146,7 @@ paths:
                   description: Password between 8 and 20 characters included at least one character, number, special symbol.
                   type: string
                   format: password
-                  pattern: '^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,20}$'
+                  pattern: '(?=.*[0-9])(?=.*[a-z])(?=.*\W)(?=\S+$).{8,20}'
                   writeOnly: true
               required:
                 - name
@@ -248,7 +248,7 @@ paths:
                   description: Password between 8 and 20 characters included at least one character, number, special symbol.
                   type: string
                   format: password
-                  pattern: '^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,20}$'
+                  pattern: '(?=.*[0-9])(?=.*[a-z])(?=.*\W)(?=\S+$).{8,20}'
                   writeOnly: true
               required:
                 - name
