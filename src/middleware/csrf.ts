@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { config } from '../../config';
+import { config } from '../config';
 import { Request } from 'express';
 import { OpenAPIV3 } from 'express-openapi-validator/dist/framework/types';
 import { FailureObject } from '../util/error.util';

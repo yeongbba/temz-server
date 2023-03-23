@@ -1,11 +1,14 @@
 import http from 'http';
-import { config } from '../config';
-import { startServer } from './app';
-import { MongoDB } from './database/mongo';
-import { Redis } from './database/redis';
+import { config } from './config';
+import { startServer, stopServer } from './app';
+import { ServerInfo } from './types/common';
 
-class Index {
-  private _totalInfo: any;
+export class Index {
+  private _totalInfo: ServerInfo;
+
+  set totalInfo(info: ServerInfo) {
+    this._totalInfo = info;
+  }
 
   get totalInfo() {
     return this._totalInfo;
@@ -16,25 +19,39 @@ class Index {
   }
 
   get mongoDB() {
-    return this._totalInfo.redis.rateLimitDB as MongoDB;
+    return this._totalInfo.db;
   }
 
   get rateLimitDB() {
-    return this._totalInfo.redis.rateLimitDB as Redis;
+    return this._totalInfo.redis.rateLimitDB;
   }
 
   get verifyCodeDB() {
-    return this._totalInfo.redis.verifyCodeDB as Redis;
+    return this._totalInfo.redis.verifyCodeDB;
   }
 
-  constructor(private port: number) {
+  private constructor(port?: number) {
     this.init(port);
   }
 
-  async init(port: number) {
-    this._totalInfo = await startServer(port);
+  static async AsyncStart(port?: number) {
+    const index = new Index();
+    await index.init(port);
+    return index;
+  }
+
+  static start(port?: number) {
+    return new Index(port);
+  }
+
+  private async init(port?: number) {
+    this.totalInfo = await startServer(port);
+  }
+
+  async stop() {
+    await stopServer(this.totalInfo);
   }
 }
 
-const index = new Index(config.host.port);
+const index = Index.start(config.host.port);
 export default index;

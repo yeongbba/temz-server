@@ -3,7 +3,7 @@ import { faker } from '@faker-js/faker';
 export const fakeUser = (useId: boolean = true) => ({
   id: useId ? 1 : undefined,
   name: faker.internet.userName(),
-  password: faker.internet.password(),
+  password: '12!' + faker.internet.password(),
   phone: faker.phone.number('010########'),
   email: faker.internet.email(),
   profile: {

@@ -6,7 +6,7 @@ import { faker } from '@faker-js/faker';
 import { User } from '../../types/auth';
 import { FailureObject } from '../../util/error.util';
 import { ErrorCode } from '../../types/error.util';
-import { config } from '../../../config';
+import { config } from '../../config';
 import { CookieOptions } from 'express';
 import { fakeUser } from '../../util/tests/auth.util';
 

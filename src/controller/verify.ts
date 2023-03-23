@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { config } from '../../config';
+import { config } from '../config';
 import { checkExistPhone, getVerifyCode, removeVerifyCode, setExpireTime, setVerifyCode } from '../data/verify';
 import { ErrorCode } from '../types/error.util';
 import { FailureObject } from '../util/error.util';

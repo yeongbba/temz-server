@@ -1,7 +1,7 @@
 import { Server } from 'socket.io';
 import http from 'http';
 import jwt from 'jsonwebtoken';
-import { config } from '../../config';
+import { config } from '../config';
 
 class Socket {
   io: Server;

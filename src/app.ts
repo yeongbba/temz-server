@@ -6,19 +6,19 @@ import helmet from 'helmet';
 import fs from 'fs';
 import deepmerge from 'deepmerge';
 import cookieParser from 'cookie-parser';
-import http from 'http';
 import yaml from 'yamljs';
 import swaggerUi from 'swagger-ui-express';
 import limiter from './middleware/rate-limiter';
 import { MongoDB } from './database/mongo';
 import { Redis } from './database/redis';
-import { config } from '../config';
+import { config } from './config';
 import { initSocket } from './connection/socket';
 import { validator } from './middleware/validator';
 import { ErrorCode } from './types/error.util';
 import { FailureObject } from './util/error.util';
 import { OpenAPIV3 } from 'express-openapi-validator/dist/framework/types';
 import verifyRouter from './router/verify';
+import { ServerInfo } from './types/common';
 
 const corsOption = {
   origin: config.cors.allowedOrigin,
@@ -26,7 +26,7 @@ const corsOption = {
   credentials: true,
 };
 
-export async function startServer(port: number) {
+export async function startServer(port?: number): Promise<ServerInfo> {
   const app = express();
   const db = await MongoDB.createConnection(config.db.host, config.db.dbName);
   const rateLimitDB = await Redis.createConnection(config.redis.url, parseInt(config.redis.rateLimitDB));
@@ -81,19 +81,22 @@ export async function startServer(port: number) {
     }
   });
 
-  console.log(`Server is started to listen ${config.host.port} port`);
+  console.log(`Server is started to listen ${port} port`);
   const server = app.listen(port);
   initSocket(server);
   return { server, db, redis };
 }
 
-export async function stopServer(server: http.Server, db: MongoDB, redis: Redis[]): Promise<void> {
+export async function stopServer(info: ServerInfo): Promise<void> {
   return new Promise((resolve, reject) => {
+    const { server, db, redis } = info;
     server.close(async () => {
       try {
         await db.close();
-        for (const connection of redis) {
-          await connection.close();
+        for (const key in redis) {
+          if (Object.prototype.hasOwnProperty.call(redis, key)) {
+            await redis[key].close();
+          }
         }
         resolve();
       } catch (error) {
@@ -105,6 +108,6 @@ export async function stopServer(server: http.Server, db: MongoDB, redis: Redis[
 
 function createOpenAPIDoc() {
   const openAPIFiles = fs.readdirSync(path.join(__dirname, '/api'));
-  const yamlObj = openAPIFiles.map((file) => yaml.load(path.join(__dirname, `./api/${file}`)));
+  const yamlObj = openAPIFiles.map((file) => yaml.load(path.join(__dirname, `/api/${file}`)));
   return deepmerge.all(yamlObj) as OpenAPIV3.Document;
 }

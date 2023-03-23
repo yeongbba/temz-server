@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { Twilio } from 'twilio';
-import { config } from '../../config';
+import { config } from '../config';
 
 const client = new Twilio(config.twilio.accountSid, config.twilio.authToken);
 

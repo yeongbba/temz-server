@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import { config } from '../../config';
+import { config } from '../config';
 import { CookieOptions, Request, Response } from 'express';
 import { FailureObject } from '../util/error.util';
 import { ErrorCode } from '../types/error.util';

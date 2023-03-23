@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
-import { config } from '../../config';
+import { config } from '../config';
 import * as userRepository from '../data/auth';
 import { OpenAPIV3 } from 'express-openapi-validator/dist/framework/types';
 import { FailureObject } from '../util/error.util';
