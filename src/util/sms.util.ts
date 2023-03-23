@@ -1,6 +1,6 @@
 import crypto from 'crypto';
-import fetch from 'node-fetch';
-import { config } from '../../config';
+import axios from 'axios';
+import { config } from '../config';
 
 const SENS_REQUEST_URL = `https://sens.apigw.ntruss.com/sms/v2/services/${config.sens.serviceId}/messages`;
 const DEFAULT_BODY = {
@@ -13,7 +13,7 @@ const DEFAULT_BODY = {
 export async function sendSMSMessage(data) {
   data = { ...DEFAULT_BODY, ...data };
   const sensAuth = prepareSensAuthData();
-  await fetch(SENS_REQUEST_URL, {
+  await axios(SENS_REQUEST_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -21,7 +21,7 @@ export async function sendSMSMessage(data) {
       'x-ncp-iam-access-key': sensAuth.accessKey,
       'x-ncp-apigw-signature-v2': sensAuth.signature,
     },
-    body: JSON.stringify(data),
+    data: JSON.stringify(data),
   });
 }
 
