@@ -4,7 +4,7 @@ export class User {
   password?: string;
   profile?: Profile;
   email?: string;
-  phone?: string;
+  phone?: string | null;
   wallet?: string;
   isValid?: boolean = true;
   createdAt?: Date;

@@ -1,5 +1,4 @@
 import axios, { AxiosInstance } from 'axios';
-import faker from '@faker-js/faker';
 import { fakeUser } from '../../util/tests/auth.util';
 import { AddressInfo } from 'net';
 import { Index } from '../..';
@@ -18,7 +17,6 @@ describe('Auth APIs', () => {
 
   afterAll(async () => {
     await index.stop();
-    index = null;
   });
 
   describe('POST to /auth/signup', () => {
@@ -29,18 +27,25 @@ describe('Auth APIs', () => {
 
       expect(res.status).toBe(201);
     });
+
+    it('returns 409 when username has already been taken', async () => {
+      const user = fakeUser(false);
+
+      const firstSignup = await request.post('/auth/signup', user);
+      expect(firstSignup.status).toBe(201);
+
+      const secondSignup = await request.post('/auth/signup', user);
+      expect(secondSignup.data).toEqual({
+        failures: [
+          {
+            code: 'duplicated-value',
+            msg: `${user.name} already exists`,
+            status: 409,
+          },
+        ],
+      });
+    });
   });
-
-  // it('returns 409 when username has already been taken', async () => {
-  //   const user = makeValidUserDetails();
-  //   const firstSignup = await request.post('/auth/signup', user);
-  //   expect(firstSignup.status).toBe(201);
-
-  //   const res = await request.post('/auth/signup', user);
-
-  //   expect(res.status).toBe(409);
-  //   expect(res.data.message).toBe(`${user.username} already exists`);
-  // });
 
   //   test.each([
   //     { missingFieldName: 'name', expectedMessage: 'name is missing' },
