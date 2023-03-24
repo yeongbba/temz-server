@@ -28,7 +28,7 @@ describe('Auth Controller', () => {
     let response = httpMocks.createResponse();
 
     beforeEach(() => {
-      user = User.parse(fakeUser());
+      user = User.parse(fakeUser())!;
 
       request = httpMocks.createRequest({
         method: 'GET',
@@ -68,7 +68,7 @@ describe('Auth Controller', () => {
     let response = httpMocks.createResponse();
 
     beforeEach(() => {
-      me = User.parse(fakeUser());
+      me = User.parse(fakeUser())!;
 
       request = httpMocks.createRequest({
         method: 'GET',
@@ -121,7 +121,7 @@ describe('Auth Controller', () => {
 
     beforeEach(() => {
       const user = fakeUser(false);
-      registeredUser = User.parse({ id: 1, ...user });
+      registeredUser = User.parse({ ...user, id: 1 })!;
 
       request = httpMocks.createRequest({
         method: 'POST',
@@ -183,7 +183,7 @@ describe('Auth Controller', () => {
     let response = httpMocks.createResponse();
 
     beforeEach(() => {
-      user = User.parse(fakeUser());
+      user = User.parse(fakeUser())!;
 
       request = httpMocks.createRequest({
         method: 'POST',
@@ -267,7 +267,7 @@ describe('Auth Controller', () => {
     let response = httpMocks.createResponse();
 
     beforeEach(() => {
-      user = User.parse(fakeUser());
+      user = User.parse(fakeUser())!;
 
       request = httpMocks.createRequest({
         method: 'POST',
@@ -305,7 +305,7 @@ describe('Auth Controller', () => {
     let response = httpMocks.createResponse();
 
     beforeEach(() => {
-      user = User.parse(fakeUser());
+      user = User.parse(fakeUser())!;
 
       request = httpMocks.createRequest({
         method: 'POST',
@@ -349,7 +349,7 @@ describe('Auth Controller', () => {
     let response = httpMocks.createResponse();
 
     beforeEach(() => {
-      user = User.parse(fakeUser());
+      user = User.parse(fakeUser())!;
 
       request = httpMocks.createRequest({
         method: 'POST',
