@@ -135,7 +135,7 @@ describe('Auth Controller', () => {
       userRepository.findByName = jest.fn(() => registeredUser);
       const signup = async () => authController.signup(request, response);
 
-      await expect(signup()).rejects.toThrow(
+      await expect(signup()).rejects.toEqual(
         new FailureObject(ErrorCode.DUPLICATED_VALUE, `${request.body.name} already exists`, 409)
       );
       expect(userRepository.findByName).toHaveBeenCalledWith(request.body.name);
@@ -200,7 +200,7 @@ describe('Auth Controller', () => {
       userRepository.findByName = jest.fn();
       const login = async () => authController.login(request, response);
 
-      await expect(login()).rejects.toThrow(
+      await expect(login()).rejects.toEqual(
         new FailureObject(ErrorCode.INVALID_VALUE, 'Invalid user or password', 401)
       );
       expect(userRepository.findByName).toHaveBeenCalledWith(request.body.name);
@@ -211,7 +211,7 @@ describe('Auth Controller', () => {
       bcrypt.compare = jest.fn(async () => false);
       const login = async () => authController.login(request, response);
 
-      await expect(login()).rejects.toThrow(
+      await expect(login()).rejects.toEqual(
         new FailureObject(ErrorCode.INVALID_VALUE, 'Invalid user or password', 401)
       );
       expect(userRepository.findByName).toHaveBeenCalledWith(request.body.name);
@@ -226,7 +226,7 @@ describe('Auth Controller', () => {
       bcrypt.compare = jest.fn(async () => true);
       const login = async () => authController.login(request, response);
 
-      await expect(login()).rejects.toThrow(new FailureObject(ErrorCode.NOT_FOUND, 'Phone number was not found', 404));
+      await expect(login()).rejects.toEqual(new FailureObject(ErrorCode.NOT_FOUND, 'Phone number was not found', 404));
       expect(userRepository.findByName).toHaveBeenCalledWith(request.body.name);
       expect(bcrypt.compare).toHaveBeenCalledWith(request.body.password, user.password);
     });
@@ -284,7 +284,7 @@ describe('Auth Controller', () => {
 
       const findName = async () => authController.findName(request, response);
 
-      await expect(findName()).rejects.toThrow(new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404));
+      await expect(findName()).rejects.toEqual(new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404));
       expect(userRepository.findByPhone).toHaveBeenCalledWith(request.body.phone);
     });
 
@@ -323,7 +323,7 @@ describe('Auth Controller', () => {
 
       const resetPassword = async () => authController.resetPassword(request, response);
 
-      await expect(resetPassword()).rejects.toThrow(new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404));
+      await expect(resetPassword()).rejects.toEqual(new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404));
       expect(userRepository.findByName).toHaveBeenCalledWith(request.body.name);
     });
 
@@ -367,7 +367,7 @@ describe('Auth Controller', () => {
 
       const checkPhone = async () => authController.checkPhone(request, response);
 
-      await expect(checkPhone()).rejects.toThrow(new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404));
+      await expect(checkPhone()).rejects.toEqual(new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404));
       expect(userRepository.findByPhone).toHaveBeenCalledWith(request.body.phone);
     });
 
@@ -377,7 +377,7 @@ describe('Auth Controller', () => {
 
       const checkPhone = async () => authController.checkPhone(request, response);
 
-      await expect(checkPhone()).rejects.toThrow(
+      await expect(checkPhone()).rejects.toEqual(
         new FailureObject(ErrorCode.INVALID_VALUE, 'Name does not match the owner of the phone', 400)
       );
       expect(userRepository.findByPhone).toHaveBeenCalledWith(request.body.phone);
