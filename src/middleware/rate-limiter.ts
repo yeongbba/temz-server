@@ -9,8 +9,13 @@ export default function limiter(client: RedisClientType) {
     max: config.rateLimit.maxRequest,
     standardHeaders: true,
     legacyHeaders: false,
+    skip: (req, res) => (isMyIP(req.ip) ? true : false),
     store: new RedisStore({
       sendCommand: (...args: string[]) => client.sendCommand(args),
     }),
   });
+}
+
+function isMyIP(ip: string) {
+  return ip === '::1' || ip.endsWith('127.0.0.1');
 }
