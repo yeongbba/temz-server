@@ -17,6 +17,11 @@ export class AuthController {
 
   me = async (req: Request, res: Response) => {
     const user = await this.userRepository.findById((req as any).userId);
+    if (!user) {
+      const failure = new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404);
+      throw failure;
+    }
+
     delete user.password;
     delete user.userId;
     res.status(200).json({ user });

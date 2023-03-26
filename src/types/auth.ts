@@ -14,7 +14,7 @@ export class User {
     id?: string;
     name?: string;
     password?: string;
-    profile: Profile;
+    profile?: Profile;
     email?: string;
     phone?: string;
     wallet?: string;

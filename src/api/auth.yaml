@@ -11,6 +11,8 @@ paths:
           required: true
           schema:
             type: string
+            minLength: 3
+            maxLength: 25
       responses:
         '200':
           description: Success
@@ -45,8 +47,12 @@ paths:
                 $ref: '#/components/schemas/FullUser'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServer'
+      security:
+        - jwtAuth: []
   /auth/csrf:
     get:
       tags:
@@ -383,8 +389,10 @@ components:
           properties:
             title:
               type: string
+              maxLength: 25
             description:
               type: string
+              maxLength: 500
             image:
               type: string
               format: url

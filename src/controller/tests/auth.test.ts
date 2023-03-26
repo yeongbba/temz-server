@@ -77,6 +77,16 @@ describe('Auth Controller', () => {
       response = httpMocks.createResponse();
     });
 
+    it('If the user cannot be found, returns 404 for the request', async () => {
+      request.userId = 1;
+      userRepository.findById = jest.fn();
+
+      const me = async () => authController.me(request, response);
+
+      await expect(me()).rejects.toStrictEqual(new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404));
+      expect(userRepository.findById).toHaveBeenCalledWith(request.userId);
+    });
+
     it('Find my information by id', async () => {
       request.userId = 1;
       userRepository.findById = jest.fn(() => me);
@@ -226,7 +236,9 @@ describe('Auth Controller', () => {
       bcrypt.compare = jest.fn(async () => true);
       const login = async () => authController.login(request, response);
 
-      await expect(login()).rejects.toEqual(new FailureObject(ErrorCode.NOT_FOUND, 'Phone number was not found', 404));
+      await expect(login()).rejects.toStrictEqual(
+        new FailureObject(ErrorCode.NOT_FOUND, 'Phone number was not found', 404)
+      );
       expect(userRepository.findByName).toHaveBeenCalledWith(request.body.name);
       expect(bcrypt.compare).toHaveBeenCalledWith(request.body.password, user.password);
     });
@@ -284,7 +296,7 @@ describe('Auth Controller', () => {
 
       const findName = async () => authController.findName(request, response);
 
-      await expect(findName()).rejects.toEqual(new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404));
+      await expect(findName()).rejects.toStrictEqual(new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404));
       expect(userRepository.findByPhone).toHaveBeenCalledWith(request.body.phone);
     });
 
@@ -323,7 +335,9 @@ describe('Auth Controller', () => {
 
       const resetPassword = async () => authController.resetPassword(request, response);
 
-      await expect(resetPassword()).rejects.toEqual(new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404));
+      await expect(resetPassword()).rejects.toStrictEqual(
+        new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404)
+      );
       expect(userRepository.findByName).toHaveBeenCalledWith(request.body.name);
     });
 
@@ -367,7 +381,7 @@ describe('Auth Controller', () => {
 
       const checkPhone = async () => authController.checkPhone(request, response);
 
-      await expect(checkPhone()).rejects.toEqual(new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404));
+      await expect(checkPhone()).rejects.toStrictEqual(new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404));
       expect(userRepository.findByPhone).toHaveBeenCalledWith(request.body.phone);
     });
 
