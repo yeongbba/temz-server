@@ -452,14 +452,14 @@ describe('Auth Controller', () => {
       response = httpMocks.createResponse();
     });
 
-    it('If update is successful, returns 201 for the request', async () => {
+    it('If update is successful, returns 204 for the request', async () => {
       userRepository.updateUser = jest.fn();
       request.userId = 1;
 
       await authController.update(request, response);
 
       expect(userRepository.updateUser).toHaveBeenCalledWith(request.userId, User.parse(request.body));
-      expect(response.statusCode).toBe(201);
+      expect(response.statusCode).toBe(204);
     });
   });
 
@@ -475,7 +475,7 @@ describe('Auth Controller', () => {
       response = httpMocks.createResponse();
     });
 
-    it('If the user is removed, returns 201 for the request', async () => {
+    it('If the user is removed, returns 204 for the request', async () => {
       request.userId = 1;
       userRepository.removeUser = jest.fn();
       response.cookie = jest.fn();
@@ -484,7 +484,7 @@ describe('Auth Controller', () => {
 
       expect(userRepository.removeUser).toHaveBeenCalledWith(request.userId);
       expect(response.cookie).toHaveBeenCalledWith(config.cookie.tokenKey, '');
-      expect(response.statusCode).toBe(201);
+      expect(response.statusCode).toBe(204);
     });
   });
 });

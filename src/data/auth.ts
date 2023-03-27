@@ -57,6 +57,6 @@ export async function updateUser(id: string, user: User) {
 }
 
 export async function removeUser(id: string) {
-  const result = await UserModel.findByIdAndRemove(id);
-  console.log(result);
+  const result = await UserModel.findByIdAndRemove(id, { returnOriginal: false });
+  return User.parse(result);
 }

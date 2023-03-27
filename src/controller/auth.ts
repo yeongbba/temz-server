@@ -141,21 +141,21 @@ export class AuthController {
     });
 
     await this.userRepository.updateUser((req as any).userId, data);
-    res.sendStatus(201);
+    res.sendStatus(204);
   };
 
   remove = async (req: Request, res: Response) => {
     await this.userRepository.removeUser((req as any).userId);
     this.removeToken(res);
-    res.sendStatus(201);
+    res.sendStatus(204);
   };
 
   // TODO: write on auth.yaml later..
-  checkWallet = async (req: Request, res: Response) => {
-    const wallet = req.query.wallet as string;
-    const user = await this.userRepository.findByWallet(wallet);
-    res.status(200).json({ isValid: !user });
-  };
+  // checkWallet = async (req: Request, res: Response) => {
+  //   const wallet = req.query.wallet as string;
+  //   const user = await this.userRepository.findByWallet(wallet);
+  //   res.status(200).json({ isValid: !user });
+  // };
 
   private createJwtToken = (id: string) => {
     return jwt.sign({ id }, config.jwt.secretKey, {

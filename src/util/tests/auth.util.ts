@@ -38,3 +38,11 @@ export const loginUser = async (request: AxiosInstance) => {
 
   return login.data;
 };
+
+export const csrfToken = async (request: AxiosInstance, token: string) => {
+  const csrf = await request.get(`/auth/csrf`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  return csrf.data;
+};
