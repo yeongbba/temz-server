@@ -1,11 +1,20 @@
 import axios, { AxiosInstance } from 'axios';
-import { createNewUser, csrfToken, DATE_REGEX, fakeUser, loginUser } from '../../util/tests/auth.util';
+import {
+  authMiddleWareTest,
+  createNewUser,
+  csrfMiddleWareTest,
+  csrfToken,
+  DATE_REGEX,
+  fakeUser,
+  loginUser,
+} from '../../util/tests/auth.util';
 import { AddressInfo } from 'net';
 import { Index } from '../..';
 import { FailureObject } from '../../util/error.util';
 import { ErrorCode } from '../../types/error.util';
 import { faker } from '@faker-js/faker';
 import { fakeFailures } from '../../util/tests/error.util';
+import { config } from '../../config';
 
 describe('Auth APIs', () => {
   let index: Index;
@@ -91,7 +100,7 @@ describe('Auth APIs', () => {
   });
 
   describe('GET to /auth/me', () => {
-    it('returns 200 and user if user exists', async () => {
+    it('returns 200 and user if user exist', async () => {
       const { token, user } = await loginUser(request);
 
       const res = await request.get(`/auth/me`, {
@@ -102,6 +111,10 @@ describe('Auth APIs', () => {
       expect(res.data).toEqual({
         user,
       });
+    });
+
+    test.each(authMiddleWareTest)('$name', async ({ name, testFn }) => {
+      await testFn(request, { method: 'get', url: '/auth/me' }, 'me');
     });
   });
 
@@ -115,6 +128,10 @@ describe('Auth APIs', () => {
 
       expect(res.status).toBe(200);
       expect(res.data.token.length).toBeGreaterThan(0);
+    });
+
+    test.each(authMiddleWareTest)('$name', async ({ name, testFn }) => {
+      await testFn(request, { method: 'get', url: '/auth/csrf' }, 'csrf');
     });
   });
 
@@ -697,10 +714,14 @@ describe('Auth APIs', () => {
         `/auth/logout`,
         {},
         {
-          headers: { 'Authorization': `Bearer ${token}`, 'temz-csrf-token': csrf.token },
+          headers: { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token },
         }
       );
       expect(res.status).toBe(201);
+    });
+
+    test.each([...authMiddleWareTest, ...csrfMiddleWareTest])('$name', async ({ name, testFn }) => {
+      await testFn(request, { method: 'post', url: '/auth/logout', data: {} }, 'logout');
     });
   });
 
@@ -720,7 +741,7 @@ describe('Auth APIs', () => {
           wallet: updateUser.wallet,
         },
         {
-          headers: { 'Authorization': `Bearer ${token}`, 'temz-csrf-token': csrf.token },
+          headers: { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token },
         }
       );
       expect(res.status).toBe(204);
@@ -752,7 +773,7 @@ describe('Auth APIs', () => {
           wallet: updateUser.wallet,
         },
         {
-          headers: { 'Authorization': `Bearer ${token}`, 'temz-csrf-token': csrf.token },
+          headers: { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token },
         }
       );
 
@@ -789,7 +810,7 @@ describe('Auth APIs', () => {
           wallet: updateUser.wallet,
         },
         {
-          headers: { 'Authorization': `Bearer ${token}`, 'temz-csrf-token': csrf.token },
+          headers: { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token },
         }
       );
 
@@ -834,7 +855,7 @@ describe('Auth APIs', () => {
             wallet: updateUser.wallet,
           },
           {
-            headers: { 'Authorization': `Bearer ${token}`, 'temz-csrf-token': csrf.token },
+            headers: { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token },
           }
         );
 
@@ -879,7 +900,7 @@ describe('Auth APIs', () => {
             wallet: updateUser.wallet,
           },
           {
-            headers: { 'Authorization': `Bearer ${token}`, 'temz-csrf-token': csrf.token },
+            headers: { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token },
           }
         );
 
@@ -915,7 +936,7 @@ describe('Auth APIs', () => {
           wallet: updateUser.wallet,
         },
         {
-          headers: { 'Authorization': `Bearer ${token}`, 'temz-csrf-token': csrf.token },
+          headers: { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token },
         }
       );
 
@@ -926,6 +947,25 @@ describe('Auth APIs', () => {
         ])
       );
     });
+
+    test.each([...authMiddleWareTest, ...csrfMiddleWareTest])('$name', async ({ name, testFn }) => {
+      const updateUser = fakeUser(false);
+      await testFn(
+        request,
+        {
+          method: 'put',
+          url: '/auth/update',
+          data: {
+            name: updateUser.name,
+            profile: updateUser.profile,
+            email: updateUser.email,
+            phone: updateUser.phone,
+            wallet: updateUser.wallet,
+          },
+        },
+        'update'
+      );
+    });
   });
 
   describe('DELETE to /auth/remove', () => {
@@ -934,9 +974,13 @@ describe('Auth APIs', () => {
       const csrf = await csrfToken(request, token);
 
       const res = await request.delete(`/auth/remove`, {
-        headers: { 'Authorization': `Bearer ${token}`, 'temz-csrf-token': csrf.token },
+        headers: { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token },
       });
       expect(res.status).toBe(204);
+    });
+
+    test.each([...authMiddleWareTest, ...csrfMiddleWareTest])('$name', async ({ name, testFn }) => {
+      await testFn(request, { method: 'delete', url: '/auth/remove' }, 'remove');
     });
   });
 });

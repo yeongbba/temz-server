@@ -69,7 +69,8 @@ export async function startServer(port?: number): Promise<ServerInfo> {
       failures = error.errors.map((error: any) => {
         const path = error.path.split('/');
         const reason = path[path.length - 1];
-        return new FailureObject(error.errorCode, error.message, status, reason);
+        const errorCode = error?.errorCode || ErrorCode.INVALID_VALUE;
+        return new FailureObject(errorCode, error.message, status, reason);
       });
       res.status(status).json({ failures });
       return;

@@ -10,7 +10,7 @@ export const csrfCheck = async (req: Request, scopes: string[], schema: OpenAPIV
     return true;
   }
 
-  const token = req.get('temz-csrf-token');
+  const token = req.get(config.csrf.tokenKey);
   if (!token) {
     const failure = new FailureObject(ErrorCode.NULL_ARGS, 'Csrf token should not be null', 403);
     throw failure;
