@@ -12,7 +12,7 @@
     "build": "tsc",
     "lint": "eslint src/**/*.ts",
     "test": "DOTENV_CONFIG_PATH=./.env.test jest --watchAll --verbose --globalTeardown=./src/tests/integration-tests/global-teardown.ts",
-    "test:unit": "DOTENV_CONFIG_PATH=./.env.test jest --watchAll --verbose --testPathIgnorePatterns=/tests/integration-tests",
+    "test:unit": "DOTENV_CONFIG_PATH=./.env.test jest --watch --verbose --testPathIgnorePatterns=/tests/integration-tests",
     "test:integration": "DOTENV_CONFIG_PATH=./.env.test jest --watchAll --verbose --testPathPattern=/tests/integration-tests --globalTeardown=./src/tests/integration-tests/global-teardown.ts",
     "test:watch": "DOTENV_CONFIG_PATH=./.env.test jest --watch",
     "test:watch:verbose": "DOTENV_CONFIG_PATH=./.env.test jest --watch --verbose",

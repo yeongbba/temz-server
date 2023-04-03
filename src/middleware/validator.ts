@@ -2,7 +2,6 @@ import { RequestHandler, NextFunction, Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import * as OpenAPIValidator from 'express-openapi-validator';
 import controllers from '../controller';
-import { csrfCheck } from './csrf';
 import { OpenAPIV3 } from 'express-openapi-validator/dist/framework/types';
 import handlers from '.';
 
@@ -26,7 +25,7 @@ export const validator = (apiSpec: OpenAPIV3.Document) => {
     validateSecurity: {
       handlers: {
         jwtAuth: handlers.auth.verify,
-        csrf: csrfCheck,
+        csrf: handlers.csrf.csrfCheck,
       },
     },
   });
