@@ -17,7 +17,6 @@ import { validator } from './middleware/validator';
 import { ErrorCode } from './types/error.util';
 import { FailureObject } from './util/error.util';
 import { OpenAPIV3 } from 'express-openapi-validator/dist/framework/types';
-import verifyRouter from './router/verify';
 import { ServerInfo } from './types/common';
 
 const corsOption = {
@@ -40,7 +39,6 @@ export async function startServer(port?: number): Promise<ServerInfo> {
   app.use(morgan('tiny'));
   app.use(limiter(rateLimitDB.client));
 
-  app.use('/verify', verifyRouter);
   const openAPIDocument = createOpenAPIDoc();
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openAPIDocument));
   app.use(validator(openAPIDocument));

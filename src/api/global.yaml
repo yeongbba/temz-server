@@ -65,6 +65,17 @@ components:
               - code: not-found
                 message: The specified resource was not found
                 status: 404
+    TooManyRequest:
+      description: Too Many Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            failures:
+              - code: too-many-request
+                message: Sent too many requests
+                status: 429
     InternalServer:
       description: Internal server
       content:

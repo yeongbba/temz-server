@@ -1,0 +1,96 @@
+paths:
+  /verify/token:
+    post:
+      tags:
+        - verify
+      summary: Send verify token
+      operationId: sendVerificationToken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Phone'
+        required: true
+      responses:
+        '200':
+          description: Success
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '429':
+          $ref: '#/components/responses/TooManyRequest'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+      security: []
+  /verify/check:
+    post:
+      tags:
+        - verify
+      summary: Check verify token
+      operationId: checkVerificationToken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Phone'
+                - type: object
+                  properties:
+                    code:
+                      type: integer
+                  required:
+                    - code
+                  example:
+                    phone: '01012345678'
+                    code: 123456
+        required: true
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                required:
+                  - status
+                example:
+                  status: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+      security: []
+  /verify/cancel:
+    delete:
+      tags:
+        - verify
+      summary: Cancel verify token
+      operationId: cancelVerificationToken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Phone'
+        required: true
+      responses:
+        '201':
+          description: Success
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+      security: []
+components:
+  schemas:
+    Phone:
+      type: object
+      properties:
+        phone:
+          type: string
+          pattern: '^(010)(\d{4})(\d{4})$'
+      required:
+        - phone
+      example:
+        phone: '01012345678'
