@@ -2,14 +2,14 @@ import { Request, Response } from 'express';
 import { config } from '../config';
 import { ErrorCode } from '../types/error.util';
 import { FailureObject } from '../util/error.util';
-import { sendSMSMessage } from '../util/sms.util';
+import verifyUtil from '../util/sms.util';
 
 export class VerifyController {
   constructor(private verifyRepository: any) {}
 
   sendVerificationToken = async (req: Request, res: Response) => {
     const { phone }: { phone: string } = req.body;
-    const code = this.generateCode();
+    const code = verifyUtil.generateCode();
     const smsData = {
       from: config.sens.hostPhone,
       content: 'temz verify code',
@@ -26,7 +26,7 @@ export class VerifyController {
     if (existedPhone) {
       const verificationToken = await this.verifyRepository.getVerifyCode(phone);
       if (verificationToken.count > config.verification.allowCount) {
-        await this.verifyRepository.setExpireTime(phone, 600);
+        await this.verifyRepository.setExpireTime(phone, config.verification.blockExpireMinute);
         const failure = new FailureObject(ErrorCode.TOO_MANY_REQUEST, 'Sent too many requests', 429);
         throw failure;
       } else {
@@ -36,8 +36,8 @@ export class VerifyController {
       await this.verifyRepository.setVerifyCode(phone, code, 1);
     }
 
-    await this.verifyRepository.setExpireTime(phone, 180);
-    await sendSMSMessage(smsData);
+    await this.verifyRepository.setExpireTime(phone, config.verification.generalExpireMinute);
+    await verifyUtil.sendSMSMessage(smsData);
     res.sendStatus(200);
   };
 
@@ -58,11 +58,4 @@ export class VerifyController {
     await this.verifyRepository.removeVerifyCode(phone);
     res.sendStatus(201);
   };
-
-  private generateCode() {
-    const min = 100000;
-    const max = 999999;
-    const randomNum = Math.floor(Math.random() * (max - min + 1) + min);
-    return randomNum;
-  }
 }

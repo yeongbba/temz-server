@@ -51,6 +51,8 @@ export const config = {
   },
   verification: {
     allowCount: parseInt(required('VERIFICATION_ALLOW_COUNT', 10)),
+    generalExpireMinute: parseInt(required('VERIFICATION_GENERAL_EXPIRE_MINUTE', 180)),
+    blockExpireMinute: parseInt(required('VERIFICATION_BLOCK_EXPIRE_MINUTE', 600)),
   },
   twilio: {
     accountSid: required('TWILIO_ACCOUNT_SID'),

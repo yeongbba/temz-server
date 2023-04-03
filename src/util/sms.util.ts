@@ -10,7 +10,7 @@ const DEFAULT_BODY = {
   content: 'default',
 };
 
-export async function sendSMSMessage(data) {
+async function sendSMSMessage(data) {
   data = { ...DEFAULT_BODY, ...data };
   const sensAuth = prepareSensAuthData();
   await axios(SENS_REQUEST_URL, {
@@ -23,6 +23,13 @@ export async function sendSMSMessage(data) {
     },
     data: JSON.stringify(data),
   });
+}
+
+function generateCode() {
+  const min = 100000;
+  const max = 999999;
+  const randomNum = Math.floor(Math.random() * (max - min + 1) + min);
+  return randomNum;
 }
 
 function prepareSensAuthData() {
@@ -43,3 +50,7 @@ function prepareSensAuthData() {
     signature,
   };
 }
+
+const verifyUtil = { sendSMSMessage, generateCode };
+
+export default verifyUtil;
