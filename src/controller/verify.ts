@@ -42,9 +42,9 @@ export class VerifyController {
   };
 
   checkVerificationToken = async (req: Request, res: Response) => {
-    const { phone, code }: { phone: string; code: number } = req.body;
+    const { phone, code }: { phone: string; code: string } = req.body;
     const verificationToken = await this.verifyRepository.getVerifyCode(phone);
-    const status = verificationToken.code === code;
+    const status = verificationToken.code === parseInt(code);
 
     if (status) {
       await this.verifyRepository.removeVerifyCode(phone);

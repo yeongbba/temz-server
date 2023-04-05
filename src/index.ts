@@ -18,18 +18,6 @@ export class Index {
     return this._totalInfo.server as http.Server;
   }
 
-  get mongoDB() {
-    return this._totalInfo.db;
-  }
-
-  get rateLimitDB() {
-    return this._totalInfo.redis.rateLimitDB;
-  }
-
-  get verifyCodeDB() {
-    return this._totalInfo.redis.verifyCodeDB;
-  }
-
   private constructor(port?: number) {
     this.init(port);
   }
@@ -53,5 +41,6 @@ export class Index {
   }
 }
 
-const index = Index.start(config.host.port);
-export default index;
+if (!config.environment.test) {
+  Index.start(config.host.port);
+}

@@ -36,12 +36,14 @@ paths:
                 - type: object
                   properties:
                     code:
-                      type: integer
+                      type: string
+                      minLength: 6
+                      maxLength: 6
                   required:
                     - code
                   example:
                     phone: '01012345678'
-                    code: 123456
+                    code: '123456'
         required: true
       responses:
         '200':

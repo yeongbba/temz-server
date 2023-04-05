@@ -30,7 +30,7 @@ export const config = {
   redis: {
     url: required('REDIS_URL'),
     rateLimitDB: required('RATE_LIMIT_DB', 0),
-    verfiyCodeDB: required('VERIFY_CODE_DB', 1),
+    verifyCodeDB: required('VERIFY_CODE_DB', 1),
   },
   cors: {
     allowedOrigin: required('CORS_ALLOW_ORIGIN'),
@@ -58,5 +58,8 @@ export const config = {
     accountSid: required('TWILIO_ACCOUNT_SID'),
     serviceSid: required('TWILIO_SERVICE_SID'),
     authToken: required('TWILIO_AUTH_TOKEN'),
+  },
+  environment: {
+    test: required('IS_TEST') === 'true' ? true : false,
   },
 };

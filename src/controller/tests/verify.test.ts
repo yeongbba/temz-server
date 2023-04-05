@@ -120,13 +120,13 @@ describe('Verify Controller', () => {
   });
 
   describe('checkVerificationToken', () => {
-    let code: number;
+    let code: string;
     let request = httpMocks.createRequest();
     let response = httpMocks.createResponse();
 
     beforeEach(() => {
       const phone = generatePhoneNumber();
-      code = parseInt(faker.random.numeric(6));
+      code = faker.random.numeric(6);
 
       request = httpMocks.createRequest({
         method: 'POST',
@@ -140,7 +140,7 @@ describe('Verify Controller', () => {
     });
 
     it('Return status value true with 200 if code verification is successful', async () => {
-      verifyRepository.getVerifyCode = jest.fn(() => ({ code }));
+      verifyRepository.getVerifyCode = jest.fn(() => ({ code: parseInt(code) }));
       verifyRepository.removeVerifyCode = jest.fn();
 
       await verifyController.checkVerificationToken(request, response);
@@ -152,7 +152,7 @@ describe('Verify Controller', () => {
     });
 
     it('Return status value false with 200 if code verification is fail', async () => {
-      const fakeCode = parseInt(faker.random.numeric(6));
+      const fakeCode = faker.random.numeric(6);
       verifyRepository.getVerifyCode = jest.fn(() => ({ code: fakeCode }));
 
       await verifyController.checkVerificationToken(request, response);
