@@ -25,7 +25,7 @@ export class VerifyController {
     const existedPhone = await this.verifyRepository.checkExistPhone(phone);
     if (existedPhone) {
       const verificationToken = await this.verifyRepository.getVerifyCode(phone);
-      if (verificationToken.count > config.verification.allowCount) {
+      if (verificationToken.count >= config.verification.allowCount) {
         await this.verifyRepository.setExpireTime(phone, config.verification.blockExpireMinute);
         const failure = new FailureObject(ErrorCode.TOO_MANY_REQUEST, 'Sent too many requests', 429);
         throw failure;
@@ -38,13 +38,13 @@ export class VerifyController {
 
     await this.verifyRepository.setExpireTime(phone, config.verification.generalExpireMinute);
     await verifyUtil.sendSMSMessage(smsData);
-    res.sendStatus(200);
+    res.status(200).json({ code: code.toString() });
   };
 
   checkVerificationToken = async (req: Request, res: Response) => {
     const { phone, code }: { phone: string; code: string } = req.body;
     const verificationToken = await this.verifyRepository.getVerifyCode(phone);
-    const status = verificationToken.code === parseInt(code);
+    const status = verificationToken.code === code;
 
     if (status) {
       await this.verifyRepository.removeVerifyCode(phone);
