@@ -21,6 +21,8 @@ tags:
     description: Methods to handle authentication
   - name: verify
     description: Methods to verify mobile phone
+  - name: link
+    description: Methods to manage links
 components:
   responses:
     BadRequest:
