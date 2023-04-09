@@ -52,7 +52,7 @@ describe('Auth Controller', () => {
       const name = faker.internet.userName();
       request.url = `/auth/check-name?name=${name}`;
       request.query = { name };
-      userRepository.findByName = jest.fn();
+      userRepository.findByName = jest.fn(() => User.parse(null));
 
       await authController.checkName(request, response);
 
@@ -79,7 +79,7 @@ describe('Auth Controller', () => {
 
     it('If the user cannot be found, returns 404 for the request', async () => {
       request.userId = 1;
-      userRepository.findById = jest.fn();
+      userRepository.findById = jest.fn(() => User.parse(null));
 
       const me = async () => authController.me(request, response);
 
@@ -152,7 +152,7 @@ describe('Auth Controller', () => {
     });
 
     it('If there is a user with the same phone number, update the phone number to null.', async () => {
-      userRepository.findByName = jest.fn();
+      userRepository.findByName = jest.fn(() => User.parse(null));
       userRepository.findByPhone = jest.fn(() => registeredUser);
       userRepository.updateUser = jest.fn();
       userRepository.createUser = jest.fn();
@@ -165,9 +165,9 @@ describe('Auth Controller', () => {
       expect(userRepository.updateUser).toHaveBeenCalledWith(registeredUser.userId, registeredUser);
     });
 
-    it('returns 201 with created tweet object including userId', async () => {
-      userRepository.findByName = jest.fn();
-      userRepository.findByPhone = jest.fn();
+    it('returns 201 if user sign up successfully', async () => {
+      userRepository.findByName = jest.fn(() => User.parse(null));
+      userRepository.findByPhone = jest.fn(() => User.parse(null));
       userRepository.updateUser = jest.fn();
       userRepository.createUser = jest.fn();
 
@@ -207,7 +207,7 @@ describe('Auth Controller', () => {
     });
 
     it('If the account tried to log in does not exist, returns 401 for the request', async () => {
-      userRepository.findByName = jest.fn();
+      userRepository.findByName = jest.fn(() => User.parse(null));
       const login = async () => authController.login(request, response);
 
       await expect(login()).rejects.toEqual(
@@ -292,7 +292,7 @@ describe('Auth Controller', () => {
     });
 
     it('If the user cannot be found, returns 404 for the request', async () => {
-      userRepository.findByPhone = jest.fn();
+      userRepository.findByPhone = jest.fn(() => User.parse(null));
 
       const findName = async () => authController.findName(request, response);
 
@@ -331,7 +331,7 @@ describe('Auth Controller', () => {
     });
 
     it('If the user cannot be found, returns 404 for the request', async () => {
-      userRepository.findByName = jest.fn();
+      userRepository.findByName = jest.fn(() => User.parse(null));
 
       const resetPassword = async () => authController.resetPassword(request, response);
 
@@ -377,7 +377,7 @@ describe('Auth Controller', () => {
     });
 
     it('If the user cannot be found, returns 404 for the request', async () => {
-      userRepository.findByPhone = jest.fn();
+      userRepository.findByPhone = jest.fn(() => User.parse(null));
 
       const checkPhone = async () => authController.checkPhone(request, response);
 

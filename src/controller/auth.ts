@@ -12,12 +12,12 @@ export class AuthController {
   checkName = async (req: Request, res: Response) => {
     const name = req.query.name as string;
     const user: User = await this.userRepository.findByName(name);
-    res.status(200).json({ isValid: !user });
+    res.status(200).json({ isValid: !user.userId });
   };
 
   me = async (req: Request, res: Response) => {
     const user: User = await this.userRepository.findById((req as any).userId);
-    if (!user) {
+    if (!user.userId) {
       const failure = new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404);
       throw failure;
     }
@@ -34,13 +34,13 @@ export class AuthController {
     const { name, password, email, phone, profile, wallet } = req.body;
 
     const userByName: User = await this.userRepository.findByName(name);
-    if (userByName) {
+    if (userByName.userId) {
       const failure = new FailureObject(ErrorCode.DUPLICATED_VALUE, `${name} already exists`, 409);
       throw failure;
     }
 
     const userByPhone: User = await this.userRepository.findByPhone(phone);
-    if (userByPhone) {
+    if (userByPhone.userId) {
       userByPhone.phone = null;
       await this.userRepository.updateUser(userByPhone.userId, userByPhone);
     }
@@ -63,7 +63,7 @@ export class AuthController {
     const user: User = await this.userRepository.findByName(name);
 
     const failure = new FailureObject(ErrorCode.INVALID_VALUE, 'Invalid user or password', 401);
-    if (!user) {
+    if (!user.userId) {
       throw failure;
     }
 
@@ -86,7 +86,7 @@ export class AuthController {
   findName = async (req: Request, res: Response) => {
     const { phone } = req.body;
     const user: User = await this.userRepository.findByPhone(phone);
-    if (!user) {
+    if (!user.userId) {
       const failure = new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404);
       throw failure;
     }
@@ -97,7 +97,7 @@ export class AuthController {
     const { name, password } = req.body;
 
     const user: User = await this.userRepository.findByName(name);
-    if (!user) {
+    if (!user.userId) {
       const failure = new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404);
       throw failure;
     }
@@ -110,7 +110,7 @@ export class AuthController {
   checkPhone = async (req: Request, res: Response) => {
     const { name, phone } = req.body;
     const user: User = await this.userRepository.findByPhone(phone);
-    if (!user) {
+    if (!user.userId) {
       const failure = new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404);
       throw failure;
     }
