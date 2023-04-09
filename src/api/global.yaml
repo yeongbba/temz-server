@@ -67,6 +67,17 @@ components:
               - code: not-found
                 message: The specified resource was not found
                 status: 404
+    DuplicatedValue:
+      description: Duplicated value
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            failures:
+              - code: duplicated-value
+                message: jhon_doe already exists
+                status: 409
     TooManyRequest:
       description: Too Many Request
       content:

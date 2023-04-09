@@ -1,17 +1,17 @@
 paths:
-  /link/social:
+  /link:
     get:
       tags:
         - link
       summary: Get social network links
-      operationId: getSocialLinks
+      operationId: getLinks
       responses:
         '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SocialLinks'
+                $ref: '#/components/schemas/Links'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -22,12 +22,12 @@ paths:
       tags:
         - link
       summary: Create social network links
-      operationId: createSocialLinks
+      operationId: createLinks
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SocialLinks'
+              $ref: '#/components/schemas/Links'
         required: true
       responses:
         '201':
@@ -36,18 +36,20 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/DuplicatedValue'
         '500':
           $ref: '#/components/responses/InternalServer'
     put:
       tags:
         - link
       summary: Update social network links
-      operationId: updateSocialLinks
+      operationId: updateLinks
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SocialLinks'
+              $ref: '#/components/schemas/Links'
         required: true
       responses:
         '204':
@@ -56,104 +58,13 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
-        '500':
-          $ref: '#/components/responses/InternalServer'
-  /link/general:
-    get:
-      tags:
-        - link
-      summary: Get general links
-      operationId: getGeneralLinks
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GetGeneralLinks'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '500':
-          $ref: '#/components/responses/InternalServer'
-    post:
-      tags:
-        - link
-      summary: Create general links
-      operationId: createGeneralLinks
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PostGeneralLinks'
-        required: true
-      responses:
-        '201':
-          description: Created
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '500':
-          $ref: '#/components/responses/InternalServer'
-    put:
-      tags:
-        - link
-      summary: Update general links
-      operationId: updateGeneralLinks
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PutGeneralLinks'
-        required: true
-      responses:
-        '204':
-          description: No Content
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '500':
-          $ref: '#/components/responses/InternalServer'
-    delete:
-      tags:
-        - link
-      summary: Remove general links
-      operationId: removeGeneralLinks
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                themes:
-                  type: array
-                  minItems: 1
-                  maxItems: 5
-                  uniqueItems: true
-                  items:
-                    type: string
-              required:
-                - themes
-              example:
-                themes:
-                  - 507f1f77bcf86cd799439011
-                  - 938f1f12bcf86cd799439012
-        required: true
-      responses:
-        '204':
-          description: No Content
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServer'
 components:
   schemas:
-    SocialLinks:
+    Links:
       type: object
       properties:
         links:
@@ -162,21 +73,56 @@ components:
             youtube:
               type: string
               format: url
+              nullable: true
             twitter:
               type: string
               format: url
+              nullable: true
             tiktok:
               type: string
               format: url
+              nullable: true
             instagram:
               type: string
               format: url
+              nullable: true
             facebook:
               type: string
               format: url
+              nullable: true
             telegram:
               type: string
               format: url
+              nullable: true
+            general:
+              type: array
+              maxItems: 5
+              items:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    maxLength: 50
+                  links:
+                    type: array
+                    maxItems: 9
+                    items:
+                      type: object
+                      properties:
+                        description:
+                          type: string
+                          maxLength: 50
+                        link:
+                          type: string
+                          format: url
+                      required:
+                        - description
+                        - link
+                required:
+                  - title
+                  - links
+          required:
+            - general
       required:
         - links
       example:
@@ -187,135 +133,10 @@ components:
           instagram: https://www.instagram.com
           facebook: https://www.facebook.com
           telegram: https://www.telegram.com
-    GetGeneralLinks:
-      type: object
-      properties:
-        themes:
-          type: array
-          maxItems: 5
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              title:
-                type: string
-                maxLength: 50
+          general:
+            - title: 골린이 탈출 대작전
               links:
-                type: array
-                maxItems: 9
-                items:
-                  type: object
-                  properties:
-                    description:
-                      type: string
-                      maxLength: 50
-                    link:
-                      type: string
-                      format: url
-                  required:
-                    - description
-                    - link
-            required:
-              - id
-              - title
-              - links
-      required:
-        - themes
-      example:
-        themes:
-          - id: 507f1f77bcf86cd799439011
-            title: 골린이 탈출 대작전
-            links:
-              - description: '슬라이스 방지 레슨 01'
-                link: 'https://youtube.com'
-              - description: '슬라이스 방지 레슨 02'
-                link: 'https://twitter.com'
-    PutGeneralLinks:
-      type: object
-      properties:
-        themes:
-          type: array
-          minItems: 1
-          maxItems: 5
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              title:
-                type: string
-                maxLength: 50
-              links:
-                type: array
-                minItems: 1
-                maxItems: 9
-                items:
-                  type: object
-                  properties:
-                    description:
-                      type: string
-                      maxLength: 50
-                    link:
-                      type: string
-                      format: url
-                  required:
-                    - description
-                    - link
-            required:
-              - id
-              - title
-              - links
-      required:
-        - themes
-      example:
-        themes:
-          - id: 507f1f77bcf86cd799439011
-            title: 골린이 탈출 대작전
-            links:
-              - description: '슬라이스 방지 레슨 01'
-                link: 'https://youtube.com'
-              - description: '슬라이스 방지 레슨 02'
-                link: 'https://twitter.com'
-    PostGeneralLinks:
-      type: object
-      properties:
-        themes:
-          type: array
-          minItems: 1
-          maxItems: 5
-          items:
-            type: object
-            properties:
-              title:
-                type: string
-                maxLength: 50
-              links:
-                type: array
-                minItems: 1
-                maxItems: 9
-                items:
-                  type: object
-                  properties:
-                    description:
-                      type: string
-                      maxLength: 50
-                    link:
-                      type: string
-                      format: url
-                  required:
-                    - description
-                    - link
-            required:
-              - title
-              - links
-      required:
-        - themes
-      example:
-        themes:
-          - title: 골린이 탈출 대작전
-            links:
-              - description: '슬라이스 방지 레슨 01'
-                link: 'https://youtube.com'
-              - description: '슬라이스 방지 레슨 02'
-                link: 'https://twitter.com'
+                - description: '슬라이스 방지 레슨 01'
+                  link: 'https://youtube.com'
+                - description: '슬라이스 방지 레슨 02'
+                  link: 'https://twitter.com'

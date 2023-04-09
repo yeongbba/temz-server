@@ -1,11 +1,12 @@
-import * as userRepository from '../data/auth';
-import * as verifyRepository from '../data/verify';
+import { linkRepository, userRepository, verifyRepository } from '../data';
 import { AuthController } from './auth';
+import { LinkController } from './link';
 import { VerifyController } from './verify';
 
 const controllers = {
   auth: new AuthController(userRepository),
   verify: new VerifyController(verifyRepository),
+  link: new LinkController(linkRepository),
 };
 
 export default controllers;

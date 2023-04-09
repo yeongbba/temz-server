@@ -119,16 +119,7 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequest'
         '409':
-          description: User already exists
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                failures:
-                  - code: duplicated-value
-                    message: jhon_doe already exists
-                    status: 409
+          $ref: '#/components/responses/DuplicatedValue'
         '500':
           $ref: '#/components/responses/InternalServer'
       security: []
