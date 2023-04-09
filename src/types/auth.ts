@@ -43,6 +43,19 @@ export class User {
     user.profile = Profile.parse(user.profile);
     return user;
   }
+
+  toJson() {
+    return {
+      name: this.name,
+      profile: this.profile,
+      email: this.email || null,
+      phone: this.phone,
+      wallet: this.wallet || null,
+      isValid: this.isValid,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+    };
+  }
 }
 
 export class Profile {

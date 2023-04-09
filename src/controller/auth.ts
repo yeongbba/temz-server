@@ -11,20 +11,18 @@ export class AuthController {
 
   checkName = async (req: Request, res: Response) => {
     const name = req.query.name as string;
-    const user = await this.userRepository.findByName(name);
+    const user: User = await this.userRepository.findByName(name);
     res.status(200).json({ isValid: !user });
   };
 
   me = async (req: Request, res: Response) => {
-    const user = await this.userRepository.findById((req as any).userId);
+    const user: User = await this.userRepository.findById((req as any).userId);
     if (!user) {
       const failure = new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404);
       throw failure;
     }
 
-    delete user.password;
-    delete user.userId;
-    res.status(200).json({ user });
+    res.status(200).json({ user: user.toJson() });
   };
 
   csrf = async (req: Request, res: Response) => {
@@ -35,13 +33,13 @@ export class AuthController {
   signup = async (req: Request, res: Response) => {
     const { name, password, email, phone, profile, wallet } = req.body;
 
-    const userByName = await this.userRepository.findByName(name);
+    const userByName: User = await this.userRepository.findByName(name);
     if (userByName) {
       const failure = new FailureObject(ErrorCode.DUPLICATED_VALUE, `${name} already exists`, 409);
       throw failure;
     }
 
-    const userByPhone = await this.userRepository.findByPhone(phone);
+    const userByPhone: User = await this.userRepository.findByPhone(phone);
     if (userByPhone) {
       userByPhone.phone = null;
       await this.userRepository.updateUser(userByPhone.userId, userByPhone);
@@ -62,7 +60,7 @@ export class AuthController {
 
   login = async (req: Request, res: Response) => {
     const { name, password } = req.body;
-    const user = await this.userRepository.findByName(name);
+    const user: User = await this.userRepository.findByName(name);
 
     const failure = new FailureObject(ErrorCode.INVALID_VALUE, 'Invalid user or password', 401);
     if (!user) {
@@ -81,14 +79,13 @@ export class AuthController {
 
     const token = this.createJwtToken(user.userId);
     this.setToken(res, token);
-    delete user.password;
-    delete user.userId;
-    res.status(201).json({ token, user });
+
+    res.status(201).json({ token, user: user.toJson() });
   };
 
   findName = async (req: Request, res: Response) => {
     const { phone } = req.body;
-    const user = await this.userRepository.findByPhone(phone);
+    const user: User = await this.userRepository.findByPhone(phone);
     if (!user) {
       const failure = new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404);
       throw failure;
@@ -99,7 +96,7 @@ export class AuthController {
   resetPassword = async (req: Request, res: Response) => {
     const { name, password } = req.body;
 
-    const user = await this.userRepository.findByName(name);
+    const user: User = await this.userRepository.findByName(name);
     if (!user) {
       const failure = new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404);
       throw failure;
@@ -112,7 +109,7 @@ export class AuthController {
 
   checkPhone = async (req: Request, res: Response) => {
     const { name, phone } = req.body;
-    const user = await this.userRepository.findByPhone(phone);
+    const user: User = await this.userRepository.findByPhone(phone);
     if (!user) {
       const failure = new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404);
       throw failure;

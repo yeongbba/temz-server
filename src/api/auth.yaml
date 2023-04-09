@@ -372,10 +372,12 @@ components:
         email:
           type: string
           format: email
+          nullable: true
         wallet:
           type: string
           minLength: 25
           maxLength: 42
+          nullable: true
         profile:
           type: object
           properties:

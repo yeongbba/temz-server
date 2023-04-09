@@ -93,7 +93,7 @@ describe('Auth Controller', () => {
       await authController.me(request, response);
 
       expect(userRepository.findById).toHaveBeenCalledWith(request.userId);
-      expect(response._getJSONData()).toEqual({ user: me });
+      expect(response._getJSONData()).toEqual({ user: me.toJson() });
       expect(response._getJSONData().userId).toBeUndefined();
       expect(response._getJSONData().password).toBeUndefined();
       expect(response.statusCode).toBe(200);
@@ -266,7 +266,7 @@ describe('Auth Controller', () => {
         expiresIn: config.jwt.expiresInSec,
       });
       expect(response.cookie).toHaveBeenCalledWith(config.cookie.tokenKey, token, options);
-      expect(response._getJSONData()).toEqual({ token, user });
+      expect(response._getJSONData()).toEqual({ token, user: user.toJson() });
       expect(response._getJSONData().userId).toBeUndefined();
       expect(response._getJSONData().password).toBeUndefined();
       expect(response.statusCode).toBe(201);
