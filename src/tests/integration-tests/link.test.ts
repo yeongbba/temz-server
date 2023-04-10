@@ -300,9 +300,52 @@ describe('Link APIs', () => {
       },
       {
         parentFieldName: 'links',
+        failedFieldName: 'youtube',
+        value: parseInt(faker.random.numeric(5)),
+        type: 'string',
+      },
+      {
+        parentFieldName: 'links',
+        failedFieldName: 'twitter',
+        value: parseInt(faker.random.numeric(5)),
+        type: 'string',
+      },
+      {
+        parentFieldName: 'links',
+        failedFieldName: 'tiktok',
+        value: parseInt(faker.random.numeric(5)),
+        type: 'string',
+      },
+      {
+        parentFieldName: 'links',
+        failedFieldName: 'instagram',
+        value: parseInt(faker.random.numeric(5)),
+        type: 'string',
+      },
+      {
+        parentFieldName: 'links',
+        failedFieldName: 'facebook',
+        value: parseInt(faker.random.numeric(5)),
+        type: 'string',
+      },
+      {
+        parentFieldName: 'links',
+        failedFieldName: 'telegram',
+        value: parseInt(faker.random.numeric(5)),
+        type: 'string',
+      },
+      {
+        parentFieldName: 'links',
         failedFieldName: 'general',
         value: faker.random.alpha({ count: 10 }),
         type: 'array',
+      },
+      {
+        parentFieldName: 'links',
+        failedFieldName: 'general',
+        value: faker.random.alpha({ count: 10 }),
+        type: 'object',
+        item: true,
       },
       {
         parentFieldName: 'links.general',
@@ -317,14 +360,27 @@ describe('Link APIs', () => {
         type: 'array',
       },
       {
+        parentFieldName: 'links.general',
+        failedFieldName: 'links',
+        value: faker.random.alpha({ count: 10 }),
+        type: 'object',
+        item: true,
+      },
+      {
         parentFieldName: 'links.general.links',
         failedFieldName: 'description',
         value: parseInt(faker.random.numeric(5)),
         type: 'string',
       },
+      {
+        parentFieldName: 'links.general.links',
+        failedFieldName: 'link',
+        value: parseInt(faker.random.numeric(5)),
+        type: 'string',
+      },
     ])(
       `returns 400 when $failedFieldName field is wrong type`,
-      async ({ parentFieldName, failedFieldName, value, type }) => {
+      async ({ parentFieldName, failedFieldName, value, type, item }) => {
         const { token } = await loginUser(request);
         const csrf = await csrfToken(request, token);
         const links = fakeLinks(false);
@@ -338,9 +394,18 @@ describe('Link APIs', () => {
               currentField = currentField[field];
             }
           });
-          currentField[failedFieldName] = value;
+
+          if (item) {
+            currentField[failedFieldName].unshift(value);
+          } else {
+            currentField[failedFieldName] = value;
+          }
         } else {
-          links[failedFieldName] = value;
+          if (item) {
+            links[failedFieldName].unshift(value);
+          } else {
+            links[failedFieldName] = value;
+          }
         }
 
         const res = await request.post(
@@ -355,7 +420,9 @@ describe('Link APIs', () => {
 
         expect(res.status).toBe(400);
         expect(res.data).toEqual(
-          fakeFailures([new FailureObject(ErrorCode.TYPE_OPENAPI, `must be ${type}`, 400, failedFieldName)])
+          fakeFailures([
+            new FailureObject(ErrorCode.TYPE_OPENAPI, `must be ${type}`, 400, item ? '0' : failedFieldName),
+          ])
         );
       }
     );
