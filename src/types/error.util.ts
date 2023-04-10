@@ -10,6 +10,8 @@ export enum ErrorCode {
   REQUIRED_OPENAPI = 'required.openapi.validation',
   MINLENGTH_OPENAPI = 'minLength.openapi.validation',
   MAXLENGTH_OPENAPI = 'maxLength.openapi.validation',
+  MAXITEMS_OPENAPI = 'maxItems.openapi.validation',
+  TYPE_OPENAPI = 'type.openapi.validation',
   FORMAT_OPENAPI = 'format.openapi.validation',
   PATTERN_OPENAPI = 'pattern.openapi.validation',
 }
