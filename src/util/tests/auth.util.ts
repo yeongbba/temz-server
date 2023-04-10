@@ -9,7 +9,7 @@ import { fakeFailures } from './error.util';
 export const DATE_REGEX = /[1-9]\d{3}-(0[1-9]|1[0-2])-(3[0-1]|[1-2]\d|0[1-9])T(0\d|1\d|2[0-3])(:[0-5]\d){2}.\d{3}Z/;
 
 export const fakeUser = (useId: boolean = true) => ({
-  id: useId ? '63ff1389cbf2d80a9db01b49' : undefined,
+  id: useId ? faker.random.alphaNumeric(24) : undefined,
   name: faker.internet.userName(),
   password: '12!' + faker.internet.password(),
   phone: faker.phone.number('010########'),

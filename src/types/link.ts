@@ -11,7 +11,7 @@ export class Links {
   createdAt?: Date;
   updatedAt?: Date;
 
-  constructor(link: {
+  constructor(link?: {
     id?: string;
     userId?: string;
     youtube?: string;

@@ -78,7 +78,7 @@ describe('Auth Controller', () => {
     });
 
     it('If the user cannot be found, returns 404 for the request', async () => {
-      request.userId = 1;
+      request.userId = faker.random.alphaNumeric(24);
       userRepository.findById = jest.fn(() => User.parse(null));
 
       const me = async () => authController.me(request, response);
@@ -88,7 +88,7 @@ describe('Auth Controller', () => {
     });
 
     it('Find my information by id', async () => {
-      request.userId = 1;
+      request.userId = faker.random.alphaNumeric(24);
       userRepository.findById = jest.fn(() => me);
       await authController.me(request, response);
 
@@ -454,7 +454,7 @@ describe('Auth Controller', () => {
 
     it('If update is successful, returns 204 for the request', async () => {
       userRepository.updateUser = jest.fn();
-      request.userId = 1;
+      request.userId = faker.random.alphaNumeric(24);
 
       await authController.update(request, response);
 
@@ -476,7 +476,7 @@ describe('Auth Controller', () => {
     });
 
     it('If the user is removed, returns 204 for the request', async () => {
-      request.userId = 1;
+      request.userId = faker.random.alphaNumeric(24);
       userRepository.removeUser = jest.fn();
       response.cookie = jest.fn();
 
