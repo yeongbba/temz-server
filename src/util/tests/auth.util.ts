@@ -5,6 +5,7 @@ import { config } from '../../config';
 import { ErrorCode } from '../../types/error.util';
 import { FailureObject } from '../error.util';
 import { fakeFailures } from './error.util';
+import { sendRequest } from './common.util';
 
 export const DATE_REGEX = /[1-9]\d{3}-(0[1-9]|1[0-2])-(3[0-1]|[1-2]\d|0[1-9])T(0\d|1\d|2[0-3])(:[0-5]\d){2}.\d{3}Z/;
 
@@ -277,20 +278,3 @@ export const authMiddleWareTest = [
     },
   },
 ];
-
-const sendRequest = async (
-  request: AxiosInstance,
-  options: {
-    method: Method;
-    url: string;
-    data?: any;
-  },
-  config?: AxiosRequestConfig
-): Promise<AxiosResponse<any, any>> => {
-  const { method, url, data } = options;
-  if (data) {
-    return request[method](url, data, config);
-  } else {
-    return request[method](url, config);
-  }
-};
