@@ -11,10 +11,13 @@ export const sendRequest = async (
     method: Method;
     url: string;
     data?: any;
+    params?: any;
   },
-  config?: AxiosRequestConfig
+  config: AxiosRequestConfig = {}
 ): Promise<AxiosResponse<any, any>> => {
-  const { method, url, data } = options;
+  const { method, url, data, params } = options;
+  config.params = params;
+
   if (data) {
     return request[method](url, data, config);
   } else {
@@ -45,6 +48,7 @@ export const itemCountTest = (value: ItemCountValue[]) => ({
       method: Method;
       url: string;
       data?: any;
+      params?: any;
     },
     value: ItemCountValue
   ) => {
@@ -149,17 +153,18 @@ export const maxLengthTest = (value: maxLengthValue[]) => ({
       method: Method;
       url: string;
       data?: any;
+      params?: any;
     },
     value: maxLengthValue
   ) => {
-    const links = options.data;
+    const rootField = options.params || options.data;
     const { token } = await loginUser(request);
     const csrf = await csrfToken(request, token);
     if (value.parentFieldName) {
-      const currentField = setCurrentField(value.parentFieldName, links);
+      const currentField = setCurrentField(value.parentFieldName, rootField);
       currentField[value.failedFieldName] = value.fakeValue;
     } else {
-      links[value.failedFieldName] = value.fakeValue;
+      rootField[value.failedFieldName] = value.fakeValue;
     }
 
     const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };

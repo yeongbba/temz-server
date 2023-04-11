@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 import {
+  authMaxLengthTest,
   authMiddleWareTest,
   createNewUser,
   csrfMiddleWareTest,
@@ -83,18 +84,18 @@ describe('Auth APIs', () => {
       );
     });
 
-    it('returns 400 when name param length is too long', async () => {
-      const res = await request.get(`/auth/check-name`, {
-        params: {
-          name: faker.random.alpha({ count: 26 }),
+    const maxLengthTest = authMaxLengthTest([{ failedFieldName: 'name' }]);
+    test.each(maxLengthTest.value)(`${maxLengthTest.name}`, async (value) => {
+      await maxLengthTest.testFn(
+        request,
+        {
+          method: 'get',
+          url: '/auth/check-name',
+          params: {
+            name: faker.random.alpha({ count: 26 }),
+          },
         },
-      });
-
-      expect(res.status).toBe(400);
-      expect(res.data).toEqual(
-        fakeFailures([
-          new FailureObject(ErrorCode.MAXLENGTH_OPENAPI, `must NOT have more than 25 characters`, 400, 'name'),
-        ])
+        value
       );
     });
   });
@@ -210,37 +211,19 @@ describe('Auth APIs', () => {
       );
     });
 
-    test.each([
-      { failedFieldName: 'name', value: faker.random.alpha({ count: 26 }), maxLength: 25 },
-      { failedFieldName: 'wallet', value: faker.random.alphaNumeric(43), maxLength: 42 },
-      { parentFieldName: 'profile', failedFieldName: 'title', value: faker.random.alpha(26), maxLength: 25 },
-      { parentFieldName: 'profile', failedFieldName: 'description', value: faker.random.alpha(501), maxLength: 500 },
-    ])(
-      `returns 400 when $failedFieldName field length is too long`,
-      async ({ parentFieldName, failedFieldName, value, maxLength }) => {
-        const user = fakeUser(false);
-
-        if (parentFieldName) {
-          user[parentFieldName][failedFieldName] = value;
-        } else {
-          user[failedFieldName] = value;
-        }
-
-        const res = await request.post('/auth/signup', user);
-
-        expect(res.status).toBe(400);
-        expect(res.data).toEqual(
-          fakeFailures([
-            new FailureObject(
-              ErrorCode.MAXLENGTH_OPENAPI,
-              `must NOT have more than ${maxLength} characters`,
-              400,
-              failedFieldName
-            ),
-          ])
-        );
-      }
-    );
+    const maxLengthTest = authMaxLengthTest();
+    test.each(maxLengthTest.value)(`${maxLengthTest.name}`, async (value) => {
+      const user = fakeUser(false);
+      await maxLengthTest.testFn(
+        request,
+        {
+          method: 'post',
+          url: '/auth/signup',
+          data: user,
+        },
+        value
+      );
+    });
 
     test.each([
       { failedFieldName: 'email', value: faker.random.alpha(10), format: 'email' },
@@ -406,19 +389,21 @@ describe('Auth APIs', () => {
       );
     });
 
-    it('returns 400 when name length is too long', async () => {
+    const maxLengthTest = authMaxLengthTest([{ failedFieldName: 'name' }]);
+    test.each(maxLengthTest.value)(`${maxLengthTest.name}`, async (value) => {
       const user = await createNewUser(request);
 
-      const res = await request.post('/auth/login', {
-        name: faker.random.alpha({ count: 26 }),
-        password: user.password,
-      });
-
-      expect(res.status).toBe(400);
-      expect(res.data).toEqual(
-        fakeFailures([
-          new FailureObject(ErrorCode.MAXLENGTH_OPENAPI, `must NOT have more than 25 characters`, 400, 'name'),
-        ])
+      await maxLengthTest.testFn(
+        request,
+        {
+          method: 'post',
+          url: '/auth/login',
+          data: {
+            name: faker.random.alpha({ count: 26 }),
+            password: user.password,
+          },
+        },
+        value
       );
     });
 
@@ -554,19 +539,21 @@ describe('Auth APIs', () => {
       );
     });
 
-    it('returns 400 when name param length is too long', async () => {
+    const maxLengthTest = authMaxLengthTest([{ failedFieldName: 'name' }]);
+    test.each(maxLengthTest.value)(`${maxLengthTest.name}`, async (value) => {
       const user = await createNewUser(request);
 
-      const res = await request.post(`/auth/reset-password`, {
-        name: faker.random.alpha({ count: 26 }),
-        password: user.password,
-      });
-
-      expect(res.status).toBe(400);
-      expect(res.data).toEqual(
-        fakeFailures([
-          new FailureObject(ErrorCode.MAXLENGTH_OPENAPI, `must NOT have more than 25 characters`, 400, 'name'),
-        ])
+      await maxLengthTest.testFn(
+        request,
+        {
+          method: 'post',
+          url: '/auth/reset-password',
+          data: {
+            name: faker.random.alpha({ count: 26 }),
+            password: user.password,
+          },
+        },
+        value
       );
     });
 
@@ -672,19 +659,21 @@ describe('Auth APIs', () => {
       );
     });
 
-    it('returns 400 when name param length is too long', async () => {
+    const maxLengthTest = authMaxLengthTest([{ failedFieldName: 'name' }]);
+    test.each(maxLengthTest.value)(`${maxLengthTest.name}`, async (value) => {
       const user = await createNewUser(request);
 
-      const res = await request.post(`/auth/check-phone`, {
-        name: faker.random.alpha({ count: 26 }),
-        phone: user.phone,
-      });
-
-      expect(res.status).toBe(400);
-      expect(res.data).toEqual(
-        fakeFailures([
-          new FailureObject(ErrorCode.MAXLENGTH_OPENAPI, `must NOT have more than 25 characters`, 400, 'name'),
-        ])
+      await maxLengthTest.testFn(
+        request,
+        {
+          method: 'post',
+          url: '/auth/check-phone',
+          data: {
+            name: faker.random.alpha({ count: 26 }),
+            phone: user.phone,
+          },
+        },
+        value
       );
     });
 
@@ -827,51 +816,25 @@ describe('Auth APIs', () => {
       );
     });
 
-    test.each([
-      { failedFieldName: 'name', value: faker.random.alpha({ count: 26 }), maxLength: 25 },
-      { failedFieldName: 'wallet', value: faker.random.alphaNumeric(43), maxLength: 42 },
-      { parentFieldName: 'profile', failedFieldName: 'title', value: faker.random.alpha(26), maxLength: 25 },
-      { parentFieldName: 'profile', failedFieldName: 'description', value: faker.random.alpha(501), maxLength: 500 },
-    ])(
-      `returns 400 when $failedFieldName field length is too long`,
-      async ({ parentFieldName, failedFieldName, value, maxLength }) => {
-        const { token } = await loginUser(request);
-        const csrf = await csrfToken(request, token);
-        const updateUser = fakeUser(false);
-
-        if (parentFieldName) {
-          updateUser[parentFieldName][failedFieldName] = value;
-        } else {
-          updateUser[failedFieldName] = value;
-        }
-
-        const res = await request.put(
-          `/auth/update`,
-          {
+    const maxLengthTest = authMaxLengthTest();
+    test.each(maxLengthTest.value)(`${maxLengthTest.name}`, async (value) => {
+      const updateUser = fakeUser(false);
+      await maxLengthTest.testFn(
+        request,
+        {
+          method: 'put',
+          url: '/auth/update',
+          data: {
             name: updateUser.name,
             profile: updateUser.profile,
             email: updateUser.email,
             phone: updateUser.phone,
             wallet: updateUser.wallet,
           },
-          {
-            headers: { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token },
-          }
-        );
-
-        expect(res.status).toBe(400);
-        expect(res.data).toEqual(
-          fakeFailures([
-            new FailureObject(
-              ErrorCode.MAXLENGTH_OPENAPI,
-              `must NOT have more than ${maxLength} characters`,
-              400,
-              failedFieldName
-            ),
-          ])
-        );
-      }
-    );
+        },
+        value
+      );
+    });
 
     test.each([
       { failedFieldName: 'email', value: faker.random.alpha(10), format: 'email' },

@@ -5,7 +5,7 @@ import { config } from '../../config';
 import { ErrorCode } from '../../types/error.util';
 import { FailureObject } from '../error.util';
 import { fakeFailures } from './error.util';
-import { sendRequest } from './common.util';
+import { maxLengthTest, sendRequest } from './common.util';
 
 export const DATE_REGEX = /[1-9]\d{3}-(0[1-9]|1[0-2])-(3[0-1]|[1-2]\d|0[1-9])T(0\d|1\d|2[0-3])(:[0-5]\d){2}.\d{3}Z/;
 
@@ -278,3 +278,29 @@ export const authMiddleWareTest = [
     },
   },
 ];
+
+export const authMaxLengthTest = (selectedFields?: { parentFieldName?: string; failedFieldName: string }[]) => {
+  const fields = [
+    { failedFieldName: 'name', fakeValue: faker.random.alpha({ count: 26 }), maxLength: 25 },
+    { failedFieldName: 'wallet', fakeValue: faker.random.alphaNumeric(43), maxLength: 42 },
+    { parentFieldName: 'profile', failedFieldName: 'title', fakeValue: faker.random.alpha(26), maxLength: 25 },
+    {
+      parentFieldName: 'profile',
+      failedFieldName: 'description',
+      fakeValue: faker.random.alpha(501),
+      maxLength: 500,
+    },
+  ];
+
+  const value = selectedFields
+    ? fields.filter((field) =>
+        selectedFields.find(
+          (selectedField) =>
+            field.failedFieldName === selectedField.failedFieldName &&
+            field.parentFieldName === selectedField.parentFieldName
+        )
+      )
+    : fields;
+
+  return maxLengthTest(value);
+};
