@@ -2,6 +2,7 @@ import axios, { AxiosInstance } from 'axios';
 import { AddressInfo } from 'net';
 import { Index } from '../..';
 import { config } from '../../config';
+import { TestOptions } from '../../types/common';
 import { ErrorCode } from '../../types/error.util';
 import { FailureObject } from '../../util/error.util';
 import { authMiddleWareTest, csrfMiddleWareTest, csrfToken, loginUser } from '../../util/tests/auth.util';
@@ -83,38 +84,42 @@ describe('Link APIs', () => {
       );
     });
 
-    const missingTest = linkMissingTest();
-    test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
-      const links = fakeLinks(false);
-      await missingTest.testFn(request, { method: 'post', url: '/link', data: { ...links } }, value);
-    });
+    describe('Request param test set', () => {
+      let options: TestOptions;
 
-    const formatTest = linkFormatTest();
-    test.each(formatTest.value)(`${formatTest.name}`, async (value) => {
-      const links = fakeLinks(false);
-      await formatTest.testFn(request, { method: 'post', url: '/link', data: { ...links } }, value);
-    });
+      beforeEach(() => {
+        const links = fakeLinks(false);
+        options = { method: 'post', url: '/link', data: links };
+      });
 
-    const maxLengthTest = linkMaxLengthTest();
-    test.each(maxLengthTest.value)(`${maxLengthTest.name}`, async (value) => {
-      const links = fakeLinks(false);
-      await maxLengthTest.testFn(request, { method: 'post', url: '/link', data: { ...links } }, value);
-    });
+      const missingTest = linkMissingTest();
+      test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
+        await missingTest.testFn(request, options, value);
+      });
 
-    const itemCountTest = linkItemCountTest();
-    test.each(itemCountTest.value)(`${itemCountTest.name}`, async (value) => {
-      const links = fakeLinks(false);
-      await itemCountTest.testFn(request, { method: 'post', url: '/link', data: { ...links } }, value);
-    });
+      const formatTest = linkFormatTest();
+      test.each(formatTest.value)(`${formatTest.name}`, async (value) => {
+        await formatTest.testFn(request, options, value);
+      });
 
-    const typeTest = linkTypeTest();
-    test.each(typeTest.value)(`${typeTest.name}`, async (value) => {
-      const links = fakeLinks(false);
-      await typeTest.testFn(request, { method: 'post', url: '/link', data: { ...links } }, value);
-    });
+      const maxLengthTest = linkMaxLengthTest();
+      test.each(maxLengthTest.value)(`${maxLengthTest.name}`, async (value) => {
+        await maxLengthTest.testFn(request, options, value);
+      });
 
-    test.each([...authMiddleWareTest, ...csrfMiddleWareTest])('$name', async ({ name, testFn }) => {
-      await testFn(request, { method: 'post', url: '/link', data: {} }, null, 'link');
+      const itemCountTest = linkItemCountTest();
+      test.each(itemCountTest.value)(`${itemCountTest.name}`, async (value) => {
+        await itemCountTest.testFn(request, options, value);
+      });
+
+      const typeTest = linkTypeTest();
+      test.each(typeTest.value)(`${typeTest.name}`, async (value) => {
+        await typeTest.testFn(request, options, value);
+      });
+
+      test.each([...authMiddleWareTest, ...csrfMiddleWareTest])('$name', async ({ name, testFn }) => {
+        await testFn(request, options, null, 'link');
+      });
     });
   });
 });
