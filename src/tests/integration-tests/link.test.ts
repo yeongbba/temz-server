@@ -4,6 +4,7 @@ import { Index } from '../..';
 import { config } from '../../config';
 import { TestOptions } from '../../types/common';
 import { ErrorCode } from '../../types/error.util';
+import { Links } from '../../types/link';
 import { FailureObject } from '../../util/error.util';
 import { csrfToken, loginUser } from '../../util/tests/auth.util';
 import { authMiddleWareTest, csrfMiddleWareTest } from '../../util/tests/common.util';
@@ -121,6 +122,113 @@ describe('Link APIs', () => {
       test.each([...authMiddleWareTest, ...csrfMiddleWareTest])('$name', async ({ name, testFn }) => {
         await testFn(request, options, null, 'link');
       });
+    });
+  });
+
+  describe('PUT to /link', () => {
+    it('Return 204 if link updated successfully', async () => {
+      const links = fakeLinks(false);
+      const { token } = await loginUser(request);
+      const csrf = await csrfToken(request, token);
+
+      const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+
+      await request.post(`/link`, links, {
+        headers,
+      });
+
+      const res = await request.put(`/link`, links, {
+        headers,
+      });
+
+      expect(res.status).toBe(204);
+    });
+
+    test('Return 404 if the link is not registered', async () => {
+      const links = fakeLinks(false);
+      const { token } = await loginUser(request);
+      const csrf = await csrfToken(request, token);
+
+      const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+      const res = await request.put(`/link`, links, {
+        headers,
+      });
+
+      expect(res.status).toBe(404);
+      expect(res.data).toEqual(fakeFailures([new FailureObject(ErrorCode.NOT_FOUND, 'Links not found', 404)]));
+    });
+
+    describe('Request param test set', () => {
+      let options: TestOptions;
+
+      beforeEach(() => {
+        const links = fakeLinks(false);
+        options = { method: 'put', url: '/link', data: links };
+      });
+
+      const missingTest = linkMissingTest();
+      test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
+        await missingTest.testFn(request, options, value);
+      });
+
+      const formatTest = linkFormatTest();
+      test.each(formatTest.value)(`${formatTest.name}`, async (value) => {
+        await formatTest.testFn(request, options, value);
+      });
+
+      const maxLengthTest = linkMaxLengthTest();
+      test.each(maxLengthTest.value)(`${maxLengthTest.name}`, async (value) => {
+        await maxLengthTest.testFn(request, options, value);
+      });
+
+      const itemCountTest = linkItemCountTest();
+      test.each(itemCountTest.value)(`${itemCountTest.name}`, async (value) => {
+        await itemCountTest.testFn(request, options, value);
+      });
+
+      const typeTest = linkTypeTest();
+      test.each(typeTest.value)(`${typeTest.name}`, async (value) => {
+        await typeTest.testFn(request, options, value);
+      });
+
+      test.each([...authMiddleWareTest, ...csrfMiddleWareTest])('$name', async ({ name, testFn }) => {
+        await testFn(request, options, null, 'link');
+      });
+    });
+  });
+
+  describe('GET to /link', () => {
+    it('Return 200 and links if the link is found successfully', async () => {
+      const links = fakeLinks(false);
+      const { token } = await loginUser(request);
+      const csrf = await csrfToken(request, token);
+
+      const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+
+      await request.post(`/link`, links, {
+        headers,
+      });
+
+      const res = await request.get(`/link`, {
+        headers,
+      });
+
+      expect(res.status).toBe(200);
+      expect(res.data).toEqual({ links: Links.parse(links.links).toJson() });
+    });
+
+    it('Return 200 and empty links if the link is not found', async () => {
+      const { token } = await loginUser(request);
+      const csrf = await csrfToken(request, token);
+
+      const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+
+      const res = await request.get(`/link`, {
+        headers,
+      });
+
+      expect(res.status).toBe(200);
+      expect(res.data).toEqual({ links: Links.parse(null).toJson() });
     });
   });
 });
