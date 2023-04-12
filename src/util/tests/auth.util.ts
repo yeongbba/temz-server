@@ -6,6 +6,7 @@ import { ErrorCode } from '../../types/error.util';
 import { FailureObject } from '../error.util';
 import { fakeFailures } from './error.util';
 import {
+  filterFields,
   formatTest,
   maxLengthTest,
   minLengthTest,
@@ -238,15 +239,7 @@ export const authMaxLengthTest = (selectedFields?: { parentFieldName?: string; f
     },
   ];
 
-  const value = selectedFields
-    ? fields.filter((field) =>
-        selectedFields.find(
-          (selectedField) =>
-            field.failedFieldName === selectedField.failedFieldName &&
-            field.parentFieldName === selectedField.parentFieldName
-        )
-      )
-    : fields;
+  const value = filterFields<MaxLengthValue>(fields, selectedFields);
 
   return maxLengthTest(value);
 };
@@ -257,15 +250,7 @@ export const authMinLengthTest = (selectedFields?: { parentFieldName?: string; f
     { failedFieldName: 'wallet', fakeValue: faker.random.alphaNumeric(24), minLength: 25 },
   ];
 
-  const value = selectedFields
-    ? fields.filter((field) =>
-        selectedFields.find(
-          (selectedField) =>
-            field.failedFieldName === selectedField.failedFieldName &&
-            field.parentFieldName === selectedField.parentFieldName
-        )
-      )
-    : fields;
+  const value = filterFields<MinLengthValue>(fields, selectedFields);
 
   return minLengthTest(value);
 };
@@ -279,15 +264,7 @@ export const authMissingTest = (selectedFields?: { parentFieldName?: string; fai
     { failedFieldName: 'password' },
   ];
 
-  const value = selectedFields
-    ? fields.filter((field) =>
-        selectedFields.find(
-          (selectedField) =>
-            field.failedFieldName === selectedField.failedFieldName &&
-            field.parentFieldName === selectedField.parentFieldName
-        )
-      )
-    : fields;
+  const value = filterFields<MissingValue>(fields, selectedFields);
 
   return missingTest(value);
 };
@@ -313,15 +290,7 @@ export const authPatternTest = (selectedFields?: { parentFieldName?: string; fai
     },
   ];
 
-  const value = selectedFields
-    ? fields.filter((field) =>
-        selectedFields.find(
-          (selectedField) =>
-            field.failedFieldName === selectedField.failedFieldName &&
-            field.parentFieldName === selectedField.parentFieldName
-        )
-      )
-    : fields;
+  const value = filterFields<PatternValue>(fields, selectedFields);
 
   return patternTest(value);
 };
@@ -387,15 +356,7 @@ export const authTypeTest = (selectedFields?: { parentFieldName?: string; failed
     },
   ];
 
-  const value = selectedFields
-    ? fields.filter((field) =>
-        selectedFields.find(
-          (selectedField) =>
-            field.failedFieldName === selectedField.failedFieldName &&
-            field.parentFieldName === selectedField.parentFieldName
-        )
-      )
-    : fields;
+  const value = filterFields<TypeValue>(fields, selectedFields);
 
   return typeTest(value);
 };

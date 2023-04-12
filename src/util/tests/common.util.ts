@@ -54,6 +54,20 @@ export const setRootField = (options: TestOptions) => {
   return options.params || options.data;
 };
 
+export const filterFields = <T extends AllTestValueType>(
+  fields: T[],
+  selectedFields?: { parentFieldName?: string; failedFieldName: string }[]
+) =>
+  selectedFields
+    ? fields.filter((field) =>
+        selectedFields.find(
+          (selectedField) =>
+            field.failedFieldName === selectedField.failedFieldName &&
+            field.parentFieldName === selectedField.parentFieldName
+        )
+      )
+    : fields;
+
 export const testFn = (test: TestFunction) => {
   return async (request: AxiosInstance, options: TestOptions, value: AllTestValueType | null, reason?: string) => {
     await test(request, options, value, reason);
@@ -129,7 +143,6 @@ export const typeTest = (value: TypeValue[]) => ({
       }
     }
 
-    console.log(typeof fakeValue);
     const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
     const res = await sendRequest(request, options, {
       headers,
