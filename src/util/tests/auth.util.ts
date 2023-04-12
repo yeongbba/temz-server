@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { faker } from '@faker-js/faker';
-import { AxiosInstance, AxiosRequestConfig, AxiosResponse, Method } from 'axios';
+import { AxiosInstance, Method } from 'axios';
 import { config } from '../../config';
 import { ErrorCode } from '../../types/error.util';
 import { FailureObject } from '../error.util';

@@ -1,5 +1,15 @@
 import { AxiosInstance, AxiosRequestConfig, AxiosResponse, Method } from 'axios';
 import { config } from '../../config';
+import {
+  AllTestValueType,
+  formatValue,
+  ItemCountValue,
+  maxLengthValue,
+  missingValue,
+  TestFunction,
+  TestOptions,
+  TypeValue,
+} from '../../types/common';
 import { ErrorCode } from '../../types/error.util';
 import { FailureObject } from '../error.util';
 import { csrfToken, loginUser } from './auth.util';
@@ -38,36 +48,37 @@ export const setCurrentField = (parentFieldName: string, rootField: object) => {
   return currentField;
 };
 
-type ItemCountValue = { parentFieldName?: string; failedFieldName: string; maxItems: number };
+export const setRootField = (options: TestOptions) => {
+  return options.params || options.data;
+};
+
+export const testFn = (test: TestFunction) => {
+  return async (request: AxiosInstance, options: TestOptions, value: AllTestValueType | null, reason?: string) => {
+    await test(request, options, value, reason);
+  };
+};
+
 export const itemCountTest = (value: ItemCountValue[]) => ({
   value,
   name: 'returns 400 when $failedFieldName field exceed max item count',
-  testFn: async (
-    request: AxiosInstance,
-    options: {
-      method: Method;
-      url: string;
-      data?: any;
-      params?: any;
-    },
-    value: ItemCountValue
-  ) => {
-    const links = options.data;
+  testFn: testFn(async (request, options, value) => {
+    const { parentFieldName, failedFieldName, maxItems } = value as ItemCountValue;
+    const rootField = setRootField(options);
     const { token } = await loginUser(request);
     const csrf = await csrfToken(request, token);
     let array = [];
     let item = null;
 
-    if (value.parentFieldName) {
-      const currentField = setCurrentField(value.parentFieldName, links);
-      array = currentField[value.failedFieldName];
-      item = currentField[value.failedFieldName][0];
+    if (parentFieldName) {
+      const currentField = setCurrentField(parentFieldName, rootField);
+      array = currentField[failedFieldName];
+      item = currentField[failedFieldName][0];
     } else {
-      array = links[value.failedFieldName];
-      item = links[value.failedFieldName][0];
+      array = rootField[failedFieldName];
+      item = rootField[failedFieldName][0];
     }
 
-    for (let i = 0; i <= value.maxItems; i++) {
+    for (let i = 0; i <= maxItems; i++) {
       if (item) {
         array.push(item);
       }
@@ -83,44 +94,36 @@ export const itemCountTest = (value: ItemCountValue[]) => ({
       fakeFailures([
         new FailureObject(
           ErrorCode.MAXITEMS_OPENAPI,
-          `must NOT have more than ${value.maxItems} items`,
+          `must NOT have more than ${maxItems} items`,
           400,
-          value.failedFieldName
+          failedFieldName
         ),
       ])
     );
-  },
+  }),
 });
 
-type TypeValue = { parentFieldName?: string; failedFieldName: string; fakeValue: any; type: string; item?: boolean };
 export const typeTest = (value: TypeValue[]) => ({
   value,
   name: 'returns 400 when $failedFieldName field is wrong type',
-  testFn: async (
-    request: AxiosInstance,
-    options: {
-      method: Method;
-      url: string;
-      data?: any;
-    },
-    value: TypeValue
-  ) => {
-    const links = options.data;
+  testFn: testFn(async (request, options, value) => {
+    const { parentFieldName, failedFieldName, fakeValue, type, item } = value as TypeValue;
+    const rootField = setRootField(options);
     const { token } = await loginUser(request);
     const csrf = await csrfToken(request, token);
-    if (value.parentFieldName) {
-      const currentField = setCurrentField(value.parentFieldName, links);
+    if (parentFieldName) {
+      const currentField = setCurrentField(parentFieldName, rootField);
 
-      if (value.item) {
-        currentField[value.failedFieldName].unshift(value.fakeValue);
+      if (item) {
+        currentField[failedFieldName].unshift(fakeValue);
       } else {
-        currentField[value.failedFieldName] = value.fakeValue;
+        currentField[failedFieldName] = fakeValue;
       }
     } else {
-      if (value.item) {
-        links[value.failedFieldName].unshift(value.fakeValue);
+      if (item) {
+        rootField[failedFieldName].unshift(fakeValue);
       } else {
-        links[value.failedFieldName] = value.fakeValue;
+        rootField[failedFieldName] = fakeValue;
       }
     }
 
@@ -131,40 +134,25 @@ export const typeTest = (value: TypeValue[]) => ({
 
     expect(res.status).toBe(400);
     expect(res.data).toEqual(
-      fakeFailures([
-        new FailureObject(
-          ErrorCode.TYPE_OPENAPI,
-          `must be ${value.type}`,
-          400,
-          value.item ? '0' : value.failedFieldName
-        ),
-      ])
+      fakeFailures([new FailureObject(ErrorCode.TYPE_OPENAPI, `must be ${type}`, 400, item ? '0' : failedFieldName)])
     );
-  },
+  }),
 });
 
-type maxLengthValue = { parentFieldName?: string; failedFieldName: string; fakeValue: any; maxLength: number };
 export const maxLengthTest = (value: maxLengthValue[]) => ({
   value,
   name: 'returns 400 when $failedFieldName field length is too long',
-  testFn: async (
-    request: AxiosInstance,
-    options: {
-      method: Method;
-      url: string;
-      data?: any;
-      params?: any;
-    },
-    value: maxLengthValue
-  ) => {
-    const rootField = options.params || options.data;
+  testFn: testFn(async (request, options, value) => {
+    const { parentFieldName, failedFieldName, fakeValue, maxLength } = value as maxLengthValue;
+    const rootField = setRootField(options);
     const { token } = await loginUser(request);
     const csrf = await csrfToken(request, token);
-    if (value.parentFieldName) {
-      const currentField = setCurrentField(value.parentFieldName, rootField);
-      currentField[value.failedFieldName] = value.fakeValue;
+
+    if (parentFieldName) {
+      const currentField = setCurrentField(parentFieldName, rootField);
+      currentField[failedFieldName] = fakeValue;
     } else {
-      rootField[value.failedFieldName] = value.fakeValue;
+      rootField[failedFieldName] = fakeValue;
     }
 
     const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
@@ -177,36 +165,29 @@ export const maxLengthTest = (value: maxLengthValue[]) => ({
       fakeFailures([
         new FailureObject(
           ErrorCode.MAXLENGTH_OPENAPI,
-          `must NOT have more than ${value.maxLength} characters`,
+          `must NOT have more than ${maxLength} characters`,
           400,
-          value.failedFieldName
+          failedFieldName
         ),
       ])
     );
-  },
+  }),
 });
 
-type formatValue = { parentFieldName?: string; failedFieldName: string; fakeValue: any; format: string };
 export const formatTest = (value: formatValue[]) => ({
   value,
   name: 'returns 400 when $failedFieldName field is wrong format',
-  testFn: async (
-    request: AxiosInstance,
-    options: {
-      method: Method;
-      url: string;
-      data?: any;
-    },
-    value: formatValue
-  ) => {
-    const links = options.data;
+  testFn: testFn(async (request, options, value) => {
+    const { parentFieldName, failedFieldName, fakeValue, format } = value as formatValue;
+    const rootField = setRootField(options);
+
     const { token } = await loginUser(request);
     const csrf = await csrfToken(request, token);
-    if (value.parentFieldName) {
-      const currentField = setCurrentField(value.parentFieldName, links);
-      currentField[value.failedFieldName] = value.fakeValue;
+    if (parentFieldName) {
+      const currentField = setCurrentField(parentFieldName, rootField);
+      currentField[failedFieldName] = fakeValue;
     } else {
-      links[value.failedFieldName] = value.fakeValue;
+      rootField[failedFieldName] = fakeValue;
     }
 
     const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
@@ -216,34 +197,25 @@ export const formatTest = (value: formatValue[]) => ({
 
     expect(res.status).toBe(400);
     expect(res.data).toEqual(
-      fakeFailures([
-        new FailureObject(ErrorCode.FORMAT_OPENAPI, `must match format "${value.format}"`, 400, value.failedFieldName),
-      ])
+      fakeFailures([new FailureObject(ErrorCode.FORMAT_OPENAPI, `must match format "${format}"`, 400, failedFieldName)])
     );
-  },
+  }),
 });
 
-type missingValue = { parentFieldName?: string; failedFieldName: string };
 export const missingTest = (value: missingValue[]) => ({
   value,
   name: 'returns 400 when $missingFieldName field is missing',
-  testFn: async (
-    request: AxiosInstance,
-    options: {
-      method: Method;
-      url: string;
-      data?: any;
-    },
-    value: missingValue
-  ) => {
-    const links = options.data;
+  testFn: testFn(async (request, options, value) => {
+    const { parentFieldName, failedFieldName } = value as missingValue;
+    const rootField = setRootField(options);
+
     const { token } = await loginUser(request);
     const csrf = await csrfToken(request, token);
-    if (value.parentFieldName) {
-      const currentField = setCurrentField(value.parentFieldName, links);
-      delete currentField[value.failedFieldName];
+    if (parentFieldName) {
+      const currentField = setCurrentField(parentFieldName, rootField);
+      delete currentField[failedFieldName];
     } else {
-      delete links[value.failedFieldName];
+      delete rootField[failedFieldName];
     }
 
     const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
@@ -256,11 +228,11 @@ export const missingTest = (value: missingValue[]) => ({
       fakeFailures([
         new FailureObject(
           ErrorCode.REQUIRED_OPENAPI,
-          `must have required property '${value.failedFieldName}'`,
+          `must have required property '${failedFieldName}'`,
           400,
-          value.failedFieldName
+          failedFieldName
         ),
       ])
     );
-  },
+  }),
 });
