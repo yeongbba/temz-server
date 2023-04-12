@@ -2,13 +2,11 @@ import axios, { AxiosInstance } from 'axios';
 import {
   authFormatTest,
   authMaxLengthTest,
-  authMiddleWareTest,
   authMinLengthTest,
   authMissingTest,
   authPatternTest,
   authTypeTest,
   createNewUser,
-  csrfMiddleWareTest,
   csrfToken,
   DATE_REGEX,
   fakeUser,
@@ -22,6 +20,7 @@ import { faker } from '@faker-js/faker';
 import { fakeFailures } from '../../util/tests/error.util';
 import { config } from '../../config';
 import { TestOptions } from '../../types/common';
+import { authMiddleWareTest, csrfMiddleWareTest } from '../../util/tests/common.util';
 
 describe('Auth APIs', () => {
   let index: Index;

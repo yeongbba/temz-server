@@ -5,7 +5,8 @@ import { config } from '../../config';
 import { TestOptions } from '../../types/common';
 import { ErrorCode } from '../../types/error.util';
 import { FailureObject } from '../../util/error.util';
-import { authMiddleWareTest, csrfMiddleWareTest, csrfToken, loginUser } from '../../util/tests/auth.util';
+import { csrfToken, loginUser } from '../../util/tests/auth.util';
+import { authMiddleWareTest, csrfMiddleWareTest } from '../../util/tests/common.util';
 import { fakeFailures } from '../../util/tests/error.util';
 import {
   fakeLinks,

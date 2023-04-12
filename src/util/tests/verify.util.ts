@@ -1,4 +1,6 @@
 import { faker } from '@faker-js/faker';
+import { MissingValue, TypeValue } from '../../types/common';
+import { filterFields, maxLengthTest, minLengthTest, missingTest, patternTest, typeTest } from './common.util';
 
 export const generatePhoneNumber = () => faker.phone.number('010########');
 export class FakePhoneNumber {
@@ -13,3 +15,39 @@ export class FakePhoneNumber {
     return phone;
   };
 }
+
+export const verifyMissingTest = (selectedFields?: { parentFieldName?: string; failedFieldName: string }[]) => {
+  const fields: MissingValue[] = [{ failedFieldName: 'phone' }, { failedFieldName: 'code' }];
+
+  const value = filterFields<MissingValue>(fields, selectedFields);
+
+  return missingTest(value);
+};
+
+export const verifyTypeTest = (selectedFields?: { parentFieldName?: string; failedFieldName: string }[]) => {
+  const fakeNumber = parseInt(faker.random.numeric(5));
+
+  const fields: TypeValue[] = [
+    { failedFieldName: 'phone', fakeValue: fakeNumber, type: 'string' },
+    { failedFieldName: 'code', fakeValue: fakeNumber, type: 'string' },
+  ];
+
+  const value = filterFields<TypeValue>(fields, selectedFields);
+
+  return typeTest(value);
+};
+
+export const verifyMinLengthTest = () =>
+  minLengthTest([{ failedFieldName: 'code', fakeValue: faker.random.alpha({ count: 5 }), minLength: 6 }]);
+
+export const verifyMaxLengthTest = () =>
+  maxLengthTest([{ failedFieldName: 'code', fakeValue: faker.random.alpha({ count: 7 }), maxLength: 6 }]);
+
+export const verifyPatternTest = () =>
+  patternTest([
+    {
+      failedFieldName: 'phone',
+      fakeValue: faker.phone.number('011########'),
+      pattern: '^(010)(\\d{4})(\\d{4})$',
+    },
+  ]);

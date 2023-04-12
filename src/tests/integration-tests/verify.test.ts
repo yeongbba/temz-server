@@ -1,12 +1,19 @@
-import { faker } from '@faker-js/faker';
 import axios, { AxiosInstance } from 'axios';
 import { AddressInfo } from 'net';
 import { Index } from '../..';
+import { TestOptions } from '../../types/common';
 import { ErrorCode } from '../../types/error.util';
 import { FailureObject } from '../../util/error.util';
 import verifyUtil from '../../util/sms.util';
 import { fakeFailures } from '../../util/tests/error.util';
-import { FakePhoneNumber } from '../../util/tests/verify.util';
+import {
+  FakePhoneNumber,
+  verifyMaxLengthTest,
+  verifyMinLengthTest,
+  verifyMissingTest,
+  verifyPatternTest,
+  verifyTypeTest,
+} from '../../util/tests/verify.util';
 
 describe('Verify APIs', () => {
   let index: Index;
@@ -54,28 +61,34 @@ describe('Verify APIs', () => {
       );
     });
 
-    it('returns 400 when phone field is missing', async () => {
-      const res = await request.post(`/verify/token`, {});
+    describe('Request param test set', () => {
+      let options: TestOptions;
 
-      expect(res.status).toBe(400);
-      expect(res.data).toEqual(
-        fakeFailures([
-          new FailureObject(ErrorCode.REQUIRED_OPENAPI, `must have required property 'phone'`, 400, 'phone'),
-        ])
-      );
-    });
-
-    it(`returns 400 when phone field is wrong pattern`, async () => {
-      const res = await request.post(`/verify/token`, {
-        phone: faker.phone.number('011########'),
+      beforeEach(() => {
+        const phone = fakePhoneNumber.generate();
+        options = {
+          method: 'post',
+          url: '/verify/token',
+          data: {
+            phone,
+          },
+        };
       });
 
-      expect(res.status).toBe(400);
-      expect(res.data).toEqual(
-        fakeFailures([
-          new FailureObject(ErrorCode.PATTERN_OPENAPI, `must match pattern "^(010)(\\d{4})(\\d{4})$"`, 400, 'phone'),
-        ])
-      );
+      const missingTest = verifyMissingTest([{ failedFieldName: 'phone' }]);
+      test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
+        await missingTest.testFn(request, options, value);
+      });
+
+      const patternTest = verifyPatternTest();
+      test.each(patternTest.value)(`${patternTest.name}`, async (value) => {
+        await patternTest.testFn(request, options, value);
+      });
+
+      const typeTest = verifyTypeTest([{ failedFieldName: 'phone' }]);
+      test.each(typeTest.value)(`${typeTest.name}`, async (value) => {
+        await typeTest.testFn(request, options, value);
+      });
     });
   });
 
@@ -109,6 +122,48 @@ describe('Verify APIs', () => {
       expect(res.status).toBe(200);
       expect(res.data).toEqual({ status: false });
     });
+
+    describe('Request param test set', () => {
+      let options: TestOptions;
+
+      beforeEach(() => {
+        const phone = fakePhoneNumber.generate();
+        const code = verifyUtil.generateCode().toString();
+        options = {
+          method: 'post',
+          url: '/verify/check',
+          data: {
+            phone,
+            code,
+          },
+        };
+      });
+
+      const missingTest = verifyMissingTest();
+      test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
+        await missingTest.testFn(request, options, value);
+      });
+
+      const minLengthTest = verifyMinLengthTest();
+      test.each(minLengthTest.value)(`${minLengthTest.name}`, async (value) => {
+        await minLengthTest.testFn(request, options, value);
+      });
+
+      const maxLengthTest = verifyMaxLengthTest();
+      test.each(maxLengthTest.value)(`${maxLengthTest.name}`, async (value) => {
+        await maxLengthTest.testFn(request, options, value);
+      });
+
+      const patternTest = verifyPatternTest();
+      test.each(patternTest.value)(`${patternTest.name}`, async (value) => {
+        await patternTest.testFn(request, options, value);
+      });
+
+      const typeTest = verifyTypeTest();
+      test.each(typeTest.value)(`${typeTest.name}`, async (value) => {
+        await typeTest.testFn(request, options, value);
+      });
+    });
   });
 
   describe('POST to /verify/cancel', () => {
@@ -124,6 +179,36 @@ describe('Verify APIs', () => {
       });
 
       expect(res.status).toBe(201);
+    });
+
+    describe('Request param test set', () => {
+      let options: TestOptions;
+
+      beforeEach(() => {
+        const phone = fakePhoneNumber.generate();
+        options = {
+          method: 'post',
+          url: '/verify/cancel',
+          data: {
+            phone,
+          },
+        };
+      });
+
+      const missingTest = verifyMissingTest([{ failedFieldName: 'phone' }]);
+      test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
+        await missingTest.testFn(request, options, value);
+      });
+
+      const patternTest = verifyPatternTest();
+      test.each(patternTest.value)(`${patternTest.name}`, async (value) => {
+        await patternTest.testFn(request, options, value);
+      });
+
+      const typeTest = verifyTypeTest([{ failedFieldName: 'phone' }]);
+      test.each(typeTest.value)(`${typeTest.name}`, async (value) => {
+        await typeTest.testFn(request, options, value);
+      });
     });
   });
 });
