@@ -21,6 +21,7 @@ import { ErrorCode } from '../../types/error.util';
 import { faker } from '@faker-js/faker';
 import { fakeFailures } from '../../util/tests/error.util';
 import { config } from '../../config';
+import { TestOptions } from '../../types/common';
 
 describe('Auth APIs', () => {
   let index: Index;
@@ -65,51 +66,44 @@ describe('Auth APIs', () => {
       expect(res.data).toEqual({ isValid: false });
     });
 
-    const missingTest = authMissingTest([{ failedFieldName: 'name' }]);
-    test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
-      await missingTest.testFn(
-        request,
-        {
-          method: 'get',
-          url: '/auth/check-name',
-          data: {},
-        },
-        value
-      );
-    });
+    describe('Request param test set', () => {
+      let options: TestOptions;
 
-    const minLengthTest = authMinLengthTest([{ failedFieldName: 'name' }]);
-    test.each(minLengthTest.value)(`${minLengthTest.name}`, async (value) => {
-      await minLengthTest.testFn(
-        request,
-        {
+      beforeEach(() => {
+        const user = fakeUser(false);
+        options = {
           method: 'get',
           url: '/auth/check-name',
           params: {
-            name: faker.random.alpha({ count: 2 }),
+            name: user.name,
           },
-        },
-        value
-      );
-    });
+        };
+      });
 
-    const maxLengthTest = authMaxLengthTest([{ failedFieldName: 'name' }]);
-    test.each(maxLengthTest.value)(`${maxLengthTest.name}`, async (value) => {
-      await maxLengthTest.testFn(
-        request,
-        {
-          method: 'get',
-          url: '/auth/check-name',
-          params: {
-            name: faker.random.alpha({ count: 26 }),
-          },
-        },
-        value
-      );
+      const missingTest = authMissingTest([{ failedFieldName: 'name' }]);
+      test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
+        await missingTest.testFn(request, options, value);
+      });
+
+      const minLengthTest = authMinLengthTest([{ failedFieldName: 'name' }]);
+      test.each(minLengthTest.value)(`${minLengthTest.name}`, async (value) => {
+        await minLengthTest.testFn(request, options, value);
+      });
+
+      const maxLengthTest = authMaxLengthTest([{ failedFieldName: 'name' }]);
+      test.each(maxLengthTest.value)(`${maxLengthTest.name}`, async (value) => {
+        await maxLengthTest.testFn(request, options, value);
+      });
     });
   });
 
   describe('GET to /auth/me', () => {
+    let options: TestOptions;
+
+    beforeAll(() => {
+      options = { method: 'get', url: '/auth/me' };
+    });
+
     it('returns 200 and user if user exist', async () => {
       const { token, user } = await loginUser(request);
 
@@ -124,11 +118,17 @@ describe('Auth APIs', () => {
     });
 
     test.each(authMiddleWareTest)('$name', async ({ name, testFn }) => {
-      await testFn(request, { method: 'get', url: '/auth/me' }, null, 'me');
+      await testFn(request, options, null, 'me');
     });
   });
 
   describe('GET to /auth/csrf', () => {
+    let options: TestOptions;
+
+    beforeAll(() => {
+      options = { method: 'get', url: '/auth/csrf' };
+    });
+
     it('returns 200 and csrf token', async () => {
       const { token } = await loginUser(request);
 
@@ -141,7 +141,7 @@ describe('Auth APIs', () => {
     });
 
     test.each(authMiddleWareTest)('$name', async ({ name, testFn }) => {
-      await testFn(request, { method: 'get', url: '/auth/csrf' }, null, 'csrf');
+      await testFn(request, options, null, 'csrf');
     });
   });
 
@@ -167,91 +167,48 @@ describe('Auth APIs', () => {
       );
     });
 
-    const missingTest = authMissingTest();
-    test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
-      const user = fakeUser(false);
-      await missingTest.testFn(
-        request,
-        {
+    describe('Request param test set', () => {
+      let options: TestOptions;
+
+      beforeEach(() => {
+        const user = fakeUser(false);
+        options = {
           method: 'post',
           url: '/auth/signup',
           data: user,
-        },
-        value
-      );
-    });
+        };
+      });
 
-    const minLengthTest = authMinLengthTest();
-    test.each(minLengthTest.value)(`${minLengthTest.name}`, async (value) => {
-      const user = fakeUser(false);
-      await minLengthTest.testFn(
-        request,
-        {
-          method: 'post',
-          url: '/auth/signup',
-          data: user,
-        },
-        value
-      );
-    });
+      const missingTest = authMissingTest();
+      test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
+        await missingTest.testFn(request, options, value);
+      });
 
-    const maxLengthTest = authMaxLengthTest();
-    test.each(maxLengthTest.value)(`${maxLengthTest.name}`, async (value) => {
-      const user = fakeUser(false);
-      await maxLengthTest.testFn(
-        request,
-        {
-          method: 'post',
-          url: '/auth/signup',
-          data: user,
-        },
-        value
-      );
-    });
+      const minLengthTest = authMinLengthTest();
+      test.each(minLengthTest.value)(`${minLengthTest.name}`, async (value) => {
+        const user = fakeUser(false);
+        await minLengthTest.testFn(request, options, value);
+      });
 
-    const formatTest = authFormatTest();
-    test.each(formatTest.value)(`${formatTest.name}`, async (value) => {
-      const user = fakeUser(false);
+      const maxLengthTest = authMaxLengthTest();
+      test.each(maxLengthTest.value)(`${maxLengthTest.name}`, async (value) => {
+        await maxLengthTest.testFn(request, options, value);
+      });
 
-      await formatTest.testFn(
-        request,
-        {
-          method: 'post',
-          url: '/auth/signup',
-          data: user,
-        },
-        value
-      );
-    });
+      const formatTest = authFormatTest();
+      test.each(formatTest.value)(`${formatTest.name}`, async (value) => {
+        await formatTest.testFn(request, options, value);
+      });
 
-    const patternTest = authPatternTest();
-    test.each(patternTest.value)(`${patternTest.name}`, async (value) => {
-      const user = fakeUser(false);
+      const patternTest = authPatternTest();
+      test.each(patternTest.value)(`${patternTest.name}`, async (value) => {
+        await patternTest.testFn(request, options, value);
+      });
 
-      await patternTest.testFn(
-        request,
-        {
-          method: 'post',
-          url: '/auth/signup',
-          data: user,
-        },
-        value
-      );
-    });
-
-    const typeTest = authTypeTest();
-    test.each(typeTest.value)(`${typeTest.name}`, async (value) => {
-      const user = fakeUser(false);
-
-      await typeTest.testFn(
-        request,
-        {
-          method: 'post',
-          url: '/auth/signup',
-          data: user,
-        },
-        value
-      );
+      const typeTest = authTypeTest();
+      test.each(typeTest.value)(`${typeTest.name}`, async (value) => {
+        await typeTest.testFn(request, options, value);
+      });
     });
   });
 
@@ -324,94 +281,45 @@ describe('Auth APIs', () => {
       );
     });
 
-    const missingTest = authMissingTest([{ failedFieldName: 'name' }, { failedFieldName: 'password' }]);
-    test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
-      const user = await createNewUser(request);
+    describe('Request param test set', () => {
+      let options: TestOptions;
 
-      await missingTest.testFn(
-        request,
-        {
+      beforeEach(() => {
+        const user = fakeUser(false);
+        options = {
           method: 'post',
           url: '/auth/login',
           data: {
             name: user.name,
             password: user.password,
           },
-        },
-        value
-      );
-    });
+        };
+      });
 
-    const minLengthTest = authMinLengthTest([{ failedFieldName: 'name' }]);
-    test.each(minLengthTest.value)(`${minLengthTest.name}`, async (value) => {
-      const user = await createNewUser(request);
+      const missingTest = authMissingTest([{ failedFieldName: 'name' }, { failedFieldName: 'password' }]);
+      test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
+        await missingTest.testFn(request, options, value);
+      });
 
-      await minLengthTest.testFn(
-        request,
-        {
-          method: 'post',
-          url: '/auth/login',
-          data: {
-            name: user.name,
-            password: user.password,
-          },
-        },
-        value
-      );
-    });
+      const minLengthTest = authMinLengthTest([{ failedFieldName: 'name' }]);
+      test.each(minLengthTest.value)(`${minLengthTest.name}`, async (value) => {
+        await minLengthTest.testFn(request, options, value);
+      });
 
-    const maxLengthTest = authMaxLengthTest([{ failedFieldName: 'name' }]);
-    test.each(maxLengthTest.value)(`${maxLengthTest.name}`, async (value) => {
-      const user = await createNewUser(request);
+      const maxLengthTest = authMaxLengthTest([{ failedFieldName: 'name' }]);
+      test.each(maxLengthTest.value)(`${maxLengthTest.name}`, async (value) => {
+        await maxLengthTest.testFn(request, options, value);
+      });
 
-      await maxLengthTest.testFn(
-        request,
-        {
-          method: 'post',
-          url: '/auth/login',
-          data: {
-            name: user.name,
-            password: user.password,
-          },
-        },
-        value
-      );
-    });
+      const patternTest = authPatternTest([{ failedFieldName: 'password' }]);
+      test.each(patternTest.value)(`${patternTest.name}`, async (value) => {
+        await patternTest.testFn(request, options, value);
+      });
 
-    const patternTest = authPatternTest([{ failedFieldName: 'password' }]);
-    test.each(patternTest.value)(`${patternTest.name}`, async (value) => {
-      const user = await createNewUser(request);
-
-      await patternTest.testFn(
-        request,
-        {
-          method: 'post',
-          url: '/auth/login',
-          data: {
-            name: user.name,
-            password: user.password,
-          },
-        },
-        value
-      );
-    });
-
-    const typeTest = authTypeTest([{ failedFieldName: 'name' }, { failedFieldName: 'password' }]);
-    test.each(typeTest.value)(`${typeTest.name}`, async (value) => {
-      const user = await createNewUser(request);
-
-      await typeTest.testFn(
-        request,
-        {
-          method: 'post',
-          url: '/auth/login',
-          data: {
-            name: user.name,
-            password: user.password,
-          },
-        },
-        value
-      );
+      const typeTest = authTypeTest([{ failedFieldName: 'name' }, { failedFieldName: 'password' }]);
+      test.each(typeTest.value)(`${typeTest.name}`, async (value) => {
+        await typeTest.testFn(request, options, value);
+      });
     });
   });
 
@@ -435,47 +343,34 @@ describe('Auth APIs', () => {
       expect(res.data).toEqual(fakeFailures([new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404)]));
     });
 
-    const missingTest = authMissingTest([{ failedFieldName: 'phone' }]);
-    test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
-      await missingTest.testFn(
-        request,
-        {
-          method: 'post',
-          url: '/auth/find-name',
-          data: {},
-        },
-        value
-      );
-    });
+    describe('Request param test set', () => {
+      let options: TestOptions;
 
-    const patternTest = authPatternTest([{ failedFieldName: 'phone' }]);
-    test.each(patternTest.value)(`${patternTest.name}`, async (value) => {
-      await patternTest.testFn(
-        request,
-        {
+      beforeEach(() => {
+        const user = fakeUser(false);
+        options = {
           method: 'post',
           url: '/auth/find-name',
           data: {
-            phone: faker.phone.number('010########'),
+            phone: user.phone,
           },
-        },
-        value
-      );
-    });
+        };
+      });
 
-    const typeTest = authTypeTest([{ failedFieldName: 'phone' }]);
-    test.each(typeTest.value)(`${typeTest.name}`, async (value) => {
-      await typeTest.testFn(
-        request,
-        {
-          method: 'post',
-          url: '/auth/find-name',
-          data: {
-            phone: faker.phone.number('010########'),
-          },
-        },
-        value
-      );
+      const missingTest = authMissingTest([{ failedFieldName: 'phone' }]);
+      test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
+        await missingTest.testFn(request, options, value);
+      });
+
+      const patternTest = authPatternTest([{ failedFieldName: 'phone' }]);
+      test.each(patternTest.value)(`${patternTest.name}`, async (value) => {
+        await patternTest.testFn(request, options, value);
+      });
+
+      const typeTest = authTypeTest([{ failedFieldName: 'phone' }]);
+      test.each(typeTest.value)(`${typeTest.name}`, async (value) => {
+        await typeTest.testFn(request, options, value);
+      });
     });
   });
 
@@ -503,94 +398,45 @@ describe('Auth APIs', () => {
       expect(res.data).toEqual(fakeFailures([new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404)]));
     });
 
-    const missingTest = authMissingTest([{ failedFieldName: 'name' }, { failedFieldName: 'password' }]);
-    test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
-      const user = await createNewUser(request);
+    describe('Request param test set', () => {
+      let options: TestOptions;
 
-      await missingTest.testFn(
-        request,
-        {
+      beforeEach(() => {
+        const user = fakeUser(false);
+        options = {
           method: 'post',
           url: '/auth/reset-password',
           data: {
             name: user.name,
             password: user.password,
           },
-        },
-        value
-      );
-    });
+        };
+      });
 
-    const minLengthTest = authMinLengthTest([{ failedFieldName: 'name' }]);
-    test.each(minLengthTest.value)(`${minLengthTest.name}`, async (value) => {
-      const user = await createNewUser(request);
+      const missingTest = authMissingTest([{ failedFieldName: 'name' }, { failedFieldName: 'password' }]);
+      test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
+        await missingTest.testFn(request, options, value);
+      });
 
-      await minLengthTest.testFn(
-        request,
-        {
-          method: 'post',
-          url: '/auth/reset-password',
-          data: {
-            name: user.name,
-            password: user.password,
-          },
-        },
-        value
-      );
-    });
+      const minLengthTest = authMinLengthTest([{ failedFieldName: 'name' }]);
+      test.each(minLengthTest.value)(`${minLengthTest.name}`, async (value) => {
+        await minLengthTest.testFn(request, options, value);
+      });
 
-    const maxLengthTest = authMaxLengthTest([{ failedFieldName: 'name' }]);
-    test.each(maxLengthTest.value)(`${maxLengthTest.name}`, async (value) => {
-      const user = await createNewUser(request);
+      const maxLengthTest = authMaxLengthTest([{ failedFieldName: 'name' }]);
+      test.each(maxLengthTest.value)(`${maxLengthTest.name}`, async (value) => {
+        await maxLengthTest.testFn(request, options, value);
+      });
 
-      await maxLengthTest.testFn(
-        request,
-        {
-          method: 'post',
-          url: '/auth/reset-password',
-          data: {
-            name: user.name,
-            password: user.password,
-          },
-        },
-        value
-      );
-    });
+      const patternTest = authPatternTest([{ failedFieldName: 'password' }]);
+      test.each(patternTest.value)(`${patternTest.name}`, async (value) => {
+        await patternTest.testFn(request, options, value);
+      });
 
-    const patternTest = authPatternTest([{ failedFieldName: 'password' }]);
-    test.each(patternTest.value)(`${patternTest.name}`, async (value) => {
-      const user = await createNewUser(request);
-
-      await patternTest.testFn(
-        request,
-        {
-          method: 'post',
-          url: '/auth/reset-password',
-          data: {
-            name: user.name,
-            password: user.password,
-          },
-        },
-        value
-      );
-    });
-
-    const typeTest = authTypeTest([{ failedFieldName: 'name' }, { failedFieldName: 'password' }]);
-    test.each(typeTest.value)(`${typeTest.name}`, async (value) => {
-      const user = await createNewUser(request);
-
-      await typeTest.testFn(
-        request,
-        {
-          method: 'post',
-          url: '/auth/reset-password',
-          data: {
-            name: user.name,
-            password: user.password,
-          },
-        },
-        value
-      );
+      const typeTest = authTypeTest([{ failedFieldName: 'name' }, { failedFieldName: 'password' }]);
+      test.each(typeTest.value)(`${typeTest.name}`, async (value) => {
+        await typeTest.testFn(request, options, value);
+      });
     });
   });
 
@@ -632,98 +478,55 @@ describe('Auth APIs', () => {
       );
     });
 
-    const missingTest = authMissingTest([{ failedFieldName: 'name' }, { failedFieldName: 'phone' }]);
-    test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
-      const user = await createNewUser(request);
+    describe('Request param test set', () => {
+      let options: TestOptions;
 
-      await missingTest.testFn(
-        request,
-        {
+      beforeEach(() => {
+        const user = fakeUser(false);
+        options = {
           method: 'post',
           url: '/auth/check-phone',
           data: {
             name: user.name,
             phone: user.phone,
           },
-        },
-        value
-      );
-    });
+        };
+      });
 
-    const minLengthTest = authMinLengthTest([{ failedFieldName: 'name' }]);
-    test.each(minLengthTest.value)(`${minLengthTest.name}`, async (value) => {
-      const user = await createNewUser(request);
+      const missingTest = authMissingTest([{ failedFieldName: 'name' }, { failedFieldName: 'phone' }]);
+      test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
+        await missingTest.testFn(request, options, value);
+      });
 
-      await minLengthTest.testFn(
-        request,
-        {
-          method: 'post',
-          url: '/auth/check-phone',
-          data: {
-            name: faker.random.alpha({ count: 2 }),
-            phone: user.phone,
-          },
-        },
-        value
-      );
-    });
+      const minLengthTest = authMinLengthTest([{ failedFieldName: 'name' }]);
+      test.each(minLengthTest.value)(`${minLengthTest.name}`, async (value) => {
+        await minLengthTest.testFn(request, options, value);
+      });
 
-    const maxLengthTest = authMaxLengthTest([{ failedFieldName: 'name' }]);
-    test.each(maxLengthTest.value)(`${maxLengthTest.name}`, async (value) => {
-      const user = await createNewUser(request);
+      const maxLengthTest = authMaxLengthTest([{ failedFieldName: 'name' }]);
+      test.each(maxLengthTest.value)(`${maxLengthTest.name}`, async (value) => {
+        await maxLengthTest.testFn(request, options, value);
+      });
 
-      await maxLengthTest.testFn(
-        request,
-        {
-          method: 'post',
-          url: '/auth/check-phone',
-          data: {
-            name: faker.random.alpha({ count: 26 }),
-            phone: user.phone,
-          },
-        },
-        value
-      );
-    });
+      const patternTest = authPatternTest([{ failedFieldName: 'phone' }]);
+      test.each(patternTest.value)(`${patternTest.name}`, async (value) => {
+        await patternTest.testFn(request, options, value);
+      });
 
-    const patternTest = authPatternTest([{ failedFieldName: 'phone' }]);
-    test.each(patternTest.value)(`${patternTest.name}`, async (value) => {
-      const user = await createNewUser(request);
-
-      await patternTest.testFn(
-        request,
-        {
-          method: 'post',
-          url: '/auth/check-phone',
-          data: {
-            name: user.name,
-            phone: user.phone,
-          },
-        },
-        value
-      );
-    });
-
-    const typeTest = authTypeTest([{ failedFieldName: 'name' }, { failedFieldName: 'phone' }]);
-    test.each(typeTest.value)(`${typeTest.name}`, async (value) => {
-      const user = await createNewUser(request);
-
-      await typeTest.testFn(
-        request,
-        {
-          method: 'post',
-          url: '/auth/check-phone',
-          data: {
-            name: user.name,
-            phone: user.phone,
-          },
-        },
-        value
-      );
+      const typeTest = authTypeTest([{ failedFieldName: 'name' }, { failedFieldName: 'phone' }]);
+      test.each(typeTest.value)(`${typeTest.name}`, async (value) => {
+        await typeTest.testFn(request, options, value);
+      });
     });
   });
 
   describe('POST to /auth/logout', () => {
+    let options: TestOptions;
+
+    beforeAll(() => {
+      options = { method: 'post', url: '/auth/logout', data: {} };
+    });
+
     it('returns 201 if logout is successful', async () => {
       const { token } = await loginUser(request);
       const csrf = await csrfToken(request, token);
@@ -739,7 +542,7 @@ describe('Auth APIs', () => {
     });
 
     test.each([...authMiddleWareTest, ...csrfMiddleWareTest])('$name', async ({ name, testFn }) => {
-      await testFn(request, { method: 'post', url: '/auth/logout', data: {} }, null, 'logout');
+      await testFn(request, options, null, 'logout');
     });
   });
 
@@ -765,167 +568,82 @@ describe('Auth APIs', () => {
       expect(res.status).toBe(204);
     });
 
-    const missingTest = authMissingTest([
-      { failedFieldName: 'name' },
-      { failedFieldName: 'phone' },
-      { failedFieldName: 'profile' },
-      { parentFieldName: 'profile', failedFieldName: 'title' },
-    ]);
-    test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
-      const updateUser = fakeUser(false);
+    describe('Request param test set', () => {
+      let options: TestOptions;
 
-      await missingTest.testFn(
-        request,
-        {
+      beforeEach(() => {
+        const user = fakeUser(false);
+        options = {
           method: 'put',
           url: '/auth/update',
           data: {
-            name: updateUser.name,
-            profile: updateUser.profile,
-            email: updateUser.email,
-            phone: updateUser.phone,
-            wallet: updateUser.wallet,
+            name: user.name,
+            profile: user.profile,
+            email: user.email,
+            phone: user.phone,
+            wallet: user.wallet,
           },
-        },
-        value
-      );
-    });
+        };
+      });
 
-    const minLengthTest = authMinLengthTest();
-    test.each(minLengthTest.value)(`${minLengthTest.name}`, async (value) => {
-      const updateUser = fakeUser(false);
-      await minLengthTest.testFn(
-        request,
-        {
-          method: 'put',
-          url: '/auth/update',
-          data: {
-            name: updateUser.name,
-            profile: updateUser.profile,
-            email: updateUser.email,
-            phone: updateUser.phone,
-            wallet: updateUser.wallet,
-          },
-        },
-        value
-      );
-    });
+      const missingTest = authMissingTest([
+        { failedFieldName: 'name' },
+        { failedFieldName: 'phone' },
+        { failedFieldName: 'profile' },
+        { parentFieldName: 'profile', failedFieldName: 'title' },
+      ]);
+      test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
+        await missingTest.testFn(request, options, value);
+      });
 
-    const maxLengthTest = authMaxLengthTest();
-    test.each(maxLengthTest.value)(`${maxLengthTest.name}`, async (value) => {
-      const updateUser = fakeUser(false);
-      await maxLengthTest.testFn(
-        request,
-        {
-          method: 'put',
-          url: '/auth/update',
-          data: {
-            name: updateUser.name,
-            profile: updateUser.profile,
-            email: updateUser.email,
-            phone: updateUser.phone,
-            wallet: updateUser.wallet,
-          },
-        },
-        value
-      );
-    });
+      const minLengthTest = authMinLengthTest();
+      test.each(minLengthTest.value)(`${minLengthTest.name}`, async (value) => {
+        await minLengthTest.testFn(request, options, value);
+      });
 
-    const formatTest = authFormatTest();
-    test.each(formatTest.value)(`${formatTest.name}`, async (value) => {
-      const updateUser = fakeUser(false);
+      const maxLengthTest = authMaxLengthTest();
+      test.each(maxLengthTest.value)(`${maxLengthTest.name}`, async (value) => {
+        await maxLengthTest.testFn(request, options, value);
+      });
 
-      await formatTest.testFn(
-        request,
-        {
-          method: 'put',
-          url: '/auth/update',
-          data: {
-            name: updateUser.name,
-            profile: updateUser.profile,
-            email: updateUser.email,
-            phone: updateUser.phone,
-            wallet: updateUser.wallet,
-          },
-        },
-        value
-      );
-    });
+      const formatTest = authFormatTest();
+      test.each(formatTest.value)(`${formatTest.name}`, async (value) => {
+        await formatTest.testFn(request, options, value);
+      });
 
-    const patternTest = authPatternTest([{ failedFieldName: 'phone' }]);
-    test.each(patternTest.value)(`${patternTest.name}`, async (value) => {
-      const updateUser = fakeUser(false);
+      const patternTest = authPatternTest([{ failedFieldName: 'phone' }]);
+      test.each(patternTest.value)(`${patternTest.name}`, async (value) => {
+        await patternTest.testFn(request, options, value);
+      });
 
-      await patternTest.testFn(
-        request,
-        {
-          method: 'put',
-          url: '/auth/update',
-          data: {
-            name: updateUser.name,
-            profile: updateUser.profile,
-            email: updateUser.email,
-            phone: updateUser.phone,
-            wallet: updateUser.wallet,
-          },
-        },
-        value
-      );
-    });
+      const typeTest = authTypeTest([
+        { failedFieldName: 'name' },
+        { failedFieldName: 'phone' },
+        { failedFieldName: 'email' },
+        { failedFieldName: 'wallet' },
+        { failedFieldName: 'profile' },
+        { parentFieldName: 'profile', failedFieldName: 'title' },
+        { parentFieldName: 'profile', failedFieldName: 'description' },
+        { parentFieldName: 'profile', failedFieldName: 'image' },
+        { parentFieldName: 'profile', failedFieldName: 'background' },
+      ]);
+      test.each(typeTest.value)(`${typeTest.name}`, async (value) => {
+        await typeTest.testFn(request, options, value);
+      });
 
-    const typeTest = authTypeTest([
-      { failedFieldName: 'name' },
-      { failedFieldName: 'phone' },
-      { failedFieldName: 'email' },
-      { failedFieldName: 'wallet' },
-      { failedFieldName: 'profile' },
-      { parentFieldName: 'profile', failedFieldName: 'title' },
-      { parentFieldName: 'profile', failedFieldName: 'description' },
-      { parentFieldName: 'profile', failedFieldName: 'image' },
-      { parentFieldName: 'profile', failedFieldName: 'background' },
-    ]);
-    test.each(typeTest.value)(`${typeTest.name}`, async (value) => {
-      const updateUser = fakeUser(false);
-
-      await typeTest.testFn(
-        request,
-        {
-          method: 'put',
-          url: '/auth/update',
-          data: {
-            name: updateUser.name,
-            profile: updateUser.profile,
-            email: updateUser.email,
-            phone: updateUser.phone,
-            wallet: updateUser.wallet,
-          },
-        },
-        value
-      );
-    });
-
-    test.each([...authMiddleWareTest, ...csrfMiddleWareTest])('$name', async ({ name, testFn }) => {
-      const updateUser = fakeUser(false);
-      await testFn(
-        request,
-        {
-          method: 'put',
-          url: '/auth/update',
-          data: {
-            name: updateUser.name,
-            profile: updateUser.profile,
-            email: updateUser.email,
-            phone: updateUser.phone,
-            wallet: updateUser.wallet,
-          },
-        },
-        null,
-        'update'
-      );
+      test.each([...authMiddleWareTest, ...csrfMiddleWareTest])('$name', async ({ name, testFn }) => {
+        await testFn(request, options, null, 'update');
+      });
     });
   });
 
   describe('DELETE to /auth/remove', () => {
+    let options: TestOptions;
+
+    beforeAll(() => {
+      options = { method: 'delete', url: '/auth/remove' };
+    });
+
     it('returns 204 if remove is successful', async () => {
       const { token } = await loginUser(request);
       const csrf = await csrfToken(request, token);
@@ -937,7 +655,7 @@ describe('Auth APIs', () => {
     });
 
     test.each([...authMiddleWareTest, ...csrfMiddleWareTest])('$name', async ({ name, testFn }) => {
-      await testFn(request, { method: 'delete', url: '/auth/remove' }, null, 'remove');
+      await testFn(request, options, null, 'remove');
     });
   });
 });
