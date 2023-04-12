@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 import {
+  authFormatTest,
   authMaxLengthTest,
   authMiddleWareTest,
   authMinLengthTest,
@@ -206,31 +207,20 @@ describe('Auth APIs', () => {
       );
     });
 
-    test.each([
-      { failedFieldName: 'email', value: faker.random.alpha(10), format: 'email' },
-      { parentFieldName: 'profile', failedFieldName: 'image', value: faker.random.alpha(10), format: 'url' },
-      { parentFieldName: 'profile', failedFieldName: 'background', value: faker.random.alpha(26), format: 'url' },
-    ])(
-      `returns 400 when $failedFieldName field is wrong format`,
-      async ({ parentFieldName, failedFieldName, value, format }) => {
-        const user = fakeUser(false);
+    const formatTest = authFormatTest();
+    test.each(formatTest.value)(`${formatTest.name}`, async (value) => {
+      const user = fakeUser(false);
 
-        if (parentFieldName) {
-          user[parentFieldName][failedFieldName] = value;
-        } else {
-          user[failedFieldName] = value;
-        }
-
-        const res = await request.post('/auth/signup', user);
-
-        expect(res.status).toBe(400);
-        expect(res.data).toEqual(
-          fakeFailures([
-            new FailureObject(ErrorCode.FORMAT_OPENAPI, `must match format "${format}"`, 400, failedFieldName),
-          ])
-        );
-      }
-    );
+      await formatTest.testFn(
+        request,
+        {
+          method: 'post',
+          url: '/auth/signup',
+          data: user,
+        },
+        value
+      );
+    });
 
     test.each([
       {
@@ -767,45 +757,26 @@ describe('Auth APIs', () => {
       );
     });
 
-    test.each([
-      { failedFieldName: 'email', value: faker.random.alpha(10), format: 'email' },
-      { parentFieldName: 'profile', failedFieldName: 'image', value: faker.random.alpha(10), format: 'url' },
-      { parentFieldName: 'profile', failedFieldName: 'background', value: faker.random.alpha(26), format: 'url' },
-    ])(
-      `returns 400 when $failedFieldName field is wrong format`,
-      async ({ parentFieldName, failedFieldName, value, format }) => {
-        const { token } = await loginUser(request);
-        const csrf = await csrfToken(request, token);
-        const updateUser = fakeUser(false);
+    const formatTest = authFormatTest();
+    test.each(formatTest.value)(`${formatTest.name}`, async (value) => {
+      const updateUser = fakeUser(false);
 
-        if (parentFieldName) {
-          updateUser[parentFieldName][failedFieldName] = value;
-        } else {
-          updateUser[failedFieldName] = value;
-        }
-
-        const res = await request.put(
-          `/auth/update`,
-          {
+      await formatTest.testFn(
+        request,
+        {
+          method: 'put',
+          url: '/auth/update',
+          data: {
             name: updateUser.name,
             profile: updateUser.profile,
             email: updateUser.email,
             phone: updateUser.phone,
             wallet: updateUser.wallet,
           },
-          {
-            headers: { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token },
-          }
-        );
-
-        expect(res.status).toBe(400);
-        expect(res.data).toEqual(
-          fakeFailures([
-            new FailureObject(ErrorCode.FORMAT_OPENAPI, `must match format "${format}"`, 400, failedFieldName),
-          ])
-        );
-      }
-    );
+        },
+        value
+      );
+    });
 
     test.each([
       {

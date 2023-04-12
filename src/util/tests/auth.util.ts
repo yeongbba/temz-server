@@ -5,8 +5,8 @@ import { config } from '../../config';
 import { ErrorCode } from '../../types/error.util';
 import { FailureObject } from '../error.util';
 import { fakeFailures } from './error.util';
-import { maxLengthTest, minLengthTest, missingTest, sendRequest, testFn } from './common.util';
-import { maxLengthValue, minLengthValue, missingValue } from '../../types/common';
+import { formatTest, maxLengthTest, minLengthTest, missingTest, sendRequest, testFn } from './common.util';
+import { formatValue, maxLengthValue, minLengthValue, missingValue } from '../../types/common';
 
 export const DATE_REGEX = /[1-9]\d{3}-(0[1-9]|1[0-2])-(3[0-1]|[1-2]\d|0[1-9])T(0\d|1\d|2[0-3])(:[0-5]\d){2}.\d{3}Z/;
 
@@ -282,3 +282,10 @@ export const authMissingTest = (selectedFields?: { parentFieldName?: string; fai
 
   return missingTest(value);
 };
+
+export const authFormatTest = () =>
+  formatTest([
+    { failedFieldName: 'email', fakeValue: faker.random.alpha(10), format: 'email' },
+    { parentFieldName: 'profile', failedFieldName: 'image', fakeValue: faker.random.alpha(10), format: 'url' },
+    { parentFieldName: 'profile', failedFieldName: 'background', fakeValue: faker.random.alpha(26), format: 'url' },
+  ]);
