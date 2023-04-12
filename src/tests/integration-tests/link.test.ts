@@ -114,7 +114,7 @@ describe('Link APIs', () => {
     });
 
     test.each([...authMiddleWareTest, ...csrfMiddleWareTest])('$name', async ({ name, testFn }) => {
-      await testFn(request, { method: 'post', url: '/link', data: {} }, 'link');
+      await testFn(request, { method: 'post', url: '/link', data: {} }, null, 'link');
     });
   });
 });

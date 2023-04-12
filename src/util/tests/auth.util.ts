@@ -5,7 +5,7 @@ import { config } from '../../config';
 import { ErrorCode } from '../../types/error.util';
 import { FailureObject } from '../error.util';
 import { fakeFailures } from './error.util';
-import { maxLengthTest, sendRequest } from './common.util';
+import { maxLengthTest, sendRequest, testFn } from './common.util';
 
 export const DATE_REGEX = /[1-9]\d{3}-(0[1-9]|1[0-2])-(3[0-1]|[1-2]\d|0[1-9])T(0\d|1\d|2[0-3])(:[0-5]\d){2}.\d{3}Z/;
 
@@ -56,15 +56,7 @@ export const csrfToken = async (request: AxiosInstance, token: string) => {
 export const csrfMiddleWareTest = [
   {
     name: 'returns 401 if there is no csrf header in the request',
-    testFn: async (
-      request: AxiosInstance,
-      options: {
-        method: Method;
-        url: string;
-        data?: any;
-      },
-      reason?: string
-    ) => {
+    testFn: testFn(async (request, options, value, reason) => {
       const { token } = await loginUser(request);
 
       const headers = { Authorization: `Bearer ${token}` };
@@ -78,19 +70,11 @@ export const csrfMiddleWareTest = [
           new FailureObject(ErrorCode.INVALID_VALUE, `'${config.csrf.tokenKey}' header required`, 401, reason),
         ])
       );
-    },
+    }),
   },
   {
     name: 'returns 403 if the token is invalid',
-    testFn: async (
-      request: AxiosInstance,
-      options: {
-        method: Method;
-        url: string;
-        data?: any;
-      },
-      reason?: string
-    ) => {
+    testFn: testFn(async (request, options, value, reason) => {
       const { token } = await loginUser(request);
       const csrf = await csrfToken(request, token);
 
@@ -106,22 +90,14 @@ export const csrfMiddleWareTest = [
       expect(res.data).toEqual(
         fakeFailures([new FailureObject(ErrorCode.INVALID_VALUE, 'Csrf token is invalid', 403, reason)])
       );
-    },
+    }),
   },
 ];
 
 export const authMiddleWareTest = [
   {
     name: 'returns 401 if the token is not in the cookie or header',
-    testFn: async (
-      request: AxiosInstance,
-      options: {
-        method: Method;
-        url: string;
-        data?: any;
-      },
-      reason?: string
-    ) => {
+    testFn: testFn(async (request, options, value, reason) => {
       const { token } = await loginUser(request);
       const csrf = await csrfToken(request, token);
 
@@ -136,19 +112,11 @@ export const authMiddleWareTest = [
           new FailureObject(ErrorCode.INVALID_VALUE, 'Authentication token should not be null', 401, reason),
         ])
       );
-    },
+    }),
   },
   {
     name: 'returns 401 if the token is malformed',
-    testFn: async (
-      request: AxiosInstance,
-      options: {
-        method: Method;
-        url: string;
-        data?: any;
-      },
-      reason?: string
-    ) => {
+    testFn: testFn(async (request, options, value, reason) => {
       const { token } = await loginUser(request);
       const csrf = await csrfToken(request, token);
 
@@ -161,19 +129,11 @@ export const authMiddleWareTest = [
       expect(res.data).toEqual(
         fakeFailures([new FailureObject(ErrorCode.INVALID_VALUE, 'jwt malformed', 401, reason)])
       );
-    },
+    }),
   },
   {
     name: 'returns 401 if the token is invalid',
-    testFn: async (
-      request: AxiosInstance,
-      options: {
-        method: Method;
-        url: string;
-        data?: any;
-      },
-      reason?: string
-    ) => {
+    testFn: testFn(async (request, options, value, reason) => {
       const { token } = await loginUser(request);
       const csrf = await csrfToken(request, token);
       const fakeToken = token.slice(0, -1) + faker.random.alpha();
@@ -190,19 +150,11 @@ export const authMiddleWareTest = [
       expect(res.data).toEqual(
         fakeFailures([new FailureObject(ErrorCode.INVALID_VALUE, 'invalid signature', 401, reason)])
       );
-    },
+    }),
   },
   {
     name: 'returns 401 if there is no Authorization header in the request',
-    testFn: async (
-      request: AxiosInstance,
-      options: {
-        method: Method;
-        url: string;
-        data?: any;
-      },
-      reason?: string
-    ) => {
+    testFn: testFn(async (request, options, value, reason) => {
       const { token } = await loginUser(request);
       const csrf = await csrfToken(request, token);
 
@@ -215,19 +167,11 @@ export const authMiddleWareTest = [
       expect(res.data).toEqual(
         fakeFailures([new FailureObject(ErrorCode.INVALID_VALUE, 'Authorization header required', 401, reason)])
       );
-    },
+    }),
   },
   {
     name: 'returns 401 unless it is in Bearer format',
-    testFn: async (
-      request: AxiosInstance,
-      options: {
-        method: Method;
-        url: string;
-        data?: any;
-      },
-      reason?: string
-    ) => {
+    testFn: testFn(async (request, options, value, reason) => {
       const { token } = await loginUser(request);
       const csrf = await csrfToken(request, token);
 
@@ -245,19 +189,11 @@ export const authMiddleWareTest = [
           new FailureObject(ErrorCode.INVALID_VALUE, `Authorization header with scheme 'Bearer' required`, 401, reason),
         ])
       );
-    },
+    }),
   },
   {
     name: 'returns 401 if token is expired',
-    testFn: async (
-      request: AxiosInstance,
-      options: {
-        method: Method;
-        url: string;
-        data?: any;
-      },
-      reason?: string
-    ) => {
+    testFn: testFn(async (request, options, value, reason) => {
       const { token, user } = await loginUser(request);
       const csrf = await csrfToken(request, token);
       const expiredToken = jwt.sign({ id: user.userId }, config.jwt.secretKey, {
@@ -275,7 +211,7 @@ export const authMiddleWareTest = [
 
       expect(res.status).toBe(401);
       expect(res.data).toEqual(fakeFailures([new FailureObject(ErrorCode.INVALID_VALUE, `jwt expired`, 401, reason)]));
-    },
+    }),
   },
 ];
 

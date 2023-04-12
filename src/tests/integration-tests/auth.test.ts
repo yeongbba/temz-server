@@ -115,7 +115,7 @@ describe('Auth APIs', () => {
     });
 
     test.each(authMiddleWareTest)('$name', async ({ name, testFn }) => {
-      await testFn(request, { method: 'get', url: '/auth/me' }, 'me');
+      await testFn(request, { method: 'get', url: '/auth/me' }, null, 'me');
     });
   });
 
@@ -132,7 +132,7 @@ describe('Auth APIs', () => {
     });
 
     test.each(authMiddleWareTest)('$name', async ({ name, testFn }) => {
-      await testFn(request, { method: 'get', url: '/auth/csrf' }, 'csrf');
+      await testFn(request, { method: 'get', url: '/auth/csrf' }, null, 'csrf');
     });
   });
 
@@ -710,7 +710,7 @@ describe('Auth APIs', () => {
     });
 
     test.each([...authMiddleWareTest, ...csrfMiddleWareTest])('$name', async ({ name, testFn }) => {
-      await testFn(request, { method: 'post', url: '/auth/logout', data: {} }, 'logout');
+      await testFn(request, { method: 'post', url: '/auth/logout', data: {} }, null, 'logout');
     });
   });
 
@@ -926,6 +926,7 @@ describe('Auth APIs', () => {
             wallet: updateUser.wallet,
           },
         },
+        null,
         'update'
       );
     });
@@ -943,7 +944,7 @@ describe('Auth APIs', () => {
     });
 
     test.each([...authMiddleWareTest, ...csrfMiddleWareTest])('$name', async ({ name, testFn }) => {
-      await testFn(request, { method: 'delete', url: '/auth/remove' }, 'remove');
+      await testFn(request, { method: 'delete', url: '/auth/remove' }, null, 'remove');
     });
   });
 });
