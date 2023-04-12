@@ -5,6 +5,7 @@ import {
   authMiddleWareTest,
   authMinLengthTest,
   authMissingTest,
+  authPatternTest,
   createNewUser,
   csrfMiddleWareTest,
   csrfToken,
@@ -222,29 +223,18 @@ describe('Auth APIs', () => {
       );
     });
 
-    test.each([
-      {
-        failedFieldName: 'phone',
-        value: faker.phone.number('011########'),
-        pattern: '^(010)(\\d{4})(\\d{4})$',
-      },
-      {
-        failedFieldName: 'password',
-        value: faker.random.alphaNumeric(10),
-        pattern: '(?=.*[0-9])(?=.*[a-z])(?=.*\\W)(?=\\S+$).{8,20}',
-      },
-    ])(`returns 400 when $failedFieldName field is wrong pattern`, async ({ failedFieldName, value, pattern }) => {
+    const patternTest = authPatternTest();
+    test.each(patternTest.value)(`${patternTest.name}`, async (value) => {
       const user = fakeUser(false);
 
-      user[failedFieldName] = value;
-
-      const res = await request.post('/auth/signup', user);
-
-      expect(res.status).toBe(400);
-      expect(res.data).toEqual(
-        fakeFailures([
-          new FailureObject(ErrorCode.PATTERN_OPENAPI, `must match pattern "${pattern}"`, 400, failedFieldName),
-        ])
+      await patternTest.testFn(
+        request,
+        {
+          method: 'post',
+          url: '/auth/signup',
+          data: user,
+        },
+        value
       );
     });
   });
@@ -372,24 +362,21 @@ describe('Auth APIs', () => {
       );
     });
 
-    it(`returns 400 when password field is wrong pattern`, async () => {
+    const patternTest = authPatternTest([{ failedFieldName: 'password' }]);
+    test.each(patternTest.value)(`${patternTest.name}`, async (value) => {
       const user = await createNewUser(request);
 
-      const res = await request.post('/auth/login', {
-        name: user.name,
-        password: faker.random.alphaNumeric(10),
-      });
-
-      expect(res.status).toBe(400);
-      expect(res.data).toEqual(
-        fakeFailures([
-          new FailureObject(
-            ErrorCode.PATTERN_OPENAPI,
-            `must match pattern "(?=.*[0-9])(?=.*[a-z])(?=.*\\W)(?=\\S+$).{8,20}"`,
-            400,
-            'password'
-          ),
-        ])
+      await patternTest.testFn(
+        request,
+        {
+          method: 'post',
+          url: '/auth/login',
+          data: {
+            name: user.name,
+            password: faker.random.alphaNumeric(10),
+          },
+        },
+        value
       );
     });
   });
@@ -427,15 +414,18 @@ describe('Auth APIs', () => {
       );
     });
 
-    it('returns 400 when phone field is wrong pattern', async () => {
-      const phone = faker.phone.number('011########');
-      const res = await request.post(`/auth/find-name`, { phone });
-
-      expect(res.status).toBe(400);
-      expect(res.data).toEqual(
-        fakeFailures([
-          new FailureObject(ErrorCode.PATTERN_OPENAPI, `must match pattern "^(010)(\\d{4})(\\d{4})$"`, 400, 'phone'),
-        ])
+    const patternTest = authPatternTest([{ failedFieldName: 'phone' }]);
+    test.each(patternTest.value)(`${patternTest.name}`, async (value) => {
+      await patternTest.testFn(
+        request,
+        {
+          method: 'post',
+          url: '/auth/find-name',
+          data: {
+            phone: faker.phone.number('011########'),
+          },
+        },
+        value
       );
     });
   });
@@ -518,24 +508,21 @@ describe('Auth APIs', () => {
       );
     });
 
-    it(`returns 400 when password field is wrong pattern`, async () => {
+    const patternTest = authPatternTest([{ failedFieldName: 'password' }]);
+    test.each(patternTest.value)(`${patternTest.name}`, async (value) => {
       const user = await createNewUser(request);
 
-      const res = await request.post('/auth/reset-password', {
-        name: user.name,
-        password: faker.random.alphaNumeric(10),
-      });
-
-      expect(res.status).toBe(400);
-      expect(res.data).toEqual(
-        fakeFailures([
-          new FailureObject(
-            ErrorCode.PATTERN_OPENAPI,
-            `must match pattern "(?=.*[0-9])(?=.*[a-z])(?=.*\\W)(?=\\S+$).{8,20}"`,
-            400,
-            'password'
-          ),
-        ])
+      await patternTest.testFn(
+        request,
+        {
+          method: 'post',
+          url: '/auth/reset-password',
+          data: {
+            name: user.name,
+            password: faker.random.alphaNumeric(10),
+          },
+        },
+        value
       );
     });
   });
@@ -632,19 +619,21 @@ describe('Auth APIs', () => {
       );
     });
 
-    it(`returns 400 when phone field is wrong pattern`, async () => {
+    const patternTest = authPatternTest([{ failedFieldName: 'phone' }]);
+    test.each(patternTest.value)(`${patternTest.name}`, async (value) => {
       const user = await createNewUser(request);
 
-      const res = await request.post(`/auth/check-phone`, {
-        name: user.name,
-        phone: faker.phone.number('011########'),
-      });
-
-      expect(res.status).toBe(400);
-      expect(res.data).toEqual(
-        fakeFailures([
-          new FailureObject(ErrorCode.PATTERN_OPENAPI, `must match pattern "^(010)(\\d{4})(\\d{4})$"`, 400, 'phone'),
-        ])
+      await patternTest.testFn(
+        request,
+        {
+          method: 'post',
+          url: '/auth/check-phone',
+          data: {
+            name: user.name,
+            phone: faker.phone.number('011########'),
+          },
+        },
+        value
       );
     });
   });
@@ -778,38 +767,24 @@ describe('Auth APIs', () => {
       );
     });
 
-    test.each([
-      {
-        failedFieldName: 'phone',
-        value: faker.phone.number('011########'),
-        pattern: '^(010)(\\d{4})(\\d{4})$',
-      },
-    ])(`returns 400 when $failedFieldName field is wrong pattern`, async ({ failedFieldName, value, pattern }) => {
-      const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+    const patternTest = authPatternTest([{ failedFieldName: 'phone' }]);
+    test.each(patternTest.value)(`${patternTest.name}`, async (value) => {
       const updateUser = fakeUser(false);
 
-      updateUser[failedFieldName] = value;
-
-      const res = await request.put(
-        `/auth/update`,
+      await patternTest.testFn(
+        request,
         {
-          name: updateUser.name,
-          profile: updateUser.profile,
-          email: updateUser.email,
-          phone: updateUser.phone,
-          wallet: updateUser.wallet,
+          method: 'put',
+          url: '/auth/update',
+          data: {
+            name: updateUser.name,
+            profile: updateUser.profile,
+            email: updateUser.email,
+            phone: updateUser.phone,
+            wallet: updateUser.wallet,
+          },
         },
-        {
-          headers: { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token },
-        }
-      );
-
-      expect(res.status).toBe(400);
-      expect(res.data).toEqual(
-        fakeFailures([
-          new FailureObject(ErrorCode.PATTERN_OPENAPI, `must match pattern "${pattern}"`, 400, failedFieldName),
-        ])
+        value
       );
     });
 

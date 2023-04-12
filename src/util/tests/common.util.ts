@@ -7,6 +7,7 @@ import {
   maxLengthValue,
   minLengthValue,
   missingValue,
+  patternValue,
   TestFunction,
   TestOptions,
   TypeValue,
@@ -234,6 +235,36 @@ export const formatTest = (value: formatValue[]) => ({
     expect(res.status).toBe(400);
     expect(res.data).toEqual(
       fakeFailures([new FailureObject(ErrorCode.FORMAT_OPENAPI, `must match format "${format}"`, 400, failedFieldName)])
+    );
+  }),
+});
+
+export const patternTest = (value: patternValue[]) => ({
+  value,
+  name: 'returns 400 when $failedFieldName field is wrong pattern',
+  testFn: testFn(async (request, options, value) => {
+    const { parentFieldName, failedFieldName, fakeValue, pattern } = value as patternValue;
+    const rootField = setRootField(options);
+
+    const { token } = await loginUser(request);
+    const csrf = await csrfToken(request, token);
+    if (parentFieldName) {
+      const currentField = setCurrentField(parentFieldName, rootField);
+      currentField[failedFieldName] = fakeValue;
+    } else {
+      rootField[failedFieldName] = fakeValue;
+    }
+
+    const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+    const res = await sendRequest(request, options, {
+      headers,
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.data).toEqual(
+      fakeFailures([
+        new FailureObject(ErrorCode.PATTERN_OPENAPI, `must match pattern "${pattern}"`, 400, failedFieldName),
+      ])
     );
   }),
 });
