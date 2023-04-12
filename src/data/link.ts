@@ -37,11 +37,11 @@ export async function createLinks(links: Links) {
 }
 
 export async function updateLinks(links: Links) {
-  const result = await LinkModel.findOneAndUpdate({ uesrId: links.userId }, links, { returnOriginal: false });
+  const result = await LinkModel.findOneAndUpdate({ userId: links.userId }, links, { returnOriginal: false });
   return Links.parse(result);
 }
 
-export async function findLinksByUserId(uesrId: string) {
-  const result = await LinkModel.findOne({ uesrId });
+export async function findLinksByUserId(userId: string) {
+  const result = await LinkModel.findOne({ userId });
   return Links.parse(result);
 }
