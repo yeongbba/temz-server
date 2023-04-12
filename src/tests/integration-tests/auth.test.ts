@@ -6,6 +6,7 @@ import {
   authMinLengthTest,
   authMissingTest,
   authPatternTest,
+  authTypeTest,
   createNewUser,
   csrfMiddleWareTest,
   csrfToken,
@@ -237,6 +238,21 @@ describe('Auth APIs', () => {
         value
       );
     });
+
+    const typeTest = authTypeTest();
+    test.each(typeTest.value)(`${typeTest.name}`, async (value) => {
+      const user = fakeUser(false);
+
+      await typeTest.testFn(
+        request,
+        {
+          method: 'post',
+          url: '/auth/signup',
+          data: user,
+        },
+        value
+      );
+    });
   });
 
   describe('POST to /auth/login', () => {
@@ -336,7 +352,7 @@ describe('Auth APIs', () => {
           method: 'post',
           url: '/auth/login',
           data: {
-            name: faker.random.alpha({ count: 2 }),
+            name: user.name,
             password: user.password,
           },
         },
@@ -354,7 +370,7 @@ describe('Auth APIs', () => {
           method: 'post',
           url: '/auth/login',
           data: {
-            name: faker.random.alpha({ count: 26 }),
+            name: user.name,
             password: user.password,
           },
         },
@@ -373,7 +389,25 @@ describe('Auth APIs', () => {
           url: '/auth/login',
           data: {
             name: user.name,
-            password: faker.random.alphaNumeric(10),
+            password: user.password,
+          },
+        },
+        value
+      );
+    });
+
+    const typeTest = authTypeTest([{ failedFieldName: 'name' }, { failedFieldName: 'password' }]);
+    test.each(typeTest.value)(`${typeTest.name}`, async (value) => {
+      const user = await createNewUser(request);
+
+      await typeTest.testFn(
+        request,
+        {
+          method: 'post',
+          url: '/auth/login',
+          data: {
+            name: user.name,
+            password: user.password,
           },
         },
         value
@@ -422,7 +456,22 @@ describe('Auth APIs', () => {
           method: 'post',
           url: '/auth/find-name',
           data: {
-            phone: faker.phone.number('011########'),
+            phone: faker.phone.number('010########'),
+          },
+        },
+        value
+      );
+    });
+
+    const typeTest = authTypeTest([{ failedFieldName: 'phone' }]);
+    test.each(typeTest.value)(`${typeTest.name}`, async (value) => {
+      await typeTest.testFn(
+        request,
+        {
+          method: 'post',
+          url: '/auth/find-name',
+          data: {
+            phone: faker.phone.number('010########'),
           },
         },
         value
@@ -482,7 +531,7 @@ describe('Auth APIs', () => {
           method: 'post',
           url: '/auth/reset-password',
           data: {
-            name: faker.random.alpha({ count: 2 }),
+            name: user.name,
             password: user.password,
           },
         },
@@ -500,7 +549,7 @@ describe('Auth APIs', () => {
           method: 'post',
           url: '/auth/reset-password',
           data: {
-            name: faker.random.alpha({ count: 26 }),
+            name: user.name,
             password: user.password,
           },
         },
@@ -519,7 +568,25 @@ describe('Auth APIs', () => {
           url: '/auth/reset-password',
           data: {
             name: user.name,
-            password: faker.random.alphaNumeric(10),
+            password: user.password,
+          },
+        },
+        value
+      );
+    });
+
+    const typeTest = authTypeTest([{ failedFieldName: 'name' }, { failedFieldName: 'password' }]);
+    test.each(typeTest.value)(`${typeTest.name}`, async (value) => {
+      const user = await createNewUser(request);
+
+      await typeTest.testFn(
+        request,
+        {
+          method: 'post',
+          url: '/auth/reset-password',
+          data: {
+            name: user.name,
+            password: user.password,
           },
         },
         value
@@ -630,7 +697,25 @@ describe('Auth APIs', () => {
           url: '/auth/check-phone',
           data: {
             name: user.name,
-            phone: faker.phone.number('011########'),
+            phone: user.phone,
+          },
+        },
+        value
+      );
+    });
+
+    const typeTest = authTypeTest([{ failedFieldName: 'name' }, { failedFieldName: 'phone' }]);
+    test.each(typeTest.value)(`${typeTest.name}`, async (value) => {
+      const user = await createNewUser(request);
+
+      await typeTest.testFn(
+        request,
+        {
+          method: 'post',
+          url: '/auth/check-phone',
+          data: {
+            name: user.name,
+            phone: user.phone,
           },
         },
         value
@@ -772,6 +857,37 @@ describe('Auth APIs', () => {
       const updateUser = fakeUser(false);
 
       await patternTest.testFn(
+        request,
+        {
+          method: 'put',
+          url: '/auth/update',
+          data: {
+            name: updateUser.name,
+            profile: updateUser.profile,
+            email: updateUser.email,
+            phone: updateUser.phone,
+            wallet: updateUser.wallet,
+          },
+        },
+        value
+      );
+    });
+
+    const typeTest = authTypeTest([
+      { failedFieldName: 'name' },
+      { failedFieldName: 'phone' },
+      { failedFieldName: 'email' },
+      { failedFieldName: 'wallet' },
+      { failedFieldName: 'profile' },
+      { parentFieldName: 'profile', failedFieldName: 'title' },
+      { parentFieldName: 'profile', failedFieldName: 'description' },
+      { parentFieldName: 'profile', failedFieldName: 'image' },
+      { parentFieldName: 'profile', failedFieldName: 'background' },
+    ]);
+    test.each(typeTest.value)(`${typeTest.name}`, async (value) => {
+      const updateUser = fakeUser(false);
+
+      await typeTest.testFn(
         request,
         {
           method: 'put',

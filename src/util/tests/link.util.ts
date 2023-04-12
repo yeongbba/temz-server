@@ -40,90 +40,92 @@ export const linkItemCountTest = () => {
 };
 
 export const linkTypeTest = () => {
+  const fakeNumber = parseInt(faker.random.numeric(5));
+  const fakeString = faker.random.word();
   return typeTest([
     {
       failedFieldName: 'links',
-      fakeValue: faker.random.alpha({ count: 10 }),
+      fakeValue: fakeString,
       type: 'object',
     },
     {
       parentFieldName: 'links',
       failedFieldName: 'youtube',
-      fakeValue: parseInt(faker.random.numeric(5)),
+      fakeValue: fakeNumber,
       type: 'string',
     },
     {
       parentFieldName: 'links',
       failedFieldName: 'twitter',
-      fakeValue: parseInt(faker.random.numeric(5)),
+      fakeValue: fakeNumber,
       type: 'string',
     },
     {
       parentFieldName: 'links',
       failedFieldName: 'tiktok',
-      fakeValue: parseInt(faker.random.numeric(5)),
+      fakeValue: fakeNumber,
       type: 'string',
     },
     {
       parentFieldName: 'links',
       failedFieldName: 'instagram',
-      fakeValue: parseInt(faker.random.numeric(5)),
+      fakeValue: fakeNumber,
       type: 'string',
     },
     {
       parentFieldName: 'links',
       failedFieldName: 'facebook',
-      fakeValue: parseInt(faker.random.numeric(5)),
+      fakeValue: fakeNumber,
       type: 'string',
     },
     {
       parentFieldName: 'links',
       failedFieldName: 'telegram',
-      fakeValue: parseInt(faker.random.numeric(5)),
+      fakeValue: fakeNumber,
       type: 'string',
     },
     {
       parentFieldName: 'links',
       failedFieldName: 'general',
-      fakeValue: faker.random.alpha({ count: 10 }),
+      fakeValue: fakeString,
       type: 'array',
     },
     {
       parentFieldName: 'links',
       failedFieldName: 'general',
-      fakeValue: faker.random.alpha({ count: 10 }),
+      fakeValue: fakeString,
       type: 'object',
       item: true,
     },
     {
       parentFieldName: 'links.general',
       failedFieldName: 'title',
-      fakeValue: parseInt(faker.random.numeric(5)),
+      fakeValue: fakeNumber,
       type: 'string',
     },
     {
       parentFieldName: 'links.general',
       failedFieldName: 'links',
-      fakeValue: faker.random.alpha({ count: 10 }),
+      fakeValue: fakeString,
       type: 'array',
     },
     {
       parentFieldName: 'links.general',
       failedFieldName: 'links',
-      fakeValue: faker.random.alpha({ count: 10 }),
+      fakeValue: fakeString,
       type: 'object',
       item: true,
     },
     {
       parentFieldName: 'links.general.links',
       failedFieldName: 'description',
-      fakeValue: parseInt(faker.random.numeric(5)),
+      fakeValue: fakeNumber,
       type: 'string',
     },
     {
       parentFieldName: 'links.general.links',
       failedFieldName: 'link',
-      fakeValue: parseInt(faker.random.numeric(5)),
+      fakeValue: fakeNumber,
       type: 'string',
     },
   ]);

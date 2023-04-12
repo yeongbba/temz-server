@@ -2,12 +2,12 @@ import { AxiosInstance, AxiosRequestConfig, AxiosResponse, Method } from 'axios'
 import { config } from '../../config';
 import {
   AllTestValueType,
-  formatValue,
+  FormatValue,
   ItemCountValue,
-  maxLengthValue,
-  minLengthValue,
-  missingValue,
-  patternValue,
+  MaxLengthValue,
+  MinLengthValue,
+  MissingValue,
+  PatternValue,
   TestFunction,
   TestOptions,
   TypeValue,
@@ -129,6 +129,7 @@ export const typeTest = (value: TypeValue[]) => ({
       }
     }
 
+    console.log(typeof fakeValue);
     const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
     const res = await sendRequest(request, options, {
       headers,
@@ -141,11 +142,11 @@ export const typeTest = (value: TypeValue[]) => ({
   }),
 });
 
-export const maxLengthTest = (value: maxLengthValue[]) => ({
+export const maxLengthTest = (value: MaxLengthValue[]) => ({
   value,
   name: 'returns 400 when $failedFieldName field length is too long',
   testFn: testFn(async (request, options, value) => {
-    const { parentFieldName, failedFieldName, fakeValue, maxLength } = value as maxLengthValue;
+    const { parentFieldName, failedFieldName, fakeValue, maxLength } = value as MaxLengthValue;
     const rootField = setRootField(options);
     const { token } = await loginUser(request);
     const csrf = await csrfToken(request, token);
@@ -176,11 +177,11 @@ export const maxLengthTest = (value: maxLengthValue[]) => ({
   }),
 });
 
-export const minLengthTest = (value: minLengthValue[]) => ({
+export const minLengthTest = (value: MinLengthValue[]) => ({
   value,
   name: 'returns 400 when $failedFieldName field length is too long',
   testFn: testFn(async (request, options, value) => {
-    const { parentFieldName, failedFieldName, fakeValue, minLength } = value as minLengthValue;
+    const { parentFieldName, failedFieldName, fakeValue, minLength } = value as MinLengthValue;
     const rootField = setRootField(options);
     const { token } = await loginUser(request);
     const csrf = await csrfToken(request, token);
@@ -211,11 +212,11 @@ export const minLengthTest = (value: minLengthValue[]) => ({
   }),
 });
 
-export const formatTest = (value: formatValue[]) => ({
+export const formatTest = (value: FormatValue[]) => ({
   value,
   name: 'returns 400 when $failedFieldName field is wrong format',
   testFn: testFn(async (request, options, value) => {
-    const { parentFieldName, failedFieldName, fakeValue, format } = value as formatValue;
+    const { parentFieldName, failedFieldName, fakeValue, format } = value as FormatValue;
     const rootField = setRootField(options);
 
     const { token } = await loginUser(request);
@@ -239,11 +240,11 @@ export const formatTest = (value: formatValue[]) => ({
   }),
 });
 
-export const patternTest = (value: patternValue[]) => ({
+export const patternTest = (value: PatternValue[]) => ({
   value,
   name: 'returns 400 when $failedFieldName field is wrong pattern',
   testFn: testFn(async (request, options, value) => {
-    const { parentFieldName, failedFieldName, fakeValue, pattern } = value as patternValue;
+    const { parentFieldName, failedFieldName, fakeValue, pattern } = value as PatternValue;
     const rootField = setRootField(options);
 
     const { token } = await loginUser(request);
@@ -269,11 +270,11 @@ export const patternTest = (value: patternValue[]) => ({
   }),
 });
 
-export const missingTest = (value: missingValue[]) => ({
+export const missingTest = (value: MissingValue[]) => ({
   value,
   name: 'returns 400 when $missingFieldName field is missing',
   testFn: testFn(async (request, options, value) => {
-    const { parentFieldName, failedFieldName } = value as missingValue;
+    const { parentFieldName, failedFieldName } = value as MissingValue;
     const rootField = setRootField(options);
 
     const { token } = await loginUser(request);

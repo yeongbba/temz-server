@@ -5,8 +5,17 @@ import { config } from '../../config';
 import { ErrorCode } from '../../types/error.util';
 import { FailureObject } from '../error.util';
 import { fakeFailures } from './error.util';
-import { formatTest, maxLengthTest, minLengthTest, missingTest, patternTest, sendRequest, testFn } from './common.util';
-import { formatValue, maxLengthValue, minLengthValue, missingValue, patternValue } from '../../types/common';
+import {
+  formatTest,
+  maxLengthTest,
+  minLengthTest,
+  missingTest,
+  patternTest,
+  sendRequest,
+  testFn,
+  typeTest,
+} from './common.util';
+import { MaxLengthValue, MinLengthValue, MissingValue, PatternValue, TypeValue } from '../../types/common';
 
 export const DATE_REGEX = /[1-9]\d{3}-(0[1-9]|1[0-2])-(3[0-1]|[1-2]\d|0[1-9])T(0\d|1\d|2[0-3])(:[0-5]\d){2}.\d{3}Z/;
 
@@ -217,7 +226,7 @@ export const authMiddleWareTest = [
 ];
 
 export const authMaxLengthTest = (selectedFields?: { parentFieldName?: string; failedFieldName: string }[]) => {
-  const fields: maxLengthValue[] = [
+  const fields: MaxLengthValue[] = [
     { failedFieldName: 'name', fakeValue: faker.random.alpha({ count: 26 }), maxLength: 25 },
     { failedFieldName: 'wallet', fakeValue: faker.random.alphaNumeric(43), maxLength: 42 },
     { parentFieldName: 'profile', failedFieldName: 'title', fakeValue: faker.random.alpha(26), maxLength: 25 },
@@ -243,7 +252,7 @@ export const authMaxLengthTest = (selectedFields?: { parentFieldName?: string; f
 };
 
 export const authMinLengthTest = (selectedFields?: { parentFieldName?: string; failedFieldName: string }[]) => {
-  const fields: minLengthValue[] = [
+  const fields: MinLengthValue[] = [
     { failedFieldName: 'name', fakeValue: faker.random.alpha({ count: 2 }), minLength: 3 },
     { failedFieldName: 'wallet', fakeValue: faker.random.alphaNumeric(24), minLength: 25 },
   ];
@@ -262,7 +271,7 @@ export const authMinLengthTest = (selectedFields?: { parentFieldName?: string; f
 };
 
 export const authMissingTest = (selectedFields?: { parentFieldName?: string; failedFieldName: string }[]) => {
-  const fields: missingValue[] = [
+  const fields: MissingValue[] = [
     { failedFieldName: 'name' },
     { failedFieldName: 'phone' },
     { failedFieldName: 'profile' },
@@ -291,7 +300,7 @@ export const authFormatTest = () =>
   ]);
 
 export const authPatternTest = (selectedFields?: { parentFieldName?: string; failedFieldName: string }[]) => {
-  const fields: patternValue[] = [
+  const fields: PatternValue[] = [
     {
       failedFieldName: 'phone',
       fakeValue: faker.phone.number('011########'),
@@ -315,4 +324,78 @@ export const authPatternTest = (selectedFields?: { parentFieldName?: string; fai
     : fields;
 
   return patternTest(value);
+};
+
+export const authTypeTest = (selectedFields?: { parentFieldName?: string; failedFieldName: string }[]) => {
+  const fakeNumber = parseInt(faker.random.numeric(5));
+  const fakeString = faker.random.word();
+
+  const fields: TypeValue[] = [
+    {
+      failedFieldName: 'name',
+      fakeValue: fakeNumber,
+      type: 'string',
+    },
+    {
+      failedFieldName: 'password',
+      fakeValue: fakeNumber,
+      type: 'string',
+    },
+    {
+      failedFieldName: 'phone',
+      fakeValue: fakeNumber,
+      type: 'string',
+    },
+    {
+      failedFieldName: 'email',
+      fakeValue: fakeNumber,
+      type: 'string',
+    },
+    {
+      failedFieldName: 'wallet',
+      fakeValue: fakeNumber,
+      type: 'string',
+    },
+    {
+      failedFieldName: 'profile',
+      fakeValue: fakeString,
+      type: 'object',
+    },
+    {
+      parentFieldName: 'profile',
+      failedFieldName: 'title',
+      fakeValue: fakeNumber,
+      type: 'string',
+    },
+    {
+      parentFieldName: 'profile',
+      failedFieldName: 'description',
+      fakeValue: fakeNumber,
+      type: 'string',
+    },
+    {
+      parentFieldName: 'profile',
+      failedFieldName: 'image',
+      fakeValue: fakeNumber,
+      type: 'string',
+    },
+    {
+      parentFieldName: 'profile',
+      failedFieldName: 'background',
+      fakeValue: fakeNumber,
+      type: 'string',
+    },
+  ];
+
+  const value = selectedFields
+    ? fields.filter((field) =>
+        selectedFields.find(
+          (selectedField) =>
+            field.failedFieldName === selectedField.failedFieldName &&
+            field.parentFieldName === selectedField.parentFieldName
+        )
+      )
+    : fields;
+
+  return typeTest(value);
 };

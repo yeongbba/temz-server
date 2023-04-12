@@ -31,7 +31,7 @@ export type TestOptions = {
   params?: any;
 };
 
-export type AllTestValueType = ItemCountValue | TypeValue | maxLengthValue | formatValue | patternValue | missingValue;
+export type AllTestValueType = ItemCountValue | TypeValue | MaxLengthValue | FormatValue | PatternValue | MissingValue;
 export type ItemCountValue = { parentFieldName?: string; failedFieldName: string; maxItems: number };
 export type TypeValue = {
   parentFieldName?: string;
@@ -40,8 +40,8 @@ export type TypeValue = {
   type: string;
   item?: boolean;
 };
-export type maxLengthValue = { parentFieldName?: string; failedFieldName: string; fakeValue: any; maxLength: number };
-export type minLengthValue = { parentFieldName?: string; failedFieldName: string; fakeValue: any; minLength: number };
-export type formatValue = { parentFieldName?: string; failedFieldName: string; fakeValue: any; format: string };
-export type patternValue = { parentFieldName?: string; failedFieldName: string; fakeValue: any; pattern: string };
-export type missingValue = { parentFieldName?: string; failedFieldName: string };
+export type MaxLengthValue = { parentFieldName?: string; failedFieldName: string; fakeValue: any; maxLength: number };
+export type MinLengthValue = { parentFieldName?: string; failedFieldName: string; fakeValue: any; minLength: number };
+export type FormatValue = { parentFieldName?: string; failedFieldName: string; fakeValue: any; format: string };
+export type PatternValue = { parentFieldName?: string; failedFieldName: string; fakeValue: any; pattern: string };
+export type MissingValue = { parentFieldName?: string; failedFieldName: string };
