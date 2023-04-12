@@ -5,6 +5,7 @@ import {
   formatValue,
   ItemCountValue,
   maxLengthValue,
+  minLengthValue,
   missingValue,
   TestFunction,
   TestOptions,
@@ -166,6 +167,41 @@ export const maxLengthTest = (value: maxLengthValue[]) => ({
         new FailureObject(
           ErrorCode.MAXLENGTH_OPENAPI,
           `must NOT have more than ${maxLength} characters`,
+          400,
+          failedFieldName
+        ),
+      ])
+    );
+  }),
+});
+
+export const minLengthTest = (value: minLengthValue[]) => ({
+  value,
+  name: 'returns 400 when $failedFieldName field length is too long',
+  testFn: testFn(async (request, options, value) => {
+    const { parentFieldName, failedFieldName, fakeValue, minLength } = value as minLengthValue;
+    const rootField = setRootField(options);
+    const { token } = await loginUser(request);
+    const csrf = await csrfToken(request, token);
+
+    if (parentFieldName) {
+      const currentField = setCurrentField(parentFieldName, rootField);
+      currentField[failedFieldName] = fakeValue;
+    } else {
+      rootField[failedFieldName] = fakeValue;
+    }
+
+    const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+    const res = await sendRequest(request, options, {
+      headers,
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.data).toEqual(
+      fakeFailures([
+        new FailureObject(
+          ErrorCode.MINLENGTH_OPENAPI,
+          `must NOT have fewer than ${minLength} characters`,
           400,
           failedFieldName
         ),

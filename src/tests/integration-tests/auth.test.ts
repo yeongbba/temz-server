@@ -2,6 +2,7 @@ import axios, { AxiosInstance } from 'axios';
 import {
   authMaxLengthTest,
   authMiddleWareTest,
+  authMinLengthTest,
   createNewUser,
   csrfMiddleWareTest,
   csrfToken,
@@ -69,18 +70,18 @@ describe('Auth APIs', () => {
       );
     });
 
-    it('returns 400 when name param length is too short', async () => {
-      const res = await request.get(`/auth/check-name`, {
-        params: {
-          name: faker.random.alpha({ count: 2 }),
+    const minLengthTest = authMinLengthTest([{ failedFieldName: 'name' }]);
+    test.only.each(minLengthTest.value)(`${minLengthTest.name}`, async (value) => {
+      await minLengthTest.testFn(
+        request,
+        {
+          method: 'get',
+          url: '/auth/check-name',
+          params: {
+            name: faker.random.alpha({ count: 2 }),
+          },
         },
-      });
-
-      expect(res.status).toBe(400);
-      expect(res.data).toEqual(
-        fakeFailures([
-          new FailureObject(ErrorCode.MINLENGTH_OPENAPI, `must NOT have fewer than 3 characters`, 400, 'name'),
-        ])
+        value
       );
     });
 
@@ -188,26 +189,17 @@ describe('Auth APIs', () => {
       );
     });
 
-    test.each([
-      { failedFieldName: 'name', value: faker.random.alpha({ count: 2 }), minLength: 3 },
-      { failedFieldName: 'wallet', value: faker.random.alphaNumeric(24), minLength: 25 },
-    ])(`returns 400 when $failedFieldName field length is too short`, async ({ failedFieldName, value, minLength }) => {
+    const minLengthTest = authMinLengthTest();
+    test.each(minLengthTest.value)(`${minLengthTest.name}`, async (value) => {
       const user = fakeUser(false);
-
-      user[failedFieldName] = value;
-
-      const res = await request.post('/auth/signup', user);
-
-      expect(res.status).toBe(400);
-      expect(res.data).toEqual(
-        fakeFailures([
-          new FailureObject(
-            ErrorCode.MINLENGTH_OPENAPI,
-            `must NOT have fewer than ${minLength} characters`,
-            400,
-            failedFieldName
-          ),
-        ])
+      await minLengthTest.testFn(
+        request,
+        {
+          method: 'post',
+          url: '/auth/signup',
+          data: user,
+        },
+        value
       );
     });
 
@@ -373,19 +365,21 @@ describe('Auth APIs', () => {
       }
     );
 
-    it('returns 400 when name length is too short', async () => {
+    const minLengthTest = authMinLengthTest([{ failedFieldName: 'name' }]);
+    test.each(minLengthTest.value)(`${minLengthTest.name}`, async (value) => {
       const user = await createNewUser(request);
 
-      const res = await request.post('/auth/login', {
-        name: faker.random.alpha({ count: 2 }),
-        password: user.password,
-      });
-
-      expect(res.status).toBe(400);
-      expect(res.data).toEqual(
-        fakeFailures([
-          new FailureObject(ErrorCode.MINLENGTH_OPENAPI, `must NOT have fewer than 3 characters`, 400, 'name'),
-        ])
+      await minLengthTest.testFn(
+        request,
+        {
+          method: 'post',
+          url: '/auth/login',
+          data: {
+            name: faker.random.alpha({ count: 2 }),
+            password: user.password,
+          },
+        },
+        value
       );
     });
 
@@ -523,19 +517,21 @@ describe('Auth APIs', () => {
       }
     );
 
-    it('returns 400 when name param length is too short', async () => {
+    const minLengthTest = authMinLengthTest([{ failedFieldName: 'name' }]);
+    test.each(minLengthTest.value)(`${minLengthTest.name}`, async (value) => {
       const user = await createNewUser(request);
 
-      const res = await request.post(`/auth/reset-password`, {
-        name: faker.random.alpha({ count: 2 }),
-        password: user.password,
-      });
-
-      expect(res.status).toBe(400);
-      expect(res.data).toEqual(
-        fakeFailures([
-          new FailureObject(ErrorCode.MINLENGTH_OPENAPI, `must NOT have fewer than 3 characters`, 400, 'name'),
-        ])
+      await minLengthTest.testFn(
+        request,
+        {
+          method: 'post',
+          url: '/auth/reset-password',
+          data: {
+            name: faker.random.alpha({ count: 2 }),
+            password: user.password,
+          },
+        },
+        value
       );
     });
 
@@ -643,19 +639,21 @@ describe('Auth APIs', () => {
       }
     );
 
-    it('returns 400 when name param length is too short', async () => {
+    const minLengthTest = authMinLengthTest([{ failedFieldName: 'name' }]);
+    test.each(minLengthTest.value)(`${minLengthTest.name}`, async (value) => {
       const user = await createNewUser(request);
 
-      const res = await request.post(`/auth/check-phone`, {
-        name: faker.random.alpha({ count: 2 }),
-        phone: user.phone,
-      });
-
-      expect(res.status).toBe(400);
-      expect(res.data).toEqual(
-        fakeFailures([
-          new FailureObject(ErrorCode.MINLENGTH_OPENAPI, `must NOT have fewer than 3 characters`, 400, 'name'),
-        ])
+      await minLengthTest.testFn(
+        request,
+        {
+          method: 'post',
+          url: '/auth/check-phone',
+          data: {
+            name: faker.random.alpha({ count: 2 }),
+            phone: user.phone,
+          },
+        },
+        value
       );
     });
 
@@ -779,40 +777,23 @@ describe('Auth APIs', () => {
       );
     });
 
-    test.each([
-      { failedFieldName: 'name', value: faker.random.alpha({ count: 2 }), minLength: 3 },
-      { failedFieldName: 'wallet', value: faker.random.alphaNumeric(24), minLength: 25 },
-    ])(`returns 400 when $failedFieldName field length is too short`, async ({ failedFieldName, value, minLength }) => {
-      const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+    const minLengthTest = authMinLengthTest();
+    test.each(minLengthTest.value)(`${minLengthTest.name}`, async (value) => {
       const updateUser = fakeUser(false);
-
-      updateUser[failedFieldName] = value;
-
-      const res = await request.put(
-        `/auth/update`,
+      await minLengthTest.testFn(
+        request,
         {
-          name: updateUser.name,
-          profile: updateUser.profile,
-          email: updateUser.email,
-          phone: updateUser.phone,
-          wallet: updateUser.wallet,
+          method: 'put',
+          url: '/auth/update',
+          data: {
+            name: updateUser.name,
+            profile: updateUser.profile,
+            email: updateUser.email,
+            phone: updateUser.phone,
+            wallet: updateUser.wallet,
+          },
         },
-        {
-          headers: { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token },
-        }
-      );
-
-      expect(res.status).toBe(400);
-      expect(res.data).toEqual(
-        fakeFailures([
-          new FailureObject(
-            ErrorCode.MINLENGTH_OPENAPI,
-            `must NOT have fewer than ${minLength} characters`,
-            400,
-            failedFieldName
-          ),
-        ])
+        value
       );
     });
 
