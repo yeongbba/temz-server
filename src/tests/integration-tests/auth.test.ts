@@ -3,6 +3,7 @@ import {
   authMaxLengthTest,
   authMiddleWareTest,
   authMinLengthTest,
+  authMissingTest,
   createNewUser,
   csrfMiddleWareTest,
   csrfToken,
@@ -61,17 +62,21 @@ describe('Auth APIs', () => {
       expect(res.data).toEqual({ isValid: false });
     });
 
-    it('returns 400 when name param is missing', async () => {
-      const res = await request.get(`/auth/check-name`);
-
-      expect(res.status).toBe(400);
-      expect(res.data).toEqual(
-        fakeFailures([new FailureObject(ErrorCode.REQUIRED_OPENAPI, `must have required property 'name'`, 400, 'name')])
+    const missingTest = authMissingTest([{ failedFieldName: 'name' }]);
+    test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
+      await missingTest.testFn(
+        request,
+        {
+          method: 'get',
+          url: '/auth/check-name',
+          data: {},
+        },
+        value
       );
     });
 
     const minLengthTest = authMinLengthTest([{ failedFieldName: 'name' }]);
-    test.only.each(minLengthTest.value)(`${minLengthTest.name}`, async (value) => {
+    test.each(minLengthTest.value)(`${minLengthTest.name}`, async (value) => {
       await minLengthTest.testFn(
         request,
         {
@@ -159,33 +164,17 @@ describe('Auth APIs', () => {
       );
     });
 
-    test.each([
-      { missingFieldName: 'name' },
-      { missingFieldName: 'phone' },
-      { missingFieldName: 'profile' },
-      { parentFieldName: 'profile', missingFieldName: 'title' },
-      { missingFieldName: 'password' },
-    ])(`returns 400 when $missingFieldName field is missing`, async ({ parentFieldName, missingFieldName }) => {
+    const missingTest = authMissingTest();
+    test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
       const user = fakeUser(false);
-
-      if (parentFieldName) {
-        delete user[parentFieldName][missingFieldName];
-      } else {
-        delete user[missingFieldName];
-      }
-
-      const res = await request.post('/auth/signup', user);
-
-      expect(res.status).toBe(400);
-      expect(res.data).toEqual(
-        fakeFailures([
-          new FailureObject(
-            ErrorCode.REQUIRED_OPENAPI,
-            `must have required property '${missingFieldName}'`,
-            400,
-            missingFieldName
-          ),
-        ])
+      await missingTest.testFn(
+        request,
+        {
+          method: 'post',
+          url: '/auth/signup',
+          data: user,
+        },
+        value
       );
     });
 
@@ -339,31 +328,23 @@ describe('Auth APIs', () => {
       );
     });
 
-    test.each([{ missingFieldName: 'name' }, { missingFieldName: 'password' }])(
-      `returns 400 when $missingFieldName field is missing`,
-      async ({ missingFieldName }) => {
-        const user = await createNewUser(request);
+    const missingTest = authMissingTest([{ failedFieldName: 'name' }, { failedFieldName: 'password' }]);
+    test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
+      const user = await createNewUser(request);
 
-        delete user[missingFieldName];
-
-        const res = await request.post('/auth/login', {
-          name: user.name,
-          password: user.password,
-        });
-
-        expect(res.status).toBe(400);
-        expect(res.data).toEqual(
-          fakeFailures([
-            new FailureObject(
-              ErrorCode.REQUIRED_OPENAPI,
-              `must have required property '${missingFieldName}'`,
-              400,
-              missingFieldName
-            ),
-          ])
-        );
-      }
-    );
+      await missingTest.testFn(
+        request,
+        {
+          method: 'post',
+          url: '/auth/login',
+          data: {
+            name: user.name,
+            password: user.password,
+          },
+        },
+        value
+      );
+    });
 
     const minLengthTest = authMinLengthTest([{ failedFieldName: 'name' }]);
     test.each(minLengthTest.value)(`${minLengthTest.name}`, async (value) => {
@@ -443,14 +424,16 @@ describe('Auth APIs', () => {
       expect(res.data).toEqual(fakeFailures([new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404)]));
     });
 
-    it('returns 400 when phone field is missing', async () => {
-      const res = await request.post(`/auth/find-name`, {});
-
-      expect(res.status).toBe(400);
-      expect(res.data).toEqual(
-        fakeFailures([
-          new FailureObject(ErrorCode.REQUIRED_OPENAPI, `must have required property 'phone'`, 400, 'phone'),
-        ])
+    const missingTest = authMissingTest([{ failedFieldName: 'phone' }]);
+    test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
+      await missingTest.testFn(
+        request,
+        {
+          method: 'post',
+          url: '/auth/find-name',
+          data: {},
+        },
+        value
       );
     });
 
@@ -491,31 +474,23 @@ describe('Auth APIs', () => {
       expect(res.data).toEqual(fakeFailures([new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404)]));
     });
 
-    test.each([{ missingFieldName: 'name' }, { missingFieldName: 'password' }])(
-      `returns 400 when $missingFieldName field is missing`,
-      async ({ missingFieldName }) => {
-        const user = await createNewUser(request);
+    const missingTest = authMissingTest([{ failedFieldName: 'name' }, { failedFieldName: 'password' }]);
+    test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
+      const user = await createNewUser(request);
 
-        delete user[missingFieldName];
-
-        const res = await request.post(`/auth/reset-password`, {
-          name: user.name,
-          password: user.password,
-        });
-
-        expect(res.status).toBe(400);
-        expect(res.data).toEqual(
-          fakeFailures([
-            new FailureObject(
-              ErrorCode.REQUIRED_OPENAPI,
-              `must have required property '${missingFieldName}'`,
-              400,
-              missingFieldName
-            ),
-          ])
-        );
-      }
-    );
+      await missingTest.testFn(
+        request,
+        {
+          method: 'post',
+          url: '/auth/reset-password',
+          data: {
+            name: user.name,
+            password: user.password,
+          },
+        },
+        value
+      );
+    });
 
     const minLengthTest = authMinLengthTest([{ failedFieldName: 'name' }]);
     test.each(minLengthTest.value)(`${minLengthTest.name}`, async (value) => {
@@ -613,31 +588,23 @@ describe('Auth APIs', () => {
       );
     });
 
-    test.each([{ missingFieldName: 'name' }, { missingFieldName: 'phone' }])(
-      `returns 400 when $missingFieldName field is missing`,
-      async ({ missingFieldName }) => {
-        const user = await createNewUser(request);
+    const missingTest = authMissingTest([{ failedFieldName: 'name' }, { failedFieldName: 'phone' }]);
+    test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
+      const user = await createNewUser(request);
 
-        delete user[missingFieldName];
-
-        const res = await request.post(`/auth/check-phone`, {
-          name: user.name,
-          phone: user.phone,
-        });
-
-        expect(res.status).toBe(400);
-        expect(res.data).toEqual(
-          fakeFailures([
-            new FailureObject(
-              ErrorCode.REQUIRED_OPENAPI,
-              `must have required property '${missingFieldName}'`,
-              400,
-              missingFieldName
-            ),
-          ])
-        );
-      }
-    );
+      await missingTest.testFn(
+        request,
+        {
+          method: 'post',
+          url: '/auth/check-phone',
+          data: {
+            name: user.name,
+            phone: user.phone,
+          },
+        },
+        value
+      );
+    });
 
     const minLengthTest = authMinLengthTest([{ failedFieldName: 'name' }]);
     test.each(minLengthTest.value)(`${minLengthTest.name}`, async (value) => {
@@ -734,46 +701,29 @@ describe('Auth APIs', () => {
       expect(res.status).toBe(204);
     });
 
-    test.each([
-      { missingFieldName: 'name' },
-      { missingFieldName: 'phone' },
-      { missingFieldName: 'profile' },
-      { parentFieldName: 'profile', missingFieldName: 'title' },
-    ])(`returns 400 when $missingFieldName field is missing`, async ({ parentFieldName, missingFieldName }) => {
-      const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+    const missingTest = authMissingTest([
+      { failedFieldName: 'name' },
+      { failedFieldName: 'phone' },
+      { failedFieldName: 'profile' },
+      { parentFieldName: 'profile', failedFieldName: 'title' },
+    ]);
+    test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
       const updateUser = fakeUser(false);
 
-      if (parentFieldName) {
-        delete updateUser[parentFieldName][missingFieldName];
-      } else {
-        delete updateUser[missingFieldName];
-      }
-
-      const res = await request.put(
-        `/auth/update`,
+      await missingTest.testFn(
+        request,
         {
-          name: updateUser.name,
-          profile: updateUser.profile,
-          email: updateUser.email,
-          phone: updateUser.phone,
-          wallet: updateUser.wallet,
+          method: 'put',
+          url: '/auth/update',
+          data: {
+            name: updateUser.name,
+            profile: updateUser.profile,
+            email: updateUser.email,
+            phone: updateUser.phone,
+            wallet: updateUser.wallet,
+          },
         },
-        {
-          headers: { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token },
-        }
-      );
-
-      expect(res.status).toBe(400);
-      expect(res.data).toEqual(
-        fakeFailures([
-          new FailureObject(
-            ErrorCode.REQUIRED_OPENAPI,
-            `must have required property '${missingFieldName}'`,
-            400,
-            missingFieldName
-          ),
-        ])
+        value
       );
     });
 
