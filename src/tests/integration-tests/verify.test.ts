@@ -1,6 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
 import { AddressInfo } from 'net';
 import { Index } from '../..';
+import { config } from '../../config';
 import { TestOptions } from '../../types/common';
 import { ErrorCode } from '../../types/error.util';
 import { FailureObject } from '../../util/error.util';
@@ -47,16 +48,16 @@ describe('Verify APIs', () => {
     it('Return 429 if user send too many sms', async () => {
       const phone = fakePhoneNumber.generate();
 
-      const firstRes = await request.post(`/verify/token`, {
+      for (let i = 0; i < config.verification.allowCount; i++) {
+        await request.post(`/verify/token`, { phone });
+      }
+
+      const res = await request.post(`/verify/token`, {
         phone,
       });
 
-      const secondRes = await request.post(`/verify/token`, {
-        phone,
-      });
-
-      expect(secondRes.status).toBe(429);
-      expect(secondRes.data).toEqual(
+      expect(res.status).toBe(429);
+      expect(res.data).toEqual(
         fakeFailures([new FailureObject(ErrorCode.TOO_MANY_REQUEST, 'Sent too many requests', 429)])
       );
     });

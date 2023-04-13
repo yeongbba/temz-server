@@ -35,11 +35,11 @@ describe('Verify Controller', () => {
       response = httpMocks.createResponse();
     });
 
-    it('If the api is called more than 10 times in a row', async () => {
+    it('If the api is called more than allowCount in a row, return 429', async () => {
       const code = parseInt(faker.random.numeric(6));
       verifyUtil.generateCode = jest.fn(() => code);
       verifyRepository.checkExistPhone = jest.fn(() => true);
-      verifyRepository.getVerifyCode = jest.fn(() => ({ code, count: 11 }));
+      verifyRepository.getVerifyCode = jest.fn(() => ({ code, count: config.verification.allowCount + 1 }));
       verifyRepository.setExpireTime = jest.fn();
 
       const sendVerificationToken = async () => verifyController.sendVerificationToken(request, response);
@@ -60,7 +60,7 @@ describe('Verify Controller', () => {
     it('If the api called again but send the sms successfully, return 200', async () => {
       const phone = request.body.phone;
       const code = parseInt(faker.random.numeric(6));
-      const count = 1;
+      const count = config.verification.allowCount - 1;
       verifyUtil.generateCode = jest.fn(() => code);
       verifyUtil.sendSMSMessage = jest.fn();
       verifyRepository.checkExistPhone = jest.fn(() => true);
@@ -140,7 +140,7 @@ describe('Verify Controller', () => {
     });
 
     it('Return status value true with 200 if code verification is successful', async () => {
-      verifyRepository.getVerifyCode = jest.fn(() => ({ code: parseInt(code) }));
+      verifyRepository.getVerifyCode = jest.fn(() => ({ code }));
       verifyRepository.removeVerifyCode = jest.fn();
 
       await verifyController.checkVerificationToken(request, response);
