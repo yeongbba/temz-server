@@ -1,4 +1,4 @@
-export class Links {
+export class SocialLinks {
   linkId?: string;
   userId?: string;
   youtube?: string;
@@ -7,9 +7,6 @@ export class Links {
   instagram?: string;
   facebook?: string;
   telegram?: string;
-  general?: GeneralLinks[];
-  createdAt?: Date;
-  updatedAt?: Date;
 
   constructor(link?: {
     id?: string;
@@ -20,9 +17,6 @@ export class Links {
     instagram?: string;
     facebook?: string;
     telegram?: string;
-    general?: GeneralLinks[];
-    createdAt?: Date;
-    updatedAt?: Date;
   }) {
     this.linkId = link?.id;
     this.userId = link?.userId;
@@ -32,14 +26,10 @@ export class Links {
     this.instagram = link?.instagram;
     this.facebook = link?.facebook;
     this.telegram = link?.telegram;
-    this.general = link?.general;
-    this.createdAt = link?.createdAt;
-    this.updatedAt = link?.updatedAt;
   }
 
   static parse(raw: any) {
-    const links = new Links(raw);
-    links.general = links.general?.map((theme) => GeneralLinks.parse(theme));
+    const links = new SocialLinks(raw);
     return links;
   }
 
@@ -51,24 +41,35 @@ export class Links {
       instagram: this.instagram || null,
       facebook: this.facebook || null,
       telegram: this.telegram || null,
-      general: this.general || [],
     };
   }
 }
 
 export class GeneralLinks {
+  linkId?: string;
+  userId?: string;
   title?: string;
   links?: GeneralLink[];
 
-  constructor(link: { title?: string; links?: GeneralLink[] }) {
+  constructor(link: { id?: string; userId?: string; title?: string; links?: GeneralLink[] }) {
+    this.linkId = link?.id;
+    this.userId = link?.userId;
     this.title = link?.title;
     this.links = link?.links;
   }
 
   static parse(raw: any) {
     const general = new GeneralLinks(raw);
-    general.links = general.links.map((link) => GeneralLink.parse(link));
+    general.links = general.links?.map((link) => GeneralLink.parse(link));
     return general;
+  }
+
+  toJson() {
+    return {
+      linkId: this.linkId || null,
+      title: this.title || null,
+      links: this.links || [],
+    };
   }
 }
 

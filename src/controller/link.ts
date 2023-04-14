@@ -1,39 +1,87 @@
 import { Request, Response } from 'express';
 import { FailureObject } from '../util/error.util';
 import { ErrorCode } from '../types/error.util';
-import { Links } from '../types/link';
+import { GeneralLinks, SocialLinks } from '../types/link';
+
+const THEME_MAX_COUNT = 5;
 
 export class LinkController {
   constructor(private linkRepository: any) {}
 
-  createLinks = async (req: Request, res: Response) => {
-    const { links } = req.body;
+  getSocialLinks = async (req: Request, res: Response) => {
+    const links: SocialLinks = await this.linkRepository.findSocialLinksByUserId((req as any).userId);
+    res.status(200).json(links.toJson());
+  };
 
-    const existed: Links = await this.linkRepository.findLinksByUserId((req as any).userId);
+  createSocialLinks = async (req: Request, res: Response) => {
+    const links = req.body;
+
+    const existed: SocialLinks = await this.linkRepository.findSocialLinksByUserId((req as any).userId);
     if (existed.linkId) {
-      const failure = new FailureObject(ErrorCode.DUPLICATED_VALUE, `Links already exist`, 409);
+      const failure = new FailureObject(ErrorCode.DUPLICATED_VALUE, `SocialLinks Links already exist`, 409);
       throw failure;
     }
 
-    const data = Links.parse({ userId: (req as any).userId, ...links });
-    await this.linkRepository.createLinks(data);
+    const data = SocialLinks.parse({ userId: (req as any).userId, ...links });
+    await this.linkRepository.createSocialLinks(data);
     res.sendStatus(201);
   };
 
-  updateLinks = async (req: Request, res: Response) => {
-    const { links } = req.body;
+  updateSocialLinks = async (req: Request, res: Response) => {
+    const links = req.body;
 
-    const data = Links.parse({ userId: (req as any).userId, ...links });
-    const result: Links = await this.linkRepository.updateLinks(data);
+    const data = SocialLinks.parse({ userId: (req as any).userId, ...links });
+    const result: SocialLinks = await this.linkRepository.updateSocialLinks(data);
     if (!result.linkId) {
-      const failure = new FailureObject(ErrorCode.NOT_FOUND, 'Links not found', 404);
+      const failure = new FailureObject(ErrorCode.NOT_FOUND, 'Social Links not found', 404);
       throw failure;
     }
     res.sendStatus(204);
   };
 
-  getLinks = async (req: Request, res: Response) => {
-    const links: Links = await this.linkRepository.findLinksByUserId((req as any).userId);
-    res.status(200).json({ links: links.toJson() });
+  getThemes = async (req: Request, res: Response) => {
+    const themes: GeneralLinks[] = await this.linkRepository.findGeneralLinksByUserId((req as any).userId);
+    res.status(200).json({ themes: themes.map((theme) => theme.toJson()) });
+  };
+
+  createGeneralLinks = async (req: Request, res: Response) => {
+    const links = req.body;
+
+    const themes: GeneralLinks[] = await this.linkRepository.findGeneralLinksByUserId((req as any).userId);
+    if (themes.length >= THEME_MAX_COUNT) {
+      const failure = new FailureObject(
+        ErrorCode.NOT_ACCEPTABLE,
+        `${THEME_MAX_COUNT} themes have already been created.`,
+        409
+      );
+      throw failure;
+    }
+
+    const data = GeneralLinks.parse({ userId: (req as any).userId, ...links });
+    await this.linkRepository.createGeneralLinks(data);
+    res.sendStatus(201);
+  };
+
+  updateGeneralLinks = async (req: Request, res: Response) => {
+    const links = req.body;
+
+    const data = GeneralLinks.parse({ id: links.linkId, userId: (req as any).userId, ...links });
+    const result: GeneralLinks = await this.linkRepository.updateGeneralLinks(data);
+    if (!result.linkId) {
+      const failure = new FailureObject(ErrorCode.NOT_FOUND, 'General Links not found', 404);
+      throw failure;
+    }
+    res.sendStatus(204);
+  };
+
+  removeGeneralLinks = async (req: Request, res: Response) => {
+    const { linkId } = req.body;
+
+    const result: GeneralLinks = await this.linkRepository.removeGeneralLinks(linkId);
+    if (!result.linkId) {
+      const failure = new FailureObject(ErrorCode.NOT_FOUND, 'General Links not found', 404);
+      throw failure;
+    }
+    res.sendStatus(204);
   };
 }
