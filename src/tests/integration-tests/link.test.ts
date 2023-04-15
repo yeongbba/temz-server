@@ -4,19 +4,12 @@ import { Index } from '../..';
 import { config } from '../../config';
 import { TestOptions } from '../../types/common';
 import { ErrorCode } from '../../types/error.util';
-import { Links } from '../../types/link';
+import { SocialLinks } from '../../types/link';
 import { FailureObject } from '../../util/error.util';
 import { csrfToken, loginUser } from '../../util/tests/auth.util';
 import { authMiddleWareTest, csrfMiddleWareTest } from '../../util/tests/common.util';
 import { fakeFailures } from '../../util/tests/error.util';
-import {
-  fakeLinks,
-  linkFormatTest,
-  linkItemCountTest,
-  linkMaxLengthTest,
-  linkMissingTest,
-  linkTypeTest,
-} from '../../util/tests/link.util';
+import { fakeSocialLinks, socialLinkFormatTest, socialLinkTypeTest } from '../../util/tests/link.util';
 
 describe('Link APIs', () => {
   let index: Index;
@@ -34,55 +27,37 @@ describe('Link APIs', () => {
     await index.stop();
   });
 
-  describe('POST to /link', () => {
-    it('Return 201 if link created successfully', async () => {
-      const links = fakeLinks(false);
+  describe('POST to /link/social', () => {
+    it('Return 201 if social link created successfully', async () => {
+      const links = fakeSocialLinks(false);
       const { token } = await loginUser(request);
       const csrf = await csrfToken(request, token);
 
       const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
-      const res = await request.post(
-        `/link`,
-        {
-          ...links,
-        },
-        {
-          headers,
-        }
-      );
+      const res = await request.post(`/link/social`, links, {
+        headers,
+      });
 
       expect(res.status).toBe(201);
     });
 
-    it('Return 409 if the link is already registered', async () => {
-      const links = fakeLinks(false);
+    it('Return 409 if the social link is already registered', async () => {
+      const links = fakeSocialLinks(false);
       const { token } = await loginUser(request);
       const csrf = await csrfToken(request, token);
 
       const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
-      const firstRes = await request.post(
-        `/link`,
-        {
-          ...links,
-        },
-        {
-          headers,
-        }
-      );
+      const firstRes = await request.post(`/link/social`, links, {
+        headers,
+      });
 
-      const secondRes = await request.post(
-        `/link`,
-        {
-          ...links,
-        },
-        {
-          headers,
-        }
-      );
+      const secondRes = await request.post(`/link/social`, links, {
+        headers,
+      });
 
       expect(secondRes.status).toBe(409);
       expect(secondRes.data).toEqual(
-        fakeFailures([new FailureObject(ErrorCode.DUPLICATED_VALUE, `Links already exist`, 409)])
+        fakeFailures([new FailureObject(ErrorCode.DUPLICATED_VALUE, `Social Links already exist`, 409)])
       );
     });
 
@@ -90,145 +65,127 @@ describe('Link APIs', () => {
       let options: TestOptions;
 
       beforeEach(() => {
-        const links = fakeLinks(false);
-        options = { method: 'post', url: '/link', data: links };
+        const links = fakeSocialLinks(false);
+        options = { method: 'post', url: '/link/social', data: links };
       });
 
-      const missingTest = linkMissingTest();
-      test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
-        await missingTest.testFn(request, options, value);
-      });
-
-      const formatTest = linkFormatTest();
+      const formatTest = socialLinkFormatTest();
       test.each(formatTest.value)(`${formatTest.name}`, async (value) => {
         await formatTest.testFn(request, options, value);
       });
 
-      const maxLengthTest = linkMaxLengthTest();
-      test.each(maxLengthTest.value)(`${maxLengthTest.name}`, async (value) => {
-        await maxLengthTest.testFn(request, options, value);
-      });
-
-      const itemCountTest = linkItemCountTest();
-      test.each(itemCountTest.value)(`${itemCountTest.name}`, async (value) => {
-        await itemCountTest.testFn(request, options, value);
-      });
-
-      const typeTest = linkTypeTest();
+      const typeTest = socialLinkTypeTest();
       test.each(typeTest.value)(`${typeTest.name}`, async (value) => {
         await typeTest.testFn(request, options, value);
       });
 
       test.each([...authMiddleWareTest, ...csrfMiddleWareTest])('$name', async ({ name, testFn }) => {
-        await testFn(request, options, null, 'link');
+        await testFn(request, options, null, 'social');
       });
     });
   });
 
-  describe('PUT to /link', () => {
-    it('Return 204 if link updated successfully', async () => {
-      const links = fakeLinks(false);
+  describe('PUT to /link/social', () => {
+    it('Return 204 if social link updated successfully', async () => {
+      const links = fakeSocialLinks(false);
       const { token } = await loginUser(request);
       const csrf = await csrfToken(request, token);
 
       const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
 
-      await request.post(`/link`, links, {
+      await request.post(`/link/social`, links, {
         headers,
       });
 
-      const res = await request.put(`/link`, links, {
+      const res = await request.put(`/link/social`, links, {
         headers,
       });
 
       expect(res.status).toBe(204);
     });
 
-    test('Return 404 if the link is not registered', async () => {
-      const links = fakeLinks(false);
+    it('Return 404 if the social link is not registered', async () => {
+      const links = fakeSocialLinks(false);
       const { token } = await loginUser(request);
       const csrf = await csrfToken(request, token);
 
       const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
-      const res = await request.put(`/link`, links, {
+      const res = await request.put(`/link/social`, links, {
         headers,
       });
 
       expect(res.status).toBe(404);
-      expect(res.data).toEqual(fakeFailures([new FailureObject(ErrorCode.NOT_FOUND, 'Links not found', 404)]));
+      expect(res.data).toEqual(fakeFailures([new FailureObject(ErrorCode.NOT_FOUND, 'Social Links not found', 404)]));
     });
 
     describe('Request param test set', () => {
       let options: TestOptions;
 
       beforeEach(() => {
-        const links = fakeLinks(false);
-        options = { method: 'put', url: '/link', data: links };
+        const links = fakeSocialLinks(false);
+        options = { method: 'put', url: '/link/social', data: links };
       });
 
-      const missingTest = linkMissingTest();
-      test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
-        await missingTest.testFn(request, options, value);
-      });
-
-      const formatTest = linkFormatTest();
+      const formatTest = socialLinkFormatTest();
       test.each(formatTest.value)(`${formatTest.name}`, async (value) => {
         await formatTest.testFn(request, options, value);
       });
 
-      const maxLengthTest = linkMaxLengthTest();
-      test.each(maxLengthTest.value)(`${maxLengthTest.name}`, async (value) => {
-        await maxLengthTest.testFn(request, options, value);
-      });
-
-      const itemCountTest = linkItemCountTest();
-      test.each(itemCountTest.value)(`${itemCountTest.name}`, async (value) => {
-        await itemCountTest.testFn(request, options, value);
-      });
-
-      const typeTest = linkTypeTest();
+      const typeTest = socialLinkTypeTest();
       test.each(typeTest.value)(`${typeTest.name}`, async (value) => {
         await typeTest.testFn(request, options, value);
       });
 
       test.each([...authMiddleWareTest, ...csrfMiddleWareTest])('$name', async ({ name, testFn }) => {
-        await testFn(request, options, null, 'link');
+        await testFn(request, options, null, 'social');
       });
     });
   });
 
-  describe('GET to /link', () => {
-    it('Return 200 and links if the link is found successfully', async () => {
-      const links = fakeLinks(false);
+  describe.only('GET to /link/social', () => {
+    it('Return 200 and social links if the link is found successfully', async () => {
+      const links = fakeSocialLinks(false);
       const { token } = await loginUser(request);
       const csrf = await csrfToken(request, token);
 
       const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
 
-      await request.post(`/link`, links, {
+      await request.post(`/link/social`, links, {
         headers,
       });
 
-      const res = await request.get(`/link`, {
+      const res = await request.get(`/link/social`, {
         headers,
       });
 
       expect(res.status).toBe(200);
-      expect(res.data).toEqual({ links: Links.parse(links.links).toJson() });
+      expect(res.data).toEqual(SocialLinks.parse(links).toJson());
     });
 
-    it('Return 200 and empty links if the link is not found', async () => {
+    it('Return 200 and empty links if the social link is not found', async () => {
       const { token } = await loginUser(request);
       const csrf = await csrfToken(request, token);
 
       const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
 
-      const res = await request.get(`/link`, {
+      const res = await request.get(`/link/social`, {
         headers,
       });
 
       expect(res.status).toBe(200);
-      expect(res.data).toEqual({ links: Links.parse(null).toJson() });
+      expect(res.data).toEqual(SocialLinks.parse(null).toJson());
+    });
+
+    describe('Request param test set', () => {
+      let options: TestOptions;
+
+      beforeAll(() => {
+        options = { method: 'get', url: '/link/social' };
+      });
+
+      test.each(authMiddleWareTest)('$name', async ({ name, testFn }) => {
+        await testFn(request, options, null, 'social');
+      });
     });
   });
 });

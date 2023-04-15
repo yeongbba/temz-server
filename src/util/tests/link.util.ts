@@ -9,17 +9,6 @@ export const fakeSocialLinks = (useId: boolean = true) => ({
   instagram: faker.internet.url(),
   facebook: faker.internet.url(),
   telegram: faker.internet.url(),
-  general: [
-    {
-      title: faker.random.words(3),
-      links: [
-        {
-          description: faker.random.words(5),
-          link: faker.internet.url(),
-        },
-      ],
-    },
-  ],
 });
 
 export const fakeGeneralLinks = (useId: boolean = true) => ({
@@ -32,6 +21,53 @@ export const fakeGeneralLinks = (useId: boolean = true) => ({
     },
   ],
 });
+
+export const socialLinkTypeTest = () => {
+  const fakeNumber = parseInt(faker.random.numeric(5));
+  return typeTest([
+    {
+      failedFieldName: 'youtube',
+      fakeValue: fakeNumber,
+      type: 'string',
+    },
+    {
+      failedFieldName: 'twitter',
+      fakeValue: fakeNumber,
+      type: 'string',
+    },
+    {
+      failedFieldName: 'tiktok',
+      fakeValue: fakeNumber,
+      type: 'string',
+    },
+    {
+      failedFieldName: 'instagram',
+      fakeValue: fakeNumber,
+      type: 'string',
+    },
+    {
+      failedFieldName: 'facebook',
+      fakeValue: fakeNumber,
+      type: 'string',
+    },
+    {
+      failedFieldName: 'telegram',
+      fakeValue: fakeNumber,
+      type: 'string',
+    },
+  ]);
+};
+
+export const socialLinkFormatTest = () => {
+  return formatTest([
+    { failedFieldName: 'youtube', fakeValue: faker.random.alpha(10), format: 'url' },
+    { failedFieldName: 'twitter', fakeValue: faker.random.alpha(10), format: 'url' },
+    { failedFieldName: 'tiktok', fakeValue: faker.random.alpha(10), format: 'url' },
+    { failedFieldName: 'instagram', fakeValue: faker.random.alpha(10), format: 'url' },
+    { failedFieldName: 'facebook', fakeValue: faker.random.alpha(10), format: 'url' },
+    { failedFieldName: 'telegram', fakeValue: faker.random.alpha(10), format: 'url' },
+  ]);
+};
 
 export const linkItemCountTest = () => {
   return itemCountTest([
