@@ -1,10 +1,10 @@
 import httpMocks from 'node-mocks-http';
 import { faker } from '@faker-js/faker';
 import { ErrorCode } from '../../types/error.util';
-import { Links } from '../../types/link';
+import { GeneralLinks, SocialLinks } from '../../types/link';
 import { FailureObject } from '../../util/error.util';
-import { fakeLinks } from '../../util/tests/link.util';
-import { LinkController } from '../link';
+import { fakeGeneralLinks, fakeSocialLinks } from '../../util/tests/link.util';
+import { LinkController, THEME_MAX_COUNT } from '../link';
 
 describe('Link Controller', () => {
   let linkController: LinkController;
@@ -15,115 +15,222 @@ describe('Link Controller', () => {
     linkController = new LinkController(linkRepository);
   });
 
-  describe('createLinks', () => {
+  describe('createSocialLinks', () => {
     let request = httpMocks.createRequest();
     let response = httpMocks.createResponse();
 
     beforeEach(() => {
-      const links = fakeLinks(false);
+      const links = fakeSocialLinks(false);
 
       request = httpMocks.createRequest({
         method: 'POST',
-        url: `/link`,
-        body: {
-          links,
-        },
+        url: `/link/social`,
+        body: links,
       });
       response = httpMocks.createResponse();
     });
 
-    it('Return 409, if there is already a registered link', async () => {
+    it('Return 409, if there is already a registered social links', async () => {
       request.userId = faker.random.alphaNumeric(24);
-      linkRepository.findLinksByUserId = jest.fn(() => Links.parse({ id: faker.random.alphaNumeric(24) }));
+      linkRepository.findSocialLinksByUserId = jest.fn(() => SocialLinks.parse({ id: faker.random.alphaNumeric(24) }));
 
-      const createLinks = async () => linkController.createLinks(request, response);
+      const createSocialLinks = async () => linkController.createSocialLinks(request, response);
 
-      await expect(createLinks()).rejects.toStrictEqual(
-        new FailureObject(ErrorCode.DUPLICATED_VALUE, `Links already exist`, 409)
+      await expect(createSocialLinks()).rejects.toStrictEqual(
+        new FailureObject(ErrorCode.DUPLICATED_VALUE, `Social Links already exist`, 409)
       );
-      expect(linkRepository.findLinksByUserId).toHaveBeenCalledWith(request.userId);
+      expect(linkRepository.findSocialLinksByUserId).toHaveBeenCalledWith(request.userId);
     });
 
-    it('Return 201, if link is registered successfully', async () => {
+    it('Return 201, if social links is registered successfully', async () => {
       request.userId = faker.random.alphaNumeric(24);
-      linkRepository.findLinksByUserId = jest.fn(() => Links.parse(null));
-      linkRepository.createLinks = jest.fn();
+      linkRepository.findSocialLinksByUserId = jest.fn(() => SocialLinks.parse(null));
+      linkRepository.createSocialLinks = jest.fn();
 
-      await linkController.createLinks(request, response);
+      await linkController.createSocialLinks(request, response);
 
-      expect(linkRepository.findLinksByUserId).toHaveBeenCalledWith(request.userId);
-      expect(linkRepository.createLinks).toHaveBeenCalledWith(
-        Links.parse({ userId: request.userId, ...request.body.links })
+      expect(linkRepository.findSocialLinksByUserId).toHaveBeenCalledWith(request.userId);
+      expect(linkRepository.createSocialLinks).toHaveBeenCalledWith(
+        SocialLinks.parse({ userId: request.userId, ...request.body })
       );
       expect(response.statusCode).toBe(201);
     });
   });
 
-  describe('updateLinks', () => {
+  describe('updateSocialLinks', () => {
     let request = httpMocks.createRequest();
     let response = httpMocks.createResponse();
 
     beforeEach(() => {
-      const links = fakeLinks(false);
+      const links = fakeSocialLinks(false);
 
       request = httpMocks.createRequest({
         method: 'PUT',
-        url: `/link`,
-        body: {
-          links,
-        },
+        url: `/link/social`,
+        body: links,
       });
       response = httpMocks.createResponse();
     });
 
-    it('Return 404 if there is no registered link', async () => {
+    it('Return 404 if there is no registered social links', async () => {
       request.userId = faker.random.alphaNumeric(24);
-      linkRepository.updateLinks = jest.fn(() => Links.parse(null));
+      linkRepository.updateSocialLinks = jest.fn(() => SocialLinks.parse(null));
 
-      const updateLinks = async () => linkController.updateLinks(request, response);
+      const updateSocialLinks = async () => linkController.updateSocialLinks(request, response);
 
-      await expect(updateLinks()).rejects.toStrictEqual(new FailureObject(ErrorCode.NOT_FOUND, 'Links not found', 404));
-      expect(linkRepository.updateLinks).toHaveBeenCalledWith(
-        Links.parse({ userId: request.userId, ...request.body.links })
+      await expect(updateSocialLinks()).rejects.toStrictEqual(
+        new FailureObject(ErrorCode.NOT_FOUND, 'Social Links not found', 404)
+      );
+      expect(linkRepository.updateSocialLinks).toHaveBeenCalledWith(
+        SocialLinks.parse({ userId: request.userId, ...request.body })
       );
     });
 
-    it('Return 204, if link is updated successfully', async () => {
+    it('Return 204, if social link is updated successfully', async () => {
       request.userId = faker.random.alphaNumeric(24);
-      linkRepository.updateLinks = jest.fn(() => Links.parse({ id: faker.random.alphaNumeric(24) }));
+      linkRepository.updateSocialLinks = jest.fn(() => SocialLinks.parse({ id: faker.random.alphaNumeric(24) }));
 
-      await linkController.updateLinks(request, response);
+      await linkController.updateSocialLinks(request, response);
 
-      expect(linkRepository.updateLinks).toHaveBeenCalledWith(
-        Links.parse({ userId: request.userId, ...request.body.links })
+      expect(linkRepository.updateSocialLinks).toHaveBeenCalledWith(
+        SocialLinks.parse({ userId: request.userId, ...request.body })
       );
       expect(response.statusCode).toBe(204);
     });
   });
 
-  describe('getLinks', () => {
+  describe('getSocialLinks', () => {
     let request = httpMocks.createRequest();
     let response = httpMocks.createResponse();
 
     beforeEach(() => {
       request = httpMocks.createRequest({
         method: 'GET',
-        url: `/link`,
+        url: `/link/social`,
       });
       response = httpMocks.createResponse();
     });
 
-    it('Return 200, if link successfully found', async () => {
+    it('Return 200, if social link successfully found', async () => {
       request.userId = faker.random.alphaNumeric(24);
-      const links = Links.parse({ userId: request.userId, ...fakeLinks() });
-      linkRepository.findLinksByUserId = jest.fn(() => links);
+      const socialLinks = SocialLinks.parse({ userId: request.userId, ...fakeSocialLinks() });
+      linkRepository.findSocialLinksByUserId = jest.fn(() => socialLinks);
 
-      await linkController.getLinks(request, response);
+      await linkController.getSocialLinks(request, response);
 
-      expect(linkRepository.findLinksByUserId).toHaveBeenCalledWith(request.userId);
-      expect(response._getJSONData()).toEqual({
-        links: links.toJson(),
+      expect(linkRepository.findSocialLinksByUserId).toHaveBeenCalledWith(request.userId);
+      expect(response._getJSONData()).toEqual(socialLinks.toJson());
+      expect(response.statusCode).toBe(200);
+    });
+  });
+
+  describe('createGeneralLinks', () => {
+    let request = httpMocks.createRequest();
+    let response = httpMocks.createResponse();
+
+    beforeEach(() => {
+      const links = fakeGeneralLinks(false);
+
+      request = httpMocks.createRequest({
+        method: 'POST',
+        url: `/link/general`,
+        body: links,
       });
+      response = httpMocks.createResponse();
+    });
+
+    it('Return 409, if the link is created as much as the limit', async () => {
+      request.userId = faker.random.alphaNumeric(24);
+      linkRepository.findThemesByUserId = jest.fn(() =>
+        new Array(THEME_MAX_COUNT).fill(GeneralLinks.parse({ id: faker.random.alphaNumeric(24) }))
+      );
+
+      const createGeneralLinks = async () => linkController.createGeneralLinks(request, response);
+
+      await expect(createGeneralLinks()).rejects.toStrictEqual(
+        new FailureObject(ErrorCode.NOT_ACCEPTABLE, `${THEME_MAX_COUNT} themes have already been created.`, 409)
+      );
+      expect(linkRepository.findThemesByUserId).toHaveBeenCalledWith(request.userId);
+    });
+
+    it('Return 201, if social links is registered successfully', async () => {
+      request.userId = faker.random.alphaNumeric(24);
+      linkRepository.findThemesByUserId = jest.fn(() => []);
+      linkRepository.createGeneralLinks = jest.fn();
+
+      await linkController.createGeneralLinks(request, response);
+
+      expect(linkRepository.findThemesByUserId).toHaveBeenCalledWith(request.userId);
+      expect(linkRepository.createGeneralLinks).toHaveBeenCalledWith(
+        GeneralLinks.parse({ userId: request.userId, ...request.body })
+      );
+      expect(response.statusCode).toBe(201);
+    });
+  });
+
+  describe('updateGeneralLinks', () => {
+    let request = httpMocks.createRequest();
+    let response = httpMocks.createResponse();
+
+    beforeEach(() => {
+      const links = fakeGeneralLinks();
+
+      request = httpMocks.createRequest({
+        method: 'PUT',
+        url: `/link/general`,
+        body: links,
+      });
+      response = httpMocks.createResponse();
+    });
+
+    it('Return 404 if there is no registered general links', async () => {
+      request.userId = faker.random.alphaNumeric(24);
+      linkRepository.updateGeneralLinks = jest.fn(() => GeneralLinks.parse(null));
+
+      const updateGeneralLinks = async () => linkController.updateGeneralLinks(request, response);
+
+      await expect(updateGeneralLinks()).rejects.toStrictEqual(
+        new FailureObject(ErrorCode.NOT_FOUND, 'General Links not found', 404)
+      );
+      expect(linkRepository.updateGeneralLinks).toHaveBeenCalledWith(
+        GeneralLinks.parse({ userId: request.userId, ...request.body })
+      );
+    });
+
+    it('Return 204, if general link is updated successfully', async () => {
+      request.userId = faker.random.alphaNumeric(24);
+      linkRepository.updateGeneralLinks = jest.fn(() => GeneralLinks.parse(request.body));
+
+      await linkController.updateGeneralLinks(request, response);
+
+      expect(linkRepository.updateGeneralLinks).toHaveBeenCalledWith(
+        GeneralLinks.parse({ userId: request.userId, ...request.body })
+      );
+      expect(response.statusCode).toBe(204);
+    });
+  });
+
+  describe.only('getThemes', () => {
+    let request = httpMocks.createRequest();
+    let response = httpMocks.createResponse();
+
+    beforeEach(() => {
+      request = httpMocks.createRequest({
+        method: 'GET',
+        url: `/link/general`,
+      });
+      response = httpMocks.createResponse();
+    });
+
+    it('Return 200, if general link successfully found', async () => {
+      request.userId = faker.random.alphaNumeric(24);
+      const themes = [GeneralLinks.parse({ userId: request.userId, ...fakeGeneralLinks() })];
+      linkRepository.findThemesByUserId = jest.fn(() => themes);
+
+      await linkController.getThemes(request, response);
+
+      expect(linkRepository.findThemesByUserId).toHaveBeenCalledWith(request.userId);
+      expect(response._getJSONData()).toEqual({ themes: themes.map((theme) => theme.toJson()) });
       expect(response.statusCode).toBe(200);
     });
   });

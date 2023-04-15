@@ -54,7 +54,7 @@ export async function updateGeneralLinks(links: GeneralLinks) {
   return GeneralLinks.parse(result);
 }
 
-export async function findGeneralLinksByUserId(userId: string) {
+export async function findThemesByUserId(userId: string) {
   const result = await GeneralModel.find({ userId });
   return result?.map((theme) => GeneralLinks.parse(theme));
 }

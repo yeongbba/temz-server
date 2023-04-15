@@ -3,7 +3,7 @@ import { FailureObject } from '../util/error.util';
 import { ErrorCode } from '../types/error.util';
 import { GeneralLinks, SocialLinks } from '../types/link';
 
-const THEME_MAX_COUNT = 5;
+export const THEME_MAX_COUNT = 5;
 
 export class LinkController {
   constructor(private linkRepository: any) {}
@@ -18,7 +18,7 @@ export class LinkController {
 
     const existed: SocialLinks = await this.linkRepository.findSocialLinksByUserId((req as any).userId);
     if (existed.linkId) {
-      const failure = new FailureObject(ErrorCode.DUPLICATED_VALUE, `SocialLinks Links already exist`, 409);
+      const failure = new FailureObject(ErrorCode.DUPLICATED_VALUE, `Social Links already exist`, 409);
       throw failure;
     }
 
@@ -40,14 +40,14 @@ export class LinkController {
   };
 
   getThemes = async (req: Request, res: Response) => {
-    const themes: GeneralLinks[] = await this.linkRepository.findGeneralLinksByUserId((req as any).userId);
+    const themes: GeneralLinks[] = await this.linkRepository.findThemesByUserId((req as any).userId);
     res.status(200).json({ themes: themes.map((theme) => theme.toJson()) });
   };
 
   createGeneralLinks = async (req: Request, res: Response) => {
     const links = req.body;
 
-    const themes: GeneralLinks[] = await this.linkRepository.findGeneralLinksByUserId((req as any).userId);
+    const themes: GeneralLinks[] = await this.linkRepository.findThemesByUserId((req as any).userId);
     if (themes.length >= THEME_MAX_COUNT) {
       const failure = new FailureObject(
         ErrorCode.NOT_ACCEPTABLE,
