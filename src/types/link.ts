@@ -35,6 +35,7 @@ export class SocialLinks {
 
   toJson() {
     return {
+      linkId: this.linkId || null,
       youtube: this.youtube || null,
       twitter: this.twitter || null,
       tiktok: this.tiktok || null,

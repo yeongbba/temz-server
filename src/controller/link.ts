@@ -30,7 +30,7 @@ export class LinkController {
   updateSocialLinks = async (req: Request, res: Response) => {
     const links = req.body;
 
-    const data = SocialLinks.parse({ userId: (req as any).userId, ...links });
+    const data = SocialLinks.parse({ id: links.linkId, userId: (req as any).userId, ...links });
     const result: SocialLinks = await this.linkRepository.updateSocialLinks(data);
     if (!result.linkId) {
       const failure = new FailureObject(ErrorCode.NOT_FOUND, 'Social Links not found', 404);

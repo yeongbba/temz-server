@@ -20,6 +20,9 @@ import {
   generalLinkMissingTest,
   generalLinkTypeTest,
   socialLinkFormatTest,
+  socialLinkMaxLengthTest,
+  socialLinkMinLengthTest,
+  socialLinkMissingTest,
   socialLinkTypeTest,
 } from '../../util/tests/link.util';
 
@@ -41,7 +44,7 @@ describe('Link APIs', () => {
 
   describe('POST to /link/social', () => {
     it('Return 201 if social link created successfully', async () => {
-      const links = fakeSocialLinks(false);
+      const links = SocialLinks.parse(fakeSocialLinks(false)).toJson();
       const { token } = await loginUser(request);
       const csrf = await csrfToken(request, token);
 
@@ -54,7 +57,7 @@ describe('Link APIs', () => {
     });
 
     it('Return 409 if the social link is already registered', async () => {
-      const links = fakeSocialLinks(false);
+      const links = SocialLinks.parse(fakeSocialLinks(false)).toJson();
       const { token } = await loginUser(request);
       const csrf = await csrfToken(request, token);
 
@@ -77,8 +80,18 @@ describe('Link APIs', () => {
       let options: TestOptions;
 
       beforeEach(() => {
-        const links = fakeSocialLinks(false);
+        const links = SocialLinks.parse(fakeSocialLinks(false)).toJson();
         options = { method: 'post', url: '/link/social', data: links };
+      });
+
+      const maxLengthTest = socialLinkMaxLengthTest();
+      test.each(maxLengthTest.value)(`${maxLengthTest.name}`, async (value) => {
+        await maxLengthTest.testFn(request, options, value);
+      });
+
+      const missingTest = socialLinkMissingTest();
+      test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
+        await missingTest.testFn(request, options, value);
       });
 
       const formatTest = socialLinkFormatTest();
@@ -99,7 +112,7 @@ describe('Link APIs', () => {
 
   describe('PUT to /link/social', () => {
     it('Return 204 if social link updated successfully', async () => {
-      const links = fakeSocialLinks(false);
+      const links = SocialLinks.parse(fakeSocialLinks(false)).toJson();
       const { token } = await loginUser(request);
       const csrf = await csrfToken(request, token);
 
@@ -109,7 +122,14 @@ describe('Link APIs', () => {
         headers,
       });
 
-      const res = await request.put(`/link/social`, links, {
+      const getLinks = await request.get(`/link/social`, {
+        headers,
+      });
+
+      const updateLinks = SocialLinks.parse(fakeSocialLinks(false)).toJson();
+      updateLinks.linkId = getLinks.data.linkId;
+
+      const res = await request.put(`/link/social`, updateLinks, {
         headers,
       });
 
@@ -117,7 +137,7 @@ describe('Link APIs', () => {
     });
 
     it('Return 404 if the social link is not registered', async () => {
-      const links = fakeSocialLinks(false);
+      const links = SocialLinks.parse(fakeSocialLinks()).toJson();
       const { token } = await loginUser(request);
       const csrf = await csrfToken(request, token);
 
@@ -134,8 +154,23 @@ describe('Link APIs', () => {
       let options: TestOptions;
 
       beforeEach(() => {
-        const links = fakeSocialLinks(false);
+        const links = SocialLinks.parse(fakeSocialLinks()).toJson();
         options = { method: 'put', url: '/link/social', data: links };
+      });
+
+      const minLengthTest = socialLinkMinLengthTest();
+      test.each(minLengthTest.value)(`${minLengthTest.name}`, async (value) => {
+        await minLengthTest.testFn(request, options, value);
+      });
+
+      const maxLengthTest = socialLinkMaxLengthTest();
+      test.each(maxLengthTest.value)(`${maxLengthTest.name}`, async (value) => {
+        await maxLengthTest.testFn(request, options, value);
+      });
+
+      const missingTest = socialLinkMissingTest();
+      test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
+        await missingTest.testFn(request, options, value);
       });
 
       const formatTest = socialLinkFormatTest();
@@ -156,7 +191,7 @@ describe('Link APIs', () => {
 
   describe('GET to /link/social', () => {
     it('Return 200 and social links if the link is found successfully', async () => {
-      const links = fakeSocialLinks(false);
+      const links = SocialLinks.parse(fakeSocialLinks(false)).toJson();
       const { token } = await loginUser(request);
       const csrf = await csrfToken(request, token);
 
@@ -170,8 +205,10 @@ describe('Link APIs', () => {
         headers,
       });
 
+      links.linkId = res.data.linkId;
+
       expect(res.status).toBe(200);
-      expect(res.data).toEqual(SocialLinks.parse(links).toJson());
+      expect(res.data).toEqual(links);
     });
 
     it('Return 200 and empty links if the social link is not found', async () => {

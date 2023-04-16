@@ -81,6 +81,8 @@ paths:
                     maxItems: 5
                     items:
                       $ref: '#/components/schemas/GeneralLinks'
+                required:
+                  - themes
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -163,6 +165,11 @@ components:
     SocialLinks:
       type: object
       properties:
+        linkId:
+          type: string
+          minLength: 24
+          maxLength: 24
+          nullable: true
         youtube:
           type: string
           format: url
@@ -187,7 +194,16 @@ components:
           type: string
           format: url
           nullable: true
+      required:
+        - linkId
+        - youtube
+        - twitter
+        - tiktok
+        - instagram
+        - facebook
+        - telegram
       example:
+        linkId: 60ff9826591d828bf80577dc
         youtube: https://www.youtube.com
         twitter: https://www.twitter.com
         tiktok: https://www.tiktok.com

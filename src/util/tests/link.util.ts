@@ -36,6 +36,11 @@ export const socialLinkTypeTest = () => {
   const fakeNumber = parseInt(faker.random.numeric(5));
   return typeTest([
     {
+      failedFieldName: 'linkId',
+      fakeValue: fakeNumber,
+      type: 'string',
+    },
+    {
       failedFieldName: 'youtube',
       fakeValue: fakeNumber,
       type: 'string',
@@ -76,6 +81,38 @@ export const socialLinkFormatTest = () => {
     { failedFieldName: 'instagram', fakeValue: faker.random.alpha(10), format: 'url' },
     { failedFieldName: 'facebook', fakeValue: faker.random.alpha(10), format: 'url' },
     { failedFieldName: 'telegram', fakeValue: faker.random.alpha(10), format: 'url' },
+  ]);
+};
+
+export const socialLinkMissingTest = () => {
+  return missingTest([
+    { failedFieldName: 'linkId' },
+    { failedFieldName: 'youtube' },
+    { failedFieldName: 'twitter' },
+    { failedFieldName: 'tiktok' },
+    { failedFieldName: 'instagram' },
+    { failedFieldName: 'facebook' },
+    { failedFieldName: 'telegram' },
+  ]);
+};
+
+export const socialLinkMinLengthTest = () => {
+  return minLengthTest([
+    {
+      failedFieldName: 'linkId',
+      fakeValue: faker.random.alphaNumeric(23),
+      minLength: 24,
+    },
+  ]);
+};
+
+export const socialLinkMaxLengthTest = () => {
+  return maxLengthTest([
+    {
+      failedFieldName: 'linkId',
+      fakeValue: faker.random.alphaNumeric(25),
+      maxLength: 24,
+    },
   ]);
 };
 

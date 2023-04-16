@@ -62,7 +62,7 @@ describe('Link Controller', () => {
     let response = httpMocks.createResponse();
 
     beforeEach(() => {
-      const links = fakeSocialLinks(false);
+      const links = SocialLinks.parse(fakeSocialLinks()).toJson();
 
       request = httpMocks.createRequest({
         method: 'PUT',
@@ -81,9 +81,7 @@ describe('Link Controller', () => {
       await expect(updateSocialLinks()).rejects.toStrictEqual(
         new FailureObject(ErrorCode.NOT_FOUND, 'Social Links not found', 404)
       );
-      expect(linkRepository.updateSocialLinks).toHaveBeenCalledWith(
-        SocialLinks.parse({ userId: request.userId, ...request.body })
-      );
+      expect(linkRepository.updateSocialLinks).toHaveBeenCalledWith({ userId: request.userId, ...request.body });
     });
 
     it('Return 204, if social link is updated successfully', async () => {
@@ -92,9 +90,7 @@ describe('Link Controller', () => {
 
       await linkController.updateSocialLinks(request, response);
 
-      expect(linkRepository.updateSocialLinks).toHaveBeenCalledWith(
-        SocialLinks.parse({ userId: request.userId, ...request.body })
-      );
+      expect(linkRepository.updateSocialLinks).toHaveBeenCalledWith({ userId: request.userId, ...request.body });
       expect(response.statusCode).toBe(204);
     });
   });
@@ -173,7 +169,7 @@ describe('Link Controller', () => {
     let response = httpMocks.createResponse();
 
     beforeEach(() => {
-      const links = fakeGeneralLinks();
+      const links = GeneralLinks.parse(fakeGeneralLinks()).toJson();
 
       request = httpMocks.createRequest({
         method: 'PUT',
@@ -192,20 +188,18 @@ describe('Link Controller', () => {
       await expect(updateGeneralLinks()).rejects.toStrictEqual(
         new FailureObject(ErrorCode.NOT_FOUND, 'General Links not found', 404)
       );
-      expect(linkRepository.updateGeneralLinks).toHaveBeenCalledWith(
-        GeneralLinks.parse({ userId: request.userId, ...request.body })
-      );
+      expect(linkRepository.updateGeneralLinks).toHaveBeenCalledWith({ userId: request.userId, ...request.body });
     });
 
     it('Return 204, if general link is updated successfully', async () => {
       request.userId = faker.random.alphaNumeric(24);
-      linkRepository.updateGeneralLinks = jest.fn(() => GeneralLinks.parse(request.body));
+      linkRepository.updateGeneralLinks = jest.fn(() =>
+        GeneralLinks.parse({ id: request.body.linkId, ...request.body })
+      );
 
       await linkController.updateGeneralLinks(request, response);
 
-      expect(linkRepository.updateGeneralLinks).toHaveBeenCalledWith(
-        GeneralLinks.parse({ userId: request.userId, ...request.body })
-      );
+      expect(linkRepository.updateGeneralLinks).toHaveBeenCalledWith({ userId: request.userId, ...request.body });
       expect(response.statusCode).toBe(204);
     });
   });
