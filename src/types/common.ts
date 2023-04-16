@@ -47,3 +47,27 @@ export type MinLengthValue = { parentFieldName?: string; failedFieldName: string
 export type FormatValue = { parentFieldName?: string; failedFieldName: string; fakeValue: any; format: string };
 export type PatternValue = { parentFieldName?: string; failedFieldName: string; fakeValue: any; pattern: string };
 export type MissingValue = { parentFieldName?: string; failedFieldName: string };
+
+/* filter */
+export class Filter {
+  limit?: number;
+  skip?: number;
+  sort?: number;
+  condition?: { [field: string]: any };
+
+  constructor(filter: { limit?: number; skip?: number; sort?: number; condition?: { [field: string]: any } }) {
+    this.limit = filter?.limit;
+    this.skip = filter?.skip;
+    this.sort = filter?.sort;
+    this.condition = filter?.condition;
+  }
+
+  toJson() {
+    return {
+      limit: this.limit,
+      skip: this.skip,
+      sort: this.sort,
+      condition: this.condition,
+    };
+  }
+}
