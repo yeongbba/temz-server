@@ -31,6 +31,8 @@ export type TestOptions = {
   params?: any;
 };
 
+export type SelectedField = { parentFieldName?: string; failedFieldName: string };
+
 export type AllTestValueType = ItemCountValue | TypeValue | MaxLengthValue | FormatValue | PatternValue | MissingValue;
 export type ItemCountValue = { parentFieldName?: string; failedFieldName: string; maxItems: number };
 export type TypeValue = {

@@ -105,6 +105,8 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '406':
+          $ref: '#/components/responses/NotAcceptable'
         '409':
           $ref: '#/components/responses/DuplicatedValue'
         '500':
@@ -136,17 +138,15 @@ paths:
         - link
       summary: Remove general links
       operationId: removeGeneralLinks
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                linkId:
-                  type: string
-              required:
-                - linkId
-        required: true
+      parameters:
+        - in: query
+          name: linkId
+          required: true
+          schema:
+            type: string
+            minLength: 24
+            maxLength: 24
+          example: 60ff9826591d828bf80577dc
       responses:
         '204':
           description: No Content
@@ -199,6 +199,8 @@ components:
       properties:
         linkId:
           type: string
+          minLength: 24
+          maxLength: 24
           nullable: true
         title:
           type: string
@@ -219,6 +221,7 @@ components:
               - description
               - link
       required:
+        - linkId
         - title
         - links
       example:

@@ -1,3 +1,4 @@
+import Mongoose from 'mongoose';
 import { faker } from '@faker-js/faker';
 import { AxiosInstance } from 'axios';
 import {
@@ -9,12 +10,19 @@ import {
   patternTest,
   typeTest,
 } from './common.util';
-import { MaxLengthValue, MinLengthValue, MissingValue, PatternValue, TypeValue } from '../../types/common';
+import {
+  MaxLengthValue,
+  MinLengthValue,
+  MissingValue,
+  PatternValue,
+  SelectedField,
+  TypeValue,
+} from '../../types/common';
 
 export const DATE_REGEX = /[1-9]\d{3}-(0[1-9]|1[0-2])-(3[0-1]|[1-2]\d|0[1-9])T(0\d|1\d|2[0-3])(:[0-5]\d){2}.\d{3}Z/;
 
 export const fakeUser = (useId: boolean = true) => ({
-  id: useId ? faker.random.alphaNumeric(24) : undefined,
+  id: useId ? new Mongoose.Types.ObjectId().toString() : undefined,
   name: faker.internet.userName(),
   password: '12!' + faker.internet.password(),
   phone: faker.phone.number('010########'),
@@ -57,7 +65,7 @@ export const csrfToken = async (request: AxiosInstance, token: string) => {
   return csrf.data;
 };
 
-export const authMaxLengthTest = (selectedFields?: { parentFieldName?: string; failedFieldName: string }[]) => {
+export const authMaxLengthTest = (selectedFields?: SelectedField[]) => {
   const fields: MaxLengthValue[] = [
     { failedFieldName: 'name', fakeValue: faker.random.alpha({ count: 26 }), maxLength: 25 },
     { failedFieldName: 'wallet', fakeValue: faker.random.alphaNumeric(43), maxLength: 42 },
@@ -75,7 +83,7 @@ export const authMaxLengthTest = (selectedFields?: { parentFieldName?: string; f
   return maxLengthTest(value);
 };
 
-export const authMinLengthTest = (selectedFields?: { parentFieldName?: string; failedFieldName: string }[]) => {
+export const authMinLengthTest = (selectedFields?: SelectedField[]) => {
   const fields: MinLengthValue[] = [
     { failedFieldName: 'name', fakeValue: faker.random.alpha({ count: 2 }), minLength: 3 },
     { failedFieldName: 'wallet', fakeValue: faker.random.alphaNumeric(24), minLength: 25 },
@@ -86,7 +94,7 @@ export const authMinLengthTest = (selectedFields?: { parentFieldName?: string; f
   return minLengthTest(value);
 };
 
-export const authMissingTest = (selectedFields?: { parentFieldName?: string; failedFieldName: string }[]) => {
+export const authMissingTest = (selectedFields?: SelectedField[]) => {
   const fields: MissingValue[] = [
     { failedFieldName: 'name' },
     { failedFieldName: 'phone' },
@@ -107,7 +115,7 @@ export const authFormatTest = () =>
     { parentFieldName: 'profile', failedFieldName: 'background', fakeValue: faker.random.alpha(26), format: 'url' },
   ]);
 
-export const authPatternTest = (selectedFields?: { parentFieldName?: string; failedFieldName: string }[]) => {
+export const authPatternTest = (selectedFields?: SelectedField[]) => {
   const fields: PatternValue[] = [
     {
       failedFieldName: 'phone',
@@ -126,7 +134,7 @@ export const authPatternTest = (selectedFields?: { parentFieldName?: string; fai
   return patternTest(value);
 };
 
-export const authTypeTest = (selectedFields?: { parentFieldName?: string; failedFieldName: string }[]) => {
+export const authTypeTest = (selectedFields?: SelectedField[]) => {
   const fakeNumber = parseInt(faker.random.numeric(5));
   const fakeString = faker.random.word();
 

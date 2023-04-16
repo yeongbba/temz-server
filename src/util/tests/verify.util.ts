@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { MissingValue, TypeValue } from '../../types/common';
+import { MissingValue, SelectedField, TypeValue } from '../../types/common';
 import { filterFields, maxLengthTest, minLengthTest, missingTest, patternTest, typeTest } from './common.util';
 
 export const generatePhoneNumber = () => faker.phone.number('010########');
@@ -16,7 +16,7 @@ export class FakePhoneNumber {
   };
 }
 
-export const verifyMissingTest = (selectedFields?: { parentFieldName?: string; failedFieldName: string }[]) => {
+export const verifyMissingTest = (selectedFields?: SelectedField[]) => {
   const fields: MissingValue[] = [{ failedFieldName: 'phone' }, { failedFieldName: 'code' }];
 
   const value = filterFields<MissingValue>(fields, selectedFields);
@@ -24,7 +24,7 @@ export const verifyMissingTest = (selectedFields?: { parentFieldName?: string; f
   return missingTest(value);
 };
 
-export const verifyTypeTest = (selectedFields?: { parentFieldName?: string; failedFieldName: string }[]) => {
+export const verifyTypeTest = (selectedFields?: SelectedField[]) => {
   const fakeNumber = parseInt(faker.random.numeric(5));
 
   const fields: TypeValue[] = [

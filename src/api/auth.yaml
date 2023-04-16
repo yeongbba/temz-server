@@ -13,6 +13,7 @@ paths:
             type: string
             minLength: 3
             maxLength: 25
+          example: john_doe
       responses:
         '200':
           description: Success

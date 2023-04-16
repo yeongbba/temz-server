@@ -1,8 +1,18 @@
+import Mongoose from 'mongoose';
 import { faker } from '@faker-js/faker';
-import { formatTest, itemCountTest, maxLengthTest, missingTest, typeTest } from './common.util';
+import {
+  filterFields,
+  formatTest,
+  itemCountTest,
+  maxLengthTest,
+  minLengthTest,
+  missingTest,
+  typeTest,
+} from './common.util';
+import { MaxLengthValue, MissingValue, SelectedField } from '../../types/common';
 
 export const fakeSocialLinks = (useId: boolean = true) => ({
-  id: useId ? faker.random.alphaNumeric(24) : undefined,
+  id: useId ? new Mongoose.Types.ObjectId().toString() : undefined,
   youtube: faker.internet.url(),
   twitter: faker.internet.url(),
   tiktok: faker.internet.url(),
@@ -12,11 +22,11 @@ export const fakeSocialLinks = (useId: boolean = true) => ({
 });
 
 export const fakeGeneralLinks = (useId: boolean = true) => ({
-  id: useId ? faker.random.alphaNumeric(24) : undefined,
-  title: faker.random.words(3),
+  id: useId ? new Mongoose.Types.ObjectId().toString() : undefined,
+  title: faker.random.alpha(10),
   links: [
     {
-      description: faker.random.words(5),
+      description: faker.random.alpha(10),
       link: faker.internet.url(),
     },
   ],
@@ -69,106 +79,39 @@ export const socialLinkFormatTest = () => {
   ]);
 };
 
-export const linkItemCountTest = () => {
-  return itemCountTest([
-    {
-      parentFieldName: 'links',
-      failedFieldName: 'general',
-      maxItems: 5,
-    },
-    {
-      parentFieldName: 'links.general',
-      failedFieldName: 'links',
-      maxItems: 9,
-    },
-  ]);
-};
-
-export const linkTypeTest = () => {
+export const generalLinkTypeTest = () => {
   const fakeNumber = parseInt(faker.random.numeric(5));
   const fakeString = faker.random.word();
   return typeTest([
     {
+      failedFieldName: 'linkId',
+      fakeValue: fakeNumber,
+      type: 'string',
+    },
+    {
       failedFieldName: 'links',
-      fakeValue: fakeString,
-      type: 'object',
-    },
-    {
-      parentFieldName: 'links',
-      failedFieldName: 'youtube',
-      fakeValue: fakeNumber,
-      type: 'string',
-    },
-    {
-      parentFieldName: 'links',
-      failedFieldName: 'twitter',
-      fakeValue: fakeNumber,
-      type: 'string',
-    },
-    {
-      parentFieldName: 'links',
-      failedFieldName: 'tiktok',
-      fakeValue: fakeNumber,
-      type: 'string',
-    },
-    {
-      parentFieldName: 'links',
-      failedFieldName: 'instagram',
-      fakeValue: fakeNumber,
-      type: 'string',
-    },
-    {
-      parentFieldName: 'links',
-      failedFieldName: 'facebook',
-      fakeValue: fakeNumber,
-      type: 'string',
-    },
-    {
-      parentFieldName: 'links',
-      failedFieldName: 'telegram',
-      fakeValue: fakeNumber,
-      type: 'string',
-    },
-    {
-      parentFieldName: 'links',
-      failedFieldName: 'general',
       fakeValue: fakeString,
       type: 'array',
     },
     {
-      parentFieldName: 'links',
-      failedFieldName: 'general',
+      failedFieldName: 'links',
       fakeValue: fakeString,
       type: 'object',
       item: true,
     },
     {
-      parentFieldName: 'links.general',
       failedFieldName: 'title',
       fakeValue: fakeNumber,
       type: 'string',
     },
     {
-      parentFieldName: 'links.general',
-      failedFieldName: 'links',
-      fakeValue: fakeString,
-      type: 'array',
-    },
-    {
-      parentFieldName: 'links.general',
-      failedFieldName: 'links',
-      fakeValue: fakeString,
-      type: 'object',
-      item: true,
-    },
-    {
-      parentFieldName: 'links.general.links',
+      parentFieldName: 'links',
       failedFieldName: 'description',
       fakeValue: fakeNumber,
       type: 'string',
     },
     {
-      parentFieldName: 'links.general.links',
+      parentFieldName: 'links',
       failedFieldName: 'link',
       fakeValue: fakeNumber,
       type: 'string',
@@ -176,33 +119,45 @@ export const linkTypeTest = () => {
   ]);
 };
 
-export const linkMaxLengthTest = () => {
-  return maxLengthTest([
+export const generalLinkMinLengthTest = () => {
+  return minLengthTest([
     {
-      parentFieldName: 'links.general',
+      failedFieldName: 'linkId',
+      fakeValue: faker.random.alphaNumeric(23),
+      minLength: 24,
+    },
+  ]);
+};
+
+export const generalLinkMaxLengthTest = (selectedFields?: SelectedField[]) => {
+  const fields: MaxLengthValue[] = [
+    {
+      failedFieldName: 'linkId',
+      fakeValue: faker.random.alphaNumeric(25),
+      maxLength: 24,
+    },
+    {
       failedFieldName: 'title',
       fakeValue: faker.random.alpha({ count: 51 }),
       maxLength: 50,
     },
     {
-      parentFieldName: 'links.general.links',
+      parentFieldName: 'links',
       failedFieldName: 'description',
       fakeValue: faker.random.alpha({ count: 51 }),
       maxLength: 50,
     },
-  ]);
+  ];
+
+  const value = filterFields<MaxLengthValue>(fields, selectedFields);
+
+  return maxLengthTest(value);
 };
 
-export const linkFormatTest = () => {
+export const generalLinkFormatTest = () => {
   return formatTest([
-    { parentFieldName: 'links', failedFieldName: 'youtube', fakeValue: faker.random.alpha(10), format: 'url' },
-    { parentFieldName: 'links', failedFieldName: 'twitter', fakeValue: faker.random.alpha(10), format: 'url' },
-    { parentFieldName: 'links', failedFieldName: 'tiktok', fakeValue: faker.random.alpha(10), format: 'url' },
-    { parentFieldName: 'links', failedFieldName: 'instagram', fakeValue: faker.random.alpha(10), format: 'url' },
-    { parentFieldName: 'links', failedFieldName: 'facebook', fakeValue: faker.random.alpha(10), format: 'url' },
-    { parentFieldName: 'links', failedFieldName: 'telegram', fakeValue: faker.random.alpha(10), format: 'url' },
     {
-      parentFieldName: 'links.general.links',
+      parentFieldName: 'links',
       failedFieldName: 'link',
       fakeValue: faker.random.alpha(10),
       format: 'url',
@@ -210,13 +165,24 @@ export const linkFormatTest = () => {
   ]);
 };
 
-export const linkMissingTest = () => {
-  return missingTest([
+export const generalLinkMissingTest = (selectedFields?: SelectedField[]) => {
+  const fields: MissingValue[] = [
+    { failedFieldName: 'linkId' },
+    { failedFieldName: 'title' },
     { failedFieldName: 'links' },
-    { parentFieldName: 'links', failedFieldName: 'general' },
-    { parentFieldName: 'links.general', failedFieldName: 'title' },
-    { parentFieldName: 'links.general', failedFieldName: 'links' },
-    { parentFieldName: 'links.general.links', failedFieldName: 'description' },
-    { parentFieldName: 'links.general.links', failedFieldName: 'link' },
+    { parentFieldName: 'links', failedFieldName: 'description' },
+    { parentFieldName: 'links', failedFieldName: 'link' },
+  ];
+
+  const value = filterFields<MissingValue>(fields, selectedFields);
+  return missingTest(value);
+};
+
+export const generalLinkItemCountTest = () => {
+  return itemCountTest([
+    {
+      failedFieldName: 'links',
+      maxItems: 9,
+    },
   ]);
 };

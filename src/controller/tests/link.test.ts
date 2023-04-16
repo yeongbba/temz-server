@@ -139,7 +139,7 @@ describe('Link Controller', () => {
       response = httpMocks.createResponse();
     });
 
-    it('Return 409, if the link is created as much as the limit', async () => {
+    it('Return 406, if the link is created as much as the limit', async () => {
       request.userId = faker.random.alphaNumeric(24);
       linkRepository.findThemesByUserId = jest.fn(() =>
         new Array(THEME_MAX_COUNT).fill(GeneralLinks.parse({ id: faker.random.alphaNumeric(24) }))
@@ -148,7 +148,7 @@ describe('Link Controller', () => {
       const createGeneralLinks = async () => linkController.createGeneralLinks(request, response);
 
       await expect(createGeneralLinks()).rejects.toStrictEqual(
-        new FailureObject(ErrorCode.NOT_ACCEPTABLE, `${THEME_MAX_COUNT} themes have already been created.`, 409)
+        new FailureObject(ErrorCode.NOT_ACCEPTABLE, `${THEME_MAX_COUNT} themes have already been created.`, 406)
       );
       expect(linkRepository.findThemesByUserId).toHaveBeenCalledWith(request.userId);
     });
@@ -210,7 +210,7 @@ describe('Link Controller', () => {
     });
   });
 
-  describe.only('getThemes', () => {
+  describe('getThemes', () => {
     let request = httpMocks.createRequest();
     let response = httpMocks.createResponse();
 

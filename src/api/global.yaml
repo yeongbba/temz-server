@@ -23,6 +23,8 @@ tags:
     description: Methods to verify mobile phone
   - name: link
     description: Methods to manage links
+  - name: score
+    description: Methods to manage score
 components:
   responses:
     BadRequest:
@@ -67,6 +69,17 @@ components:
               - code: not-found
                 message: The specified resource was not found
                 status: 404
+    NotAcceptable:
+      description: Not Acceptable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            failures:
+              - code: not-acceptable
+                message: The number of possible creations has been exceeded
+                status: 406
     DuplicatedValue:
       description: Duplicated value
       content:

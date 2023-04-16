@@ -52,7 +52,7 @@ export class LinkController {
       const failure = new FailureObject(
         ErrorCode.NOT_ACCEPTABLE,
         `${THEME_MAX_COUNT} themes have already been created.`,
-        409
+        406
       );
       throw failure;
     }
@@ -75,7 +75,7 @@ export class LinkController {
   };
 
   removeGeneralLinks = async (req: Request, res: Response) => {
-    const { linkId } = req.body;
+    const linkId = req.query.linkId as string;
 
     const result: GeneralLinks = await this.linkRepository.removeGeneralLinks(linkId);
     if (!result.linkId) {
