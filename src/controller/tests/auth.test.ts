@@ -32,7 +32,7 @@ describe('Auth Controller', () => {
 
       request = httpMocks.createRequest({
         method: 'GET',
-        url: `/auth/check-name?name=${user.name}`,
+        url: `/auth/check-name`,
         query: { name: user.name },
       });
       response = httpMocks.createResponse();
@@ -50,7 +50,6 @@ describe('Auth Controller', () => {
 
     it('If no name is in use, isValid returns false.', async () => {
       const name = faker.internet.userName();
-      request.url = `/auth/check-name?name=${name}`;
       request.query = { name };
       userRepository.findByName = jest.fn(() => User.parse(null));
 

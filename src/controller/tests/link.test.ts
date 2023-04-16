@@ -234,4 +234,42 @@ describe('Link Controller', () => {
       expect(response.statusCode).toBe(200);
     });
   });
+
+  describe('removeGeneralLinks', () => {
+    let request = httpMocks.createRequest();
+    let response = httpMocks.createResponse();
+
+    beforeEach(() => {
+      const links = fakeGeneralLinks();
+
+      request = httpMocks.createRequest({
+        method: 'DELETE',
+        url: `/link/general`,
+        query: { linkId: links.id },
+      });
+      response = httpMocks.createResponse();
+    });
+
+    it('Return 204, if general link successfully removed', async () => {
+      const linkId = request.query.linkId;
+      linkRepository.removeGeneralLinks = jest.fn(() => GeneralLinks.parse({ id: linkId }));
+
+      await linkController.removeGeneralLinks(request, response);
+
+      expect(linkRepository.removeGeneralLinks).toHaveBeenCalledWith(linkId);
+      expect(response.statusCode).toBe(204);
+    });
+
+    it('Return 404 if there is no registered general links', async () => {
+      const linkId = request.query.linkId;
+      linkRepository.removeGeneralLinks = jest.fn(() => GeneralLinks.parse(null));
+
+      const removeGeneralLinks = async () => linkController.removeGeneralLinks(request, response);
+
+      await expect(removeGeneralLinks()).rejects.toStrictEqual(
+        new FailureObject(ErrorCode.NOT_FOUND, 'General Links not found', 404)
+      );
+      expect(linkRepository.removeGeneralLinks).toHaveBeenCalledWith(linkId);
+    });
+  });
 });
