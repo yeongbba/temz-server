@@ -52,14 +52,24 @@ export type MissingValue = { parentFieldName?: string; failedFieldName: string }
 export class Filter {
   limit?: number;
   skip?: number;
-  sort?: number;
+  sort?: { [field: string]: 1 | -1 };
   condition?: { [field: string]: any };
 
-  constructor(filter: { limit?: number; skip?: number; sort?: number; condition?: { [field: string]: any } }) {
+  constructor(filter?: {
+    limit?: number;
+    skip?: number;
+    sort?: { [field: string]: 1 | -1 };
+    condition?: { [field: string]: any };
+  }) {
     this.limit = filter?.limit;
     this.skip = filter?.skip;
     this.sort = filter?.sort;
     this.condition = filter?.condition;
+  }
+
+  static parse(raw: any) {
+    const filter = new Filter(raw);
+    return filter;
   }
 
   toJson() {

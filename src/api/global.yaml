@@ -146,6 +146,25 @@ components:
             message: must NOT have fewer than 3 characters
             status: 400
             reason: name
+  parameters:
+    skipParam:
+      in: query
+      name: skip
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+      description: The number of items to skip before starting to collect the result set.
+    limitParam:
+      in: query
+      name: limit
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 50
+        default: 20
+      description: The numbers of items to return.
   securitySchemes:
     jwtAuth:
       description: Bearer token authorization with JWT
