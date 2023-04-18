@@ -18,11 +18,11 @@ export class Score {
   }) {
     this.scoreId = score?.id;
     this.userId = score?.userId;
-    this.course = score.course;
-    this.date = score.date;
-    this.firstHalfScore = score.firstHalfScore;
-    this.secondHalfScore = score.secondHalfScore;
-    this.image = score.image;
+    this.course = score?.course;
+    this.date = score?.date;
+    this.firstHalfScore = score?.firstHalfScore;
+    this.secondHalfScore = score?.secondHalfScore;
+    this.image = score?.image;
   }
 
   static parse(raw: any) {

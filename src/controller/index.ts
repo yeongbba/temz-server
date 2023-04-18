@@ -1,7 +1,7 @@
 import { linkRepository, userRepository, verifyRepository, scoreRepository } from '../data';
 import { AuthController } from './auth';
 import { LinkController } from './link';
-import { ScoreController } from './socre';
+import { ScoreController } from './score';
 import { VerifyController } from './verify';
 
 const controllers = {

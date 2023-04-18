@@ -108,16 +108,19 @@ components:
           nullable: true
         course:
           type: string
+          maxLength: 30
         date:
           type: string
           format: date
         firstHalfScore:
           type: integer
           minimum: 0
+          maximum: 300
           exclusiveMinimum: true
         secondHalfScore:
           type: integer
           minimum: 0
+          maximum: 300
           exclusiveMinimum: true
         image:
           type: string

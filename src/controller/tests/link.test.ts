@@ -20,7 +20,7 @@ describe('Link Controller', () => {
     let response = httpMocks.createResponse();
 
     beforeEach(() => {
-      const links = fakeSocialLinks(false);
+      const links = SocialLinks.parse(fakeSocialLinks(false)).toJson();
 
       request = httpMocks.createRequest({
         method: 'POST',

@@ -27,6 +27,7 @@ export class ScoreController {
 
   updateScore = async (req: Request, res: Response) => {
     const score = req.body;
+
     const data = Score.parse({ id: score.scoreId, userId: (req as any).userId, ...score });
     const result: Score = await this.scoreRepository.updateScore(data);
     if (!result.scoreId) {
