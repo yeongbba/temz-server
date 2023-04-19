@@ -4,7 +4,9 @@ import {
   filterFields,
   formatTest,
   itemCountTest,
+  maximumTest,
   maxLengthTest,
+  minimumTest,
   minLengthTest,
   missingTest,
   typeTest,
@@ -14,164 +16,93 @@ import { formatDate } from '../common.util';
 
 export const fakeScore = (useId: boolean = true) => ({
   id: useId ? new Mongoose.Types.ObjectId().toString() : undefined,
-  course: faker.internet.url(),
+  course: faker.random.word(),
   date: formatDate(faker.date.past(3)),
   firstHalfScore: parseInt(faker.random.numeric(2)),
   secondHalfScore: parseInt(faker.random.numeric(2)),
   image: faker.internet.url(),
 });
 
-export const socialLinkTypeTest = () => {
+export const scoreTypeTest = () => {
   const fakeNumber = parseInt(faker.random.numeric(5));
+  const fakeString = faker.random.alpha(10);
   return typeTest([
     {
-      failedFieldName: 'linkId',
+      failedFieldName: 'scoreId',
       fakeValue: fakeNumber,
       type: 'string',
     },
     {
-      failedFieldName: 'youtube',
+      failedFieldName: 'course',
       fakeValue: fakeNumber,
       type: 'string',
     },
     {
-      failedFieldName: 'twitter',
+      failedFieldName: 'date',
       fakeValue: fakeNumber,
       type: 'string',
+      format: 'date',
     },
     {
-      failedFieldName: 'tiktok',
-      fakeValue: fakeNumber,
-      type: 'string',
+      failedFieldName: 'firstHalfScore',
+      fakeValue: fakeString,
+      type: 'integer',
     },
     {
-      failedFieldName: 'instagram',
-      fakeValue: fakeNumber,
-      type: 'string',
+      failedFieldName: 'secondHalfScore',
+      fakeValue: fakeString,
+      type: 'integer',
     },
     {
-      failedFieldName: 'facebook',
-      fakeValue: fakeNumber,
-      type: 'string',
-    },
-    {
-      failedFieldName: 'telegram',
+      failedFieldName: 'image',
       fakeValue: fakeNumber,
       type: 'string',
     },
   ]);
 };
 
-export const socialLinkFormatTest = () => {
+export const scoreFormatTest = () => {
   return formatTest([
-    { failedFieldName: 'youtube', fakeValue: faker.random.alpha(10), format: 'url' },
-    { failedFieldName: 'twitter', fakeValue: faker.random.alpha(10), format: 'url' },
-    { failedFieldName: 'tiktok', fakeValue: faker.random.alpha(10), format: 'url' },
-    { failedFieldName: 'instagram', fakeValue: faker.random.alpha(10), format: 'url' },
-    { failedFieldName: 'facebook', fakeValue: faker.random.alpha(10), format: 'url' },
-    { failedFieldName: 'telegram', fakeValue: faker.random.alpha(10), format: 'url' },
+    { failedFieldName: 'date', fakeValue: faker.random.alpha(10), format: 'date' },
+    { failedFieldName: 'image', fakeValue: faker.random.alpha(10), format: 'url' },
   ]);
 };
 
-export const socialLinkMissingTest = () => {
-  return missingTest([
-    { failedFieldName: 'linkId' },
-    { failedFieldName: 'youtube' },
-    { failedFieldName: 'twitter' },
-    { failedFieldName: 'tiktok' },
-    { failedFieldName: 'instagram' },
-    { failedFieldName: 'facebook' },
-    { failedFieldName: 'telegram' },
-  ]);
+export const scoreMissingTest = (selectedFields?: SelectedField[]) => {
+  const fields: MissingValue[] = [
+    { failedFieldName: 'scoreId' },
+    { failedFieldName: 'course' },
+    { failedFieldName: 'date' },
+    { failedFieldName: 'firstHalfScore' },
+    { failedFieldName: 'secondHalfScore' },
+    { failedFieldName: 'image' },
+  ];
+
+  const value = filterFields<MissingValue>(fields, selectedFields);
+  return missingTest(value);
 };
 
-export const socialLinkMinLengthTest = () => {
+export const scoreMinLengthTest = () => {
   return minLengthTest([
     {
-      failedFieldName: 'linkId',
+      failedFieldName: 'scoreId',
       fakeValue: faker.random.alphaNumeric(23),
       minLength: 24,
     },
   ]);
 };
 
-export const socialLinkMaxLengthTest = () => {
-  return maxLengthTest([
-    {
-      failedFieldName: 'linkId',
-      fakeValue: faker.random.alphaNumeric(25),
-      maxLength: 24,
-    },
-  ]);
-};
-
-export const generalLinkTypeTest = () => {
-  const fakeNumber = parseInt(faker.random.numeric(5));
-  const fakeString = faker.random.word();
-  return typeTest([
-    {
-      failedFieldName: 'linkId',
-      fakeValue: fakeNumber,
-      type: 'string',
-    },
-    {
-      failedFieldName: 'links',
-      fakeValue: fakeString,
-      type: 'array',
-    },
-    {
-      failedFieldName: 'links',
-      fakeValue: fakeString,
-      type: 'object',
-      item: true,
-    },
-    {
-      failedFieldName: 'title',
-      fakeValue: fakeNumber,
-      type: 'string',
-    },
-    {
-      parentFieldName: 'links',
-      failedFieldName: 'description',
-      fakeValue: fakeNumber,
-      type: 'string',
-    },
-    {
-      parentFieldName: 'links',
-      failedFieldName: 'link',
-      fakeValue: fakeNumber,
-      type: 'string',
-    },
-  ]);
-};
-
-export const generalLinkMinLengthTest = () => {
-  return minLengthTest([
-    {
-      failedFieldName: 'linkId',
-      fakeValue: faker.random.alphaNumeric(23),
-      minLength: 24,
-    },
-  ]);
-};
-
-export const generalLinkMaxLengthTest = (selectedFields?: SelectedField[]) => {
+export const scoreMaxLengthTest = (selectedFields?: SelectedField[]) => {
   const fields: MaxLengthValue[] = [
     {
-      failedFieldName: 'linkId',
+      failedFieldName: 'scoreId',
       fakeValue: faker.random.alphaNumeric(25),
       maxLength: 24,
     },
     {
-      failedFieldName: 'title',
-      fakeValue: faker.random.alpha({ count: 51 }),
-      maxLength: 50,
-    },
-    {
-      parentFieldName: 'links',
-      failedFieldName: 'description',
-      fakeValue: faker.random.alpha({ count: 51 }),
-      maxLength: 50,
+      failedFieldName: 'course',
+      fakeValue: faker.random.alphaNumeric(31),
+      maxLength: 30,
     },
   ];
 
@@ -180,35 +111,32 @@ export const generalLinkMaxLengthTest = (selectedFields?: SelectedField[]) => {
   return maxLengthTest(value);
 };
 
-export const generalLinkFormatTest = () => {
-  return formatTest([
+export const scoreMaximumTest = () => {
+  return maximumTest([
     {
-      parentFieldName: 'links',
-      failedFieldName: 'link',
-      fakeValue: faker.random.alpha(10),
-      format: 'url',
+      failedFieldName: 'firstHalfScore',
+      fakeValue: parseInt(faker.random.numeric(4)),
+      maximum: 300,
+    },
+    {
+      failedFieldName: 'secondHalfScore',
+      fakeValue: parseInt(faker.random.numeric(4)),
+      maximum: 300,
     },
   ]);
 };
 
-export const generalLinkMissingTest = (selectedFields?: SelectedField[]) => {
-  const fields: MissingValue[] = [
-    { failedFieldName: 'linkId' },
-    { failedFieldName: 'title' },
-    { failedFieldName: 'links' },
-    { parentFieldName: 'links', failedFieldName: 'description' },
-    { parentFieldName: 'links', failedFieldName: 'link' },
-  ];
-
-  const value = filterFields<MissingValue>(fields, selectedFields);
-  return missingTest(value);
-};
-
-export const generalLinkItemCountTest = () => {
-  return itemCountTest([
+export const scoreMinimumTest = () => {
+  return minimumTest([
     {
-      failedFieldName: 'links',
-      maxItems: 9,
+      failedFieldName: 'firstHalfScore',
+      fakeValue: -1,
+      minimum: 0,
+    },
+    {
+      failedFieldName: 'secondHalfScore',
+      fakeValue: -1,
+      minimum: 0,
     },
   ]);
 };

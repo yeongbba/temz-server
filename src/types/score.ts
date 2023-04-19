@@ -33,7 +33,6 @@ export class Score {
   toJson() {
     return {
       scoreId: this.scoreId || null,
-      userId: this.userId || null,
       course: this.course || null,
       date: this.date || null,
       firstHalfScore: this.firstHalfScore || null,

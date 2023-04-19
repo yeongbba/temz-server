@@ -522,7 +522,7 @@ describe('Link APIs', () => {
         await missingTest.testFn(request, options, value);
       });
 
-      test.each(authMiddleWareTest)('$name', async ({ name, testFn }) => {
+      test.each([...authMiddleWareTest, ...csrfMiddleWareTest])('$name', async ({ name, testFn }) => {
         await testFn(request, options, null, 'general');
       });
     });

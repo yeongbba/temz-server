@@ -116,16 +116,21 @@ components:
           type: integer
           minimum: 0
           maximum: 300
-          exclusiveMinimum: true
         secondHalfScore:
           type: integer
           minimum: 0
           maximum: 300
-          exclusiveMinimum: true
         image:
           type: string
           format: url
           nullable: true
+      required:
+        - scoreId
+        - course
+        - date
+        - firstHalfScore
+        - secondHalfScore
+        - image
       example:
         scoreId: 60ff9826591d828bf80577dc
         course: 골드

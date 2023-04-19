@@ -6,7 +6,9 @@ import {
   AllTestValueType,
   FormatValue,
   ItemCountValue,
+  MaximumValue,
   MaxLengthValue,
+  MinimumValue,
   MinLengthValue,
   MissingValue,
   PatternValue,
@@ -287,7 +289,7 @@ export const typeTest = (value: TypeValue[]) => ({
   value,
   name: 'returns 400 when $failedFieldName field is wrong type',
   testFn: testFn(async (request, options, value) => {
-    const { parentFieldName, failedFieldName, fakeValue, type, item } = value as TypeValue;
+    const { parentFieldName, failedFieldName, fakeValue, type, format, item } = value as TypeValue;
     const rootField = setRootField(options);
     const { token } = await loginUser(request);
     const csrf = await csrfToken(request, token);
@@ -312,9 +314,10 @@ export const typeTest = (value: TypeValue[]) => ({
       headers,
     });
 
+    const errorCode = format === 'date' ? ErrorCode.X_EOV_TYPE_OPENAPI : ErrorCode.TYPE_OPENAPI;
     expect(res.status).toBe(400);
     expect(res.data).toEqual(
-      fakeFailures([new FailureObject(ErrorCode.TYPE_OPENAPI, `must be ${type}`, 400, item ? '0' : failedFieldName)])
+      fakeFailures([new FailureObject(errorCode, `must be ${type}`, 400, item ? '0' : failedFieldName)])
     );
   }),
 });
@@ -478,6 +481,62 @@ export const missingTest = (value: MissingValue[]) => ({
           failedFieldName
         ),
       ])
+    );
+  }),
+});
+
+export const maximumTest = (value: MaximumValue[]) => ({
+  value,
+  name: 'returns 400 when $failedFieldName field exceeds the maximum',
+  testFn: testFn(async (request, options, value) => {
+    const { parentFieldName, failedFieldName, fakeValue, maximum } = value as MaximumValue;
+    const rootField = setRootField(options);
+    const { token } = await loginUser(request);
+    const csrf = await csrfToken(request, token);
+
+    if (parentFieldName) {
+      const currentField = setCurrentField(parentFieldName, rootField);
+      currentField[failedFieldName] = fakeValue;
+    } else {
+      rootField[failedFieldName] = fakeValue;
+    }
+
+    const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+    const res = await sendRequest(request, options, {
+      headers,
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.data).toEqual(
+      fakeFailures([new FailureObject(ErrorCode.MAXIMUM_OPENAPI, `must be <= ${maximum}`, 400, failedFieldName)])
+    );
+  }),
+});
+
+export const minimumTest = (value: MinimumValue[]) => ({
+  value,
+  name: 'returns 400 when $failedFieldName field is lower than the minimum',
+  testFn: testFn(async (request, options, value) => {
+    const { parentFieldName, failedFieldName, fakeValue, minimum } = value as MinimumValue;
+    const rootField = setRootField(options);
+    const { token } = await loginUser(request);
+    const csrf = await csrfToken(request, token);
+
+    if (parentFieldName) {
+      const currentField = setCurrentField(parentFieldName, rootField);
+      currentField[failedFieldName] = fakeValue;
+    } else {
+      rootField[failedFieldName] = fakeValue;
+    }
+
+    const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+    const res = await sendRequest(request, options, {
+      headers,
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.data).toEqual(
+      fakeFailures([new FailureObject(ErrorCode.MINIMUM_OPENAPI, `must be >= ${minimum}`, 400, failedFieldName)])
     );
   }),
 });
