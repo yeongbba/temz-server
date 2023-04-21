@@ -128,21 +128,37 @@ export class AuthController {
     res.sendStatus(201);
   };
 
+  //update remove test,
   update = async (req: Request, res: Response) => {
-    const { profile, email, phone, wallet } = req.body;
+    const { name, profile, email, phone, wallet } = req.body;
     const data = User.parse({
+      id: (req as any).userId,
+      name,
       profile,
       email,
       phone,
       wallet,
     });
 
-    await this.userRepository.updateUser((req as any).userId, data);
+    const oldUser: User = await this.userRepository.findById(data.userId);
+    const newUser: User = await this.userRepository.updateUser(data, oldUser.phone);
+    if (!newUser.userId) {
+      const failure = new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404);
+      throw failure;
+    }
+
     res.sendStatus(204);
   };
 
   remove = async (req: Request, res: Response) => {
-    await this.userRepository.removeUser((req as any).userId);
+    const userId = (req as any).userId;
+    const user: User = await this.userRepository.findById(userId);
+    if (!user.userId) {
+      const failure = new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404);
+      throw failure;
+    }
+
+    await this.userRepository.removeUser(user);
     this.removeToken(res);
     res.sendStatus(204);
   };
