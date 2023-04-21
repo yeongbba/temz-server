@@ -77,7 +77,7 @@ export class LinkController {
   removeGeneralLinks = async (req: Request, res: Response) => {
     const linkId = req.query.linkId as string;
 
-    const result: GeneralLinks = await this.linkRepository.removeGeneralLinks(linkId);
+    const result: GeneralLinks = await this.linkRepository.removeGeneralLinks((req as any).userId, linkId);
     if (!result.linkId) {
       const failure = new FailureObject(ErrorCode.NOT_FOUND, 'General Links not found', 404);
       throw failure;

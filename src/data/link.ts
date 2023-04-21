@@ -4,6 +4,7 @@ import { GeneralLinks, SocialLinks } from '../types/link';
 
 const socialSchema = new Mongoose.Schema({
   userId: { type: String, required: true },
+  linkId: { type: String },
   youtube: String,
   twitter: String,
   tiktok: String,
@@ -19,13 +20,19 @@ const generalSchema = new Mongoose.Schema({
 
 const themeSchema = new Mongoose.Schema({
   userId: { type: String, required: true },
+  linkId: { type: String },
   title: { type: String, required: true, maxLength: 50 },
   links: [generalSchema],
 });
 
+socialSchema.index({ userId: 1, linkId: 1 });
+themeSchema.index({ userId: 1, linkId: 1 });
 MongoDB.useVirtualId(generalSchema);
 MongoDB.useVirtualId(themeSchema);
 MongoDB.useVirtualId(socialSchema);
+MongoDB.pre(socialSchema, 'linkId');
+MongoDB.pre(themeSchema, 'linkId');
+
 const SocialModel = Mongoose.model('Social', socialSchema);
 const GeneralModel = Mongoose.model('General', themeSchema);
 
@@ -50,7 +57,9 @@ export async function createGeneralLinks(links: GeneralLinks) {
 }
 
 export async function updateGeneralLinks(links: GeneralLinks) {
-  const result = await GeneralModel.findByIdAndUpdate(links.linkId, links, { returnOriginal: false });
+  const result = await GeneralModel.findOneAndUpdate({ userId: links.userId, linkId: links.linkId }, links, {
+    returnOriginal: false,
+  });
   return GeneralLinks.parse(result);
 }
 
@@ -59,7 +68,7 @@ export async function findThemesByUserId(userId: string) {
   return result?.map((theme) => GeneralLinks.parse(theme));
 }
 
-export async function removeGeneralLinks(linkId: string) {
-  const result = await GeneralModel.findByIdAndRemove(linkId, { returnOriginal: false });
+export async function removeGeneralLinks(userId: string, linkId: string) {
+  const result = await GeneralModel.findOneAndRemove({ userId, linkId }, { returnOriginal: false });
   return GeneralLinks.parse(result);
 }
