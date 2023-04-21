@@ -3,8 +3,8 @@ import { MongoDB } from '../database/mongo';
 import { GeneralLinks, SocialLinks } from '../types/link';
 
 const socialSchema = new Mongoose.Schema({
-  userId: { type: String, required: true },
-  linkId: { type: String },
+  userId: { type: String, required: true, unique: true },
+  linkId: { type: String, unique: true },
   youtube: String,
   twitter: String,
   tiktok: String,
@@ -20,7 +20,7 @@ const generalSchema = new Mongoose.Schema({
 
 const themeSchema = new Mongoose.Schema({
   userId: { type: String, required: true },
-  linkId: { type: String },
+  linkId: { type: String, unique: true },
   title: { type: String, required: true, maxLength: 50 },
   links: [generalSchema],
 });

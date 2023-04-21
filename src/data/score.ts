@@ -5,7 +5,7 @@ import { Score } from '../types/score';
 // a
 const scoreSchema = new Mongoose.Schema({
   userId: { type: String, required: true },
-  scoreId: { type: String },
+  scoreId: { type: String, unique: true },
   course: { type: String, required: true },
   date: { type: Date, required: true },
   firstHalfScore: { type: Number, required: true },
