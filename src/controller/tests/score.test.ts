@@ -126,23 +126,25 @@ describe('Score Controller', () => {
     });
 
     it('Return 204, if score successfully removed', async () => {
+      request.userId = faker.random.alphaNumeric(24);
       const scoreId = request.query.scoreId;
       scoreRepository.removeScore = jest.fn(() => Score.parse({ id: scoreId }));
 
       await scoreController.removeScore(request, response);
 
-      expect(scoreRepository.removeScore).toHaveBeenCalledWith(scoreId);
+      expect(scoreRepository.removeScore).toHaveBeenCalledWith(request.userId, scoreId);
       expect(response.statusCode).toBe(204);
     });
 
     it('Return 404 if there is no registered score', async () => {
+      request.userId = faker.random.alphaNumeric(24);
       const scoreId = request.query.scoreId;
       scoreRepository.removeScore = jest.fn(() => Score.parse(null));
 
       const removeScore = async () => scoreController.removeScore(request, response);
 
       await expect(removeScore()).rejects.toStrictEqual(new FailureObject(ErrorCode.NOT_FOUND, 'Score not found', 404));
-      expect(scoreRepository.removeScore).toHaveBeenCalledWith(scoreId);
+      expect(scoreRepository.removeScore).toHaveBeenCalledWith(request.userId, scoreId);
     });
   });
 });

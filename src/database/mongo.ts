@@ -42,4 +42,11 @@ export class MongoDB {
     schema.set('toJSON', { virtuals: true });
     schema.set('toObject', { virtuals: true });
   }
+
+  static pre(schema: Schema, id: string) {
+    schema.pre('save', function (next) {
+      this[id] = this._id;
+      next();
+    });
+  }
 }

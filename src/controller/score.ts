@@ -39,7 +39,7 @@ export class ScoreController {
 
   removeScore = async (req: Request, res: Response) => {
     const scoreId = req.query.scoreId as string;
-    const result: Score = await this.scoreRepository.removeScore(scoreId);
+    const result: Score = await this.scoreRepository.removeScore((req as any).userId, scoreId);
     if (!result.scoreId) {
       const failure = new FailureObject(ErrorCode.NOT_FOUND, 'Score not found', 404);
       throw failure;
