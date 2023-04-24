@@ -41,8 +41,9 @@ export class AuthController {
 
     const userByPhone: User = await this.userRepository.findByPhone(phone);
     if (userByPhone.userId) {
+      const oldPhone = userByPhone.phone;
       userByPhone.phone = null;
-      await this.userRepository.updateUser(userByPhone.userId, userByPhone);
+      await this.userRepository.updateUser(userByPhone, oldPhone);
     }
 
     const hashed = await bcrypt.hash(password, config.bcrypt.saltRounds);
@@ -60,15 +61,18 @@ export class AuthController {
 
   login = async (req: Request, res: Response) => {
     const { name, password } = req.body;
-    const user: User = await this.userRepository.findByName(name);
+    const userByName: User = await this.userRepository.findByName(name);
 
     const failure = new FailureObject(ErrorCode.INVALID_VALUE, 'Invalid user or password', 401);
-    if (!user.userId) {
+    if (!userByName.userId) {
       throw failure;
     }
 
+    const user: User = await this.userRepository.findById(userByName.userId);
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
+      user.failLoginCount = user.failLoginCount++;
+      await this.userRepository.updateUser(user);
       throw failure;
     }
 
@@ -80,41 +84,69 @@ export class AuthController {
     const token = this.createJwtToken(user.userId);
     this.setToken(res, token);
 
+    user.failLoginCount = 0;
+    user.lastLogin = new Date();
+    await this.userRepository.updateUser(user);
+
     res.status(201).json({ token, user: user.toJson() });
   };
 
   findName = async (req: Request, res: Response) => {
     const { phone } = req.body;
-    const user: User = await this.userRepository.findByPhone(phone);
-    if (!user.userId) {
+    const userByPhone: User = await this.userRepository.findByPhone(phone);
+    if (!userByPhone.userId) {
       const failure = new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404);
       throw failure;
     }
+
+    const user: User = await this.userRepository.findById(userByPhone.userId);
     res.status(200).json({ name: user.name });
   };
 
   resetPassword = async (req: Request, res: Response) => {
     const { name, password } = req.body;
 
-    const user: User = await this.userRepository.findByName(name);
-    if (!user.userId) {
+    const userByName: User = await this.userRepository.findByName(name);
+    if (!userByName.userId) {
       const failure = new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404);
+      throw failure;
+    }
+
+    const user: User = await this.userRepository.findById(userByName.userId);
+    const isSamePassword = await bcrypt.compare(password, user.password);
+    if (isSamePassword) {
+      const failure = new FailureObject(ErrorCode.INVALID_VALUE, 'Invalid password', 400);
       throw failure;
     }
 
     user.password = await bcrypt.hash(password, config.bcrypt.saltRounds);
-    await this.userRepository.updateUser(user.userId, user);
+    user.lastResetPassword = new Date();
+    await this.userRepository.updateUser(user);
     res.sendStatus(201);
   };
 
-  checkPhone = async (req: Request, res: Response) => {
-    const { name, phone } = req.body;
-    const user: User = await this.userRepository.findByPhone(phone);
+  checkPassword = async (req: Request, res: Response) => {
+    const { password } = req.body;
+    const user: User = await this.userRepository.findById((req as any).userId);
+
     if (!user.userId) {
       const failure = new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404);
       throw failure;
     }
 
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    res.status(200).json({ isValid: isValidPassword });
+  };
+
+  checkPhone = async (req: Request, res: Response) => {
+    const { name, phone } = req.body;
+    const userByPhone: User = await this.userRepository.findByPhone(phone);
+    if (!userByPhone.userId) {
+      const failure = new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404);
+      throw failure;
+    }
+
+    const user: User = await this.userRepository.findById(userByPhone.userId);
     if (user.name !== name) {
       const failure = new FailureObject(ErrorCode.INVALID_VALUE, 'Name does not match the owner of the phone', 400);
       throw failure;
@@ -163,6 +195,21 @@ export class AuthController {
     res.sendStatus(204);
   };
 
+  wakeup = async (req: Request, res: Response) => {
+    const data = User.parse({
+      id: (req as any).userId,
+      isDormant: false,
+    });
+
+    const newUser: User = await this.userRepository.updateUser(data);
+    if (!newUser.userId) {
+      const failure = new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404);
+      throw failure;
+    }
+
+    res.sendStatus(204);
+  };
+
   // TODO: write on auth.yaml later..
   // checkWallet = async (req: Request, res: Response) => {
   //   const wallet = req.query.wallet as string;
@@ -193,5 +240,4 @@ export class AuthController {
   private removeToken = (res: Response) => {
     res.cookie(config.cookie.tokenKey, '');
   };
-  // 휴면 계정 안내 이메일 전송?
 }

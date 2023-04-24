@@ -6,7 +6,10 @@ export class User {
   email?: string;
   phone?: string | null;
   wallet?: string;
-  isValid?: boolean = true;
+  isDormant?: boolean;
+  lastLogin?: Date;
+  lastResetPassword?: Date;
+  failLoginCount?: number;
   createdAt?: Date;
   updatedAt?: Date;
 
@@ -18,7 +21,10 @@ export class User {
     email?: string;
     phone?: string;
     wallet?: string;
-    isValid?: boolean;
+    isDormant?: boolean;
+    lastLogin?: Date;
+    lastResetPassword?: Date;
+    failLoginCount?: number;
     createdAt?: Date;
     updatedAt?: Date;
   }) {
@@ -29,7 +35,10 @@ export class User {
     this.email = user?.email;
     this.phone = user?.phone;
     this.wallet = user?.wallet;
-    this.isValid = user?.isValid;
+    this.isDormant = user?.isDormant;
+    this.lastLogin = user?.lastLogin;
+    this.lastResetPassword = user?.lastResetPassword;
+    this.failLoginCount = user?.failLoginCount;
     this.createdAt = user?.createdAt;
     this.updatedAt = user?.updatedAt;
   }
@@ -47,7 +56,7 @@ export class User {
       email: this.email || null,
       phone: this.phone,
       wallet: this.wallet || null,
-      isValid: this.isValid,
+      isDormant: this.isDormant,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     };

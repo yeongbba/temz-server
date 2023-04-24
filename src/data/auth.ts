@@ -13,53 +13,43 @@ const userSchema = new Mongoose.Schema(
   {
     name: { type: String, required: true, unique: true },
     profile: profileSchema,
-    email: { type: String, required: true },
-    phone: { type: String, required: true, unique: true },
+    email: { type: String },
+    phone: { type: String, required: true },
     wallet: { type: String, required: false },
     password: { type: String, required: true },
-    isValid: { type: Boolean, required: true, default: true },
+    isDormant: { type: Boolean, required: true, default: false },
+    lastLogin: { type: Date, required: true, default: Date.now },
+    lastResetPassword: { type: Date, required: true, default: Date.now },
+    failLoginCount: { type: Number, required: true, default: 0 },
   },
   { timestamps: true }
 );
 
-const nameSchema = new Mongoose.Schema(
-  {
-    name: { type: String, required: true, unique: true, index: true },
-    profile: profileSchema,
-    email: { type: String, required: true },
-    phone: { type: String, required: true, unique: true },
-    wallet: { type: String, required: false },
-    password: { type: String, required: true },
-    isValid: { type: Boolean, required: true, default: true },
-  },
-  { timestamps: true }
-);
+const nameSchema = new Mongoose.Schema({
+  name: { type: String, required: true, unique: true, index: true },
+});
 
-const phoneSchema = new Mongoose.Schema(
-  {
-    name: { type: String, required: true, unique: true },
-    profile: profileSchema,
-    email: { type: String, required: true },
-    phone: { type: String, required: true, unique: true, index: true },
-    wallet: { type: String, required: false },
-    password: { type: String, required: true },
-    isValid: { type: Boolean, required: true, default: true },
-  },
-  { timestamps: true }
-);
+const phoneSchema = new Mongoose.Schema({
+  phone: { type: String, required: true, unique: true, index: true },
+});
+
+const refreshTokenSchema = new Mongoose.Schema({
+  refreshToken: { type: String, required: true, unique: true, index: true },
+});
 
 MongoDB.useVirtualId(profileSchema);
 MongoDB.useVirtualId(userSchema);
 const UserModel = Mongoose.model('User', userSchema);
 const NameModel = Mongoose.model('Name', nameSchema);
 const PhoneModel = Mongoose.model('Phone', phoneSchema);
+const RefreshTokenModel = Mongoose.model('RefreshToken', phoneSchema);
 
 export async function createUser(user: User) {
   const userId = new Mongoose.Types.ObjectId();
   const result = await Promise.all([
     await UserModel.create({ ...user, _id: userId }),
-    NameModel.create({ ...user, _id: userId }),
-    PhoneModel.create({ ...user, _id: userId }),
+    NameModel.create({ name: user.name, _id: userId }),
+    PhoneModel.create({ phone: user.phone, _id: userId }),
   ]);
   return result[0].id;
 }
@@ -84,11 +74,14 @@ export async function findById(id: string) {
 //   return User.parse(result);
 // }
 
-export async function updateUser(user: User, oldPhone: string) {
+export async function updateUser(user: User, oldPhone?: string) {
+  const removeOrUpdate = user.phone
+    ? PhoneModel.findOneAndUpdate({ phone: oldPhone }, { phone: user.phone }, { returnOriginal: false })
+    : PhoneModel.findOneAndRemove({ phone: oldPhone }, { returnOriginal: false });
+
   const result = await Promise.all([
     UserModel.findByIdAndUpdate(user.userId, user, { returnOriginal: false }),
-    NameModel.findOneAndUpdate({ name: user.name }, user, { returnOriginal: false }),
-    PhoneModel.findOneAndUpdate({ phone: oldPhone }, user, { returnOriginal: false }),
+    oldPhone ? removeOrUpdate : null,
   ]);
   return User.parse(result[0]);
 }
@@ -96,7 +89,6 @@ export async function updateUser(user: User, oldPhone: string) {
 export async function removeUser(user: User) {
   const result = await Promise.all([
     UserModel.findByIdAndRemove(user.userId, { returnOriginal: false }),
-    NameModel.findOneAndRemove({ name: user.name }, { returnOriginal: false }),
     PhoneModel.findOneAndRemove({ phone: user.phone }, { returnOriginal: false }),
   ]);
   return User.parse(result[0]);

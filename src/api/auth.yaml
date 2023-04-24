@@ -22,12 +22,12 @@ paths:
               schema:
                 type: object
                 properties:
-                  isValid:
+                  isDormant:
                     type: boolean
                 required:
-                  - isValid
+                  - isDormant
                 example:
-                  isValid: true
+                  isDormant: true
         '400':
           $ref: '#/components/responses/BadRequest'
         '500':
@@ -338,6 +338,25 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+  /auth/wakeup:
+    put:
+      tags:
+        - auth
+      summary: Wake up User Account
+      operationId: wakeup
+      responses:
+        '204':
+          description: No Content
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServer'
   /auth/remove:
@@ -356,6 +375,8 @@ paths:
                 example: TEMZ_TOKEN=; Path=/;
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServer'
 components:
@@ -417,7 +438,7 @@ components:
           allOf:
             - type: object
               properties:
-                isValid:
+                isDormant:
                   type: boolean
                   readOnly: true
                 createdAt:
@@ -429,7 +450,7 @@ components:
                   format: date-time
                   readOnly: true
               required:
-                - isValid
+                - isDormant
                 - createdAt
                 - updatedAt
             - $ref: '#/components/schemas/User'
@@ -444,7 +465,7 @@ components:
             description: john_doe's profile
             image: https://localhost/image
             background: https://localhost/background
-          isValid: true
+          isDormant: true
           createdAt: '2023-03-01T15:21:53.241Z'
           updatedAt: '2023-03-01T15:21:53.241Z'
     Auth:
@@ -469,6 +490,6 @@ components:
             description: john_doe's profile
             image: https://localhost/image
             background: https://localhost/background
-          isValid: true
+          isDormant: true
           createdAt: '2023-03-01T15:21:53.241Z'
           updatedAt: '2023-03-01T15:21:53.241Z'
