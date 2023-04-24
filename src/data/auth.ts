@@ -1,6 +1,6 @@
 import Mongoose from 'mongoose';
 import { MongoDB } from '../database/mongo';
-import { User } from '../types/auth';
+import { RefreshToken, User } from '../types/auth';
 
 const profileSchema = new Mongoose.Schema({
   title: { type: String, required: true },
@@ -34,7 +34,7 @@ const phoneSchema = new Mongoose.Schema({
 });
 
 const refreshTokenSchema = new Mongoose.Schema({
-  refreshToken: { type: String, required: true, unique: true, index: true },
+  token: { type: String, required: true, unique: true, index: true },
 });
 
 MongoDB.useVirtualId(profileSchema);
@@ -42,12 +42,12 @@ MongoDB.useVirtualId(userSchema);
 const UserModel = Mongoose.model('User', userSchema);
 const NameModel = Mongoose.model('Name', nameSchema);
 const PhoneModel = Mongoose.model('Phone', phoneSchema);
-const RefreshTokenModel = Mongoose.model('RefreshToken', phoneSchema);
+const RefreshTokenModel = Mongoose.model('RefreshToken', refreshTokenSchema);
 
 export async function createUser(user: User) {
   const userId = new Mongoose.Types.ObjectId();
   const result = await Promise.all([
-    await UserModel.create({ ...user, _id: userId }),
+    UserModel.create({ ...user, _id: userId }),
     NameModel.create({ name: user.name, _id: userId }),
     PhoneModel.create({ phone: user.phone, _id: userId }),
   ]);
@@ -87,9 +87,25 @@ export async function updateUser(user: User, oldPhone?: string) {
 }
 
 export async function removeUser(user: User) {
+  // name
   const result = await Promise.all([
     UserModel.findByIdAndRemove(user.userId, { returnOriginal: false }),
     PhoneModel.findOneAndRemove({ phone: user.phone }, { returnOriginal: false }),
   ]);
   return User.parse(result[0]);
+}
+
+export async function createRefreshToken(userId: string, token: string) {
+  const result = await RefreshTokenModel.create({ _id: new Mongoose.Types.ObjectId(userId), token });
+  return result.id;
+}
+
+export async function findRefreshToken(token: string) {
+  const result = await RefreshTokenModel.findOne({ token });
+  return RefreshToken.parse(result);
+}
+
+export async function removeRefreshToken(token: string) {
+  const result = await RefreshTokenModel.findOneAndRemove({ token }, { returnOriginal: false });
+  return RefreshToken.parse(result);
 }

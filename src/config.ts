@@ -11,11 +11,14 @@ function required(key: string, defaultValue: any = undefined): string {
 
 export const config = {
   jwt: {
-    secretKey: required('JWT_SECRET'),
-    expiresInSec: parseInt(required('JWT_EXPIRES_SEC', 86400)),
+    accessSecretKey: required('ACCESS_SECRET'),
+    refreshSecretKey: required('REFRESH_SECRET'),
+    accessExpiresInSec: parseInt(required('ACCESS_EXPIRES_SEC', 86400)),
+    refreshExpiresInSec: parseInt(required('REFRESH_EXPIRES_SEC', 86400)),
   },
   cookie: {
-    tokenKey: required('TOKEN_KEY'),
+    accessTokenKey: required('ACCESS_TOKEN_KEY'),
+    refreshTokenKey: required('REFRESH_TOKEN_KEY'),
   },
   bcrypt: {
     saltRounds: parseInt(required('BCRYPT_SALT_ROUNDS', 12)),

@@ -1,10 +1,11 @@
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { config } from '../config';
 import { CookieOptions, Request, Response } from 'express';
 import { FailureObject } from '../util/error.util';
 import { ErrorCode } from '../types/error.util';
-import { User } from '../types/auth';
+import { RefreshToken, User } from '../types/auth';
+import { getToken } from '../util/auth.util';
 
 export class AuthController {
   constructor(private userRepository: any) {}
@@ -81,14 +82,18 @@ export class AuthController {
       throw failure;
     }
 
-    const token = this.createJwtToken(user.userId);
-    this.setToken(res, token);
+    const access = this.createJwtToken(user.userId, 'access');
+    this.setToken(res, access, 'access');
+
+    const refresh = this.createJwtToken(user.userId, 'refresh');
+    this.setToken(res, refresh, 'refresh');
+    await this.userRepository.createRefreshToken(user.userId, refresh);
 
     user.failLoginCount = 0;
     user.lastLogin = new Date();
     await this.userRepository.updateUser(user);
 
-    res.status(201).json({ token, user: user.toJson() });
+    res.status(201).json({ token: { access, refresh }, user: user.toJson() });
   };
 
   findName = async (req: Request, res: Response) => {
@@ -155,8 +160,11 @@ export class AuthController {
     res.sendStatus(200);
   };
 
-  logout = (req: Request, res: Response) => {
-    this.removeToken(res);
+  logout = async (req: Request, res: Response) => {
+    const token = getToken(req, 'refresh');
+    await this.userRepository.removeRefreshToken(token);
+    this.removeToken(res, 'access');
+    this.removeToken(res, 'refresh');
     res.sendStatus(201);
   };
 
@@ -190,8 +198,10 @@ export class AuthController {
       throw failure;
     }
 
-    await this.userRepository.removeUser(user);
-    this.removeToken(res);
+    const token = getToken(req, 'refresh');
+    await Promise.all([this.userRepository.removeUser(user), this.userRepository.removeRefreshToken(token)]);
+    this.removeToken(res, 'access');
+    this.removeToken(res, 'refresh');
     res.sendStatus(204);
   };
 
@@ -210,34 +220,62 @@ export class AuthController {
     res.sendStatus(204);
   };
 
-  // TODO: write on auth.yaml later..
-  // checkWallet = async (req: Request, res: Response) => {
-  //   const wallet = req.query.wallet as string;
-  //   const user = await this.userRepository.findByWallet(wallet);
-  //   res.status(200).json({ isValid: !user });
-  // };
+  token = async (req: Request, res: Response) => {
+    const token = getToken(req, 'refresh');
+    const refresh: RefreshToken = await this.userRepository.findRefreshToken(token);
 
-  private createJwtToken = (id: string) => {
-    return jwt.sign({ id }, config.jwt.secretKey, {
-      expiresIn: config.jwt.expiresInSec,
+    const InvalidFailure = new FailureObject(ErrorCode.INVALID_VALUE, 'Refresh token is invalid', 401);
+    if (!refresh) {
+      await this.userRepository.removeRefreshToken(token);
+      throw InvalidFailure;
+    }
+
+    const decoded = jwt.verify(token, config.jwt.refreshSecretKey) as JwtPayload;
+    if (decoded) {
+      const user = await this.userRepository.findById((decoded as JwtPayload).id);
+
+      if (!user) {
+        await this.userRepository.removeRefreshToken(token);
+        throw InvalidFailure;
+      }
+
+      const access = this.createJwtToken(user.userId, 'access');
+      this.setToken(res, access, 'access');
+      res.status(201).json({ token: { access } });
+    } else {
+      await this.userRepository.removeRefreshToken(token);
+    }
+  };
+
+  private createJwtToken = (id: string, type: 'access' | 'refresh') => {
+    const isAccess = type === 'access' ? true : false;
+    const secretKey = isAccess ? config.jwt.accessSecretKey : config.jwt.refreshSecretKey;
+    const expiresInSec = isAccess ? config.jwt.accessExpiresInSec : config.jwt.refreshExpiresInSec;
+    return jwt.sign({ id }, secretKey, {
+      expiresIn: expiresInSec,
     });
   };
 
-  private setToken = (res: Response, token: string) => {
+  private setToken = (res: Response, token: string, type: 'access' | 'refresh') => {
+    const isAccess = type === 'access' ? true : false;
+    const expiresInSec = isAccess ? config.jwt.accessExpiresInSec : config.jwt.refreshExpiresInSec;
+    const tokenKey = isAccess ? config.cookie.accessTokenKey : config.cookie.refreshTokenKey;
     const options: CookieOptions = {
-      maxAge: config.jwt.expiresInSec * 1000,
+      maxAge: expiresInSec * 1000,
       httpOnly: true,
       sameSite: 'none',
       secure: true,
     };
-    res.cookie(config.cookie.tokenKey, token, options);
+    res.cookie(tokenKey, token, options);
   };
 
   private generateCSRFToken = async () => {
     return bcrypt.hash(config.csrf.plainToken, 1);
   };
 
-  private removeToken = (res: Response) => {
-    res.cookie(config.cookie.tokenKey, '');
+  private removeToken = (res: Response, type: 'access' | 'refresh') => {
+    const isAccess = type === 'access' ? true : false;
+    const tokenKey = isAccess ? config.cookie.accessTokenKey : config.cookie.refreshTokenKey;
+    res.cookie(tokenKey, '');
   };
 }

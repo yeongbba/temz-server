@@ -19,7 +19,7 @@ class Socket {
         return next(new Error('Authentication error'));
       }
 
-      jwt.verify(token, config.jwt.secretKey, async (error: any, decoded: any) => {
+      jwt.verify(token, config.jwt.accessSecretKey, async (error: any, decoded: any) => {
         if (error) {
           return next(new Error('Authentication error'));
         }

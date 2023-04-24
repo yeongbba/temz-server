@@ -80,3 +80,17 @@ export class Profile {
     return new Profile(raw);
   }
 }
+
+export class RefreshToken {
+  userId?: string;
+  token?: string;
+
+  constructor(refresh: { id?: string; token?: string }) {
+    this.userId = refresh?.id;
+    this.token = refresh?.token;
+  }
+
+  static parse(raw: any) {
+    return new RefreshToken(raw);
+  }
+}

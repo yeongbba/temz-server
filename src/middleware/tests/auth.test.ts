@@ -44,7 +44,7 @@ describe('Auth Middleware', () => {
 
     const result = await authHandler.verify(request);
 
-    expect(jwt.verify).toHaveBeenCalledWith(token, config.jwt.secretKey);
+    expect(jwt.verify).toHaveBeenCalledWith(token, config.jwt.accessSecretKey);
     expect(result).toBeFalsy();
   });
 
@@ -66,7 +66,7 @@ describe('Auth Middleware', () => {
     await expect(auth()).rejects.toStrictEqual(
       new FailureObject(ErrorCode.INVALID_VALUE, 'Authentication token is invalid', 401)
     );
-    expect(jwt.verify).toHaveBeenCalledWith(token, config.jwt.secretKey);
+    expect(jwt.verify).toHaveBeenCalledWith(token, config.jwt.accessSecretKey);
     expect(userRepository.findById).toHaveBeenCalledWith(decoded.id);
   });
 
@@ -87,7 +87,7 @@ describe('Auth Middleware', () => {
 
     const result = await authHandler.verify(request);
 
-    expect(jwt.verify).toHaveBeenCalledWith(token, config.jwt.secretKey);
+    expect(jwt.verify).toHaveBeenCalledWith(token, config.jwt.accessSecretKey);
     expect(userRepository.findById).toHaveBeenCalledWith(decoded.id);
     expect(request.userId).toBe(user.userId);
     expect(request.token).toBe(token);
@@ -99,9 +99,9 @@ describe('Auth Middleware', () => {
     const request = httpMocks.createRequest({
       method: 'GET',
       url: '/auth/me',
-      cookies: { [config.cookie.tokenKey]: faker.random.alphaNumeric(128) },
+      cookies: { [config.cookie.accessTokenKey]: faker.random.alphaNumeric(128) },
     });
-    const token = request.cookies[config.cookie.tokenKey];
+    const token = request.cookies[config.cookie.accessTokenKey];
     const mockFn = jest.fn();
     const decoded = { id: userId } as JwtPayload;
     jwt.verify = mockFn.mockImplementation(() => decoded);
@@ -111,7 +111,7 @@ describe('Auth Middleware', () => {
 
     const result = await authHandler.verify(request);
 
-    expect(jwt.verify).toHaveBeenCalledWith(token, config.jwt.secretKey);
+    expect(jwt.verify).toHaveBeenCalledWith(token, config.jwt.accessSecretKey);
     expect(userRepository.findById).toHaveBeenCalledWith(decoded.id);
     expect(request.userId).toBe(user.userId);
     expect(request.token).toBe(token);

@@ -251,7 +251,7 @@ describe('Auth Controller', () => {
       jwt.sign = jest.fn(() => token);
       response.cookie = jest.fn();
       const options: CookieOptions = {
-        maxAge: config.jwt.expiresInSec * 1000,
+        maxAge: config.jwt.accessExpiresInSec * 1000,
         httpOnly: true,
         sameSite: 'none',
         secure: true,
@@ -261,10 +261,10 @@ describe('Auth Controller', () => {
 
       expect(userRepository.findByName).toHaveBeenCalledWith(request.body.name);
       expect(bcrypt.compare).toHaveBeenCalledWith(request.body.password, password);
-      expect(jwt.sign).toHaveBeenCalledWith({ id }, config.jwt.secretKey, {
-        expiresIn: config.jwt.expiresInSec,
+      expect(jwt.sign).toHaveBeenCalledWith({ id }, config.jwt.accessSecretKey, {
+        expiresIn: config.jwt.accessExpiresInSec,
       });
-      expect(response.cookie).toHaveBeenCalledWith(config.cookie.tokenKey, token, options);
+      expect(response.cookie).toHaveBeenCalledWith(config.cookie.accessTokenKey, token, options);
       expect(response._getJSONData()).toEqual({ token, user: user.toJson() });
       expect(response._getJSONData().userId).toBeUndefined();
       expect(response._getJSONData().password).toBeUndefined();
@@ -423,7 +423,7 @@ describe('Auth Controller', () => {
 
       authController.logout(request, response);
 
-      expect(response.cookie).toHaveBeenCalledWith(config.cookie.tokenKey, '');
+      expect(response.cookie).toHaveBeenCalledWith(config.cookie.accessTokenKey, '');
       expect(response.statusCode).toBe(201);
     });
   });
@@ -482,7 +482,7 @@ describe('Auth Controller', () => {
       await authController.remove(request, response);
 
       expect(userRepository.removeUser).toHaveBeenCalledWith(request.userId);
-      expect(response.cookie).toHaveBeenCalledWith(config.cookie.tokenKey, '');
+      expect(response.cookie).toHaveBeenCalledWith(config.cookie.accessTokenKey, '');
       expect(response.statusCode).toBe(204);
     });
   });

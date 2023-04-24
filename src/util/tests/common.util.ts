@@ -221,7 +221,7 @@ export const authMiddleWareTest = [
     testFn: testFn(async (request, options, value, reason) => {
       const { token, user } = await loginUser(request);
       const csrf = await csrfToken(request, token);
-      const expiredToken = jwt.sign({ id: user.userId }, config.jwt.secretKey, {
+      const expiredToken = jwt.sign({ id: user.userId }, config.jwt.accessSecretKey, {
         expiresIn: 0,
       });
 
