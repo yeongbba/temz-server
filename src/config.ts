@@ -14,7 +14,7 @@ export const config = {
     accessSecretKey: required('ACCESS_SECRET'),
     refreshSecretKey: required('REFRESH_SECRET'),
     accessExpiresInSec: parseInt(required('ACCESS_EXPIRES_SEC', 86400)),
-    refreshExpiresInSec: parseInt(required('REFRESH_EXPIRES_SEC', 86400)),
+    refreshExpiresInSec: parseInt(required('REFRESH_EXPIRES_SEC', 604800)),
   },
   cookie: {
     accessTokenKey: required('ACCESS_TOKEN_KEY'),

@@ -87,7 +87,7 @@ export class AuthController {
 
     const refresh = this.createJwtToken(user.userId, 'refresh');
     this.setToken(res, refresh, 'refresh');
-    await this.userRepository.createRefreshToken(user.userId, refresh);
+    user.refreshToken = refresh;
 
     user.failLoginCount = 0;
     user.lastLogin = new Date();

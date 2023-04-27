@@ -21,6 +21,7 @@ const userSchema = new Mongoose.Schema(
     lastLogin: { type: Date, required: true, default: Date.now },
     lastResetPassword: { type: Date, required: true, default: Date.now },
     failLoginCount: { type: Number, required: true, default: 0 },
+    refreshToken: { type: String, unique: true },
   },
   { timestamps: true }
 );
@@ -33,16 +34,11 @@ const phoneSchema = new Mongoose.Schema({
   phone: { type: String, required: true, unique: true, index: true },
 });
 
-const refreshTokenSchema = new Mongoose.Schema({
-  token: { type: String, required: true, unique: true, index: true },
-});
-
 MongoDB.useVirtualId(profileSchema);
 MongoDB.useVirtualId(userSchema);
 const UserModel = Mongoose.model('User', userSchema);
 const NameModel = Mongoose.model('Name', nameSchema);
 const PhoneModel = Mongoose.model('Phone', phoneSchema);
-const RefreshTokenModel = Mongoose.model('RefreshToken', refreshTokenSchema);
 
 export async function createUser(user: User) {
   const userId = new Mongoose.Types.ObjectId();
@@ -69,11 +65,6 @@ export async function findById(id: string) {
   return User.parse(result);
 }
 
-// export async function findByWallet(wallet: string) {
-//   const result = await UserModel.findOne({ wallet });
-//   return User.parse(result);
-// }
-
 export async function updateUser(user: User, oldPhone?: string) {
   const removeOrUpdate = user.phone
     ? PhoneModel.findOneAndUpdate({ phone: oldPhone }, { phone: user.phone }, { returnOriginal: false })
@@ -87,25 +78,10 @@ export async function updateUser(user: User, oldPhone?: string) {
 }
 
 export async function removeUser(user: User) {
-  // name
   const result = await Promise.all([
     UserModel.findByIdAndRemove(user.userId, { returnOriginal: false }),
+    NameModel.findOneAndRemove({ name: user.name }, { returnOriginal: false }),
     PhoneModel.findOneAndRemove({ phone: user.phone }, { returnOriginal: false }),
   ]);
   return User.parse(result[0]);
-}
-
-export async function createRefreshToken(userId: string, token: string) {
-  const result = await RefreshTokenModel.create({ _id: new Mongoose.Types.ObjectId(userId), token });
-  return result.id;
-}
-
-export async function findRefreshToken(token: string) {
-  const result = await RefreshTokenModel.findOne({ token });
-  return RefreshToken.parse(result);
-}
-
-export async function removeRefreshToken(token: string) {
-  const result = await RefreshTokenModel.findOneAndRemove({ token }, { returnOriginal: false });
-  return RefreshToken.parse(result);
 }

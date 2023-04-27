@@ -10,6 +10,7 @@ export class User {
   lastLogin?: Date;
   lastResetPassword?: Date;
   failLoginCount?: number;
+  refreshToken?: string;
   createdAt?: Date;
   updatedAt?: Date;
 
@@ -25,6 +26,7 @@ export class User {
     lastLogin?: Date;
     lastResetPassword?: Date;
     failLoginCount?: number;
+    refreshToken?: string;
     createdAt?: Date;
     updatedAt?: Date;
   }) {
@@ -39,13 +41,18 @@ export class User {
     this.lastLogin = user?.lastLogin;
     this.lastResetPassword = user?.lastResetPassword;
     this.failLoginCount = user?.failLoginCount;
+    this.refreshToken = user?.refreshToken;
     this.createdAt = user?.createdAt;
     this.updatedAt = user?.updatedAt;
   }
 
   static parse(raw: any) {
     const user = new User(raw);
-    user.profile = Profile.parse(user.profile);
+
+    if (user.profile) {
+      user.profile = Profile.parse(user.profile);
+    }
+
     return user;
   }
 

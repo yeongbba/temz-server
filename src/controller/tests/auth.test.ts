@@ -155,19 +155,20 @@ describe('Auth Controller', () => {
       userRepository.findByPhone = jest.fn(() => registeredUser);
       userRepository.updateUser = jest.fn();
       userRepository.createUser = jest.fn();
+      const oldPhone = registeredUser.phone;
 
       await authController.signup(request, response);
 
       expect(userRepository.findByName).toHaveBeenCalledWith(request.body.name);
       expect(userRepository.findByPhone).toHaveBeenCalledWith(request.body.phone);
       expect(registeredUser.phone).toBeNull();
-      expect(userRepository.updateUser).toHaveBeenCalledWith(registeredUser.userId, registeredUser);
+      expect(userRepository.updateUser).toHaveBeenCalledWith(registeredUser, oldPhone);
     });
 
     it('returns 201 if user sign up successfully', async () => {
       userRepository.findByName = jest.fn(() => User.parse(null));
       userRepository.findByPhone = jest.fn(() => User.parse(null));
-      userRepository.updateUser = jest.fn();
+      userRepository.updateUser = jest.fn(() => User.parse(null));
       userRepository.createUser = jest.fn();
 
       const hashed = faker.random.alphaNumeric(60);
@@ -186,7 +187,7 @@ describe('Auth Controller', () => {
     });
   });
 
-  describe('login', () => {
+  describe.only('login', () => {
     let user: User;
     let request = httpMocks.createRequest();
     let response = httpMocks.createResponse();
@@ -216,7 +217,10 @@ describe('Auth Controller', () => {
     });
 
     it('If the password does not match, returns 401 for the request', async () => {
-      userRepository.findByName = jest.fn(() => user);
+      userRepository.findByName = jest.fn(() => User.parse({ id: user.userId }));
+      userRepository.findById = jest.fn(() => user);
+      userRepository.updateUser = jest.fn();
+
       bcrypt.compare = jest.fn(async () => false);
       const login = async () => authController.login(request, response);
 
@@ -224,14 +228,18 @@ describe('Auth Controller', () => {
         new FailureObject(ErrorCode.INVALID_VALUE, 'Invalid user or password', 401)
       );
       expect(userRepository.findByName).toHaveBeenCalledWith(request.body.name);
+      expect(userRepository.findById).toHaveBeenCalledWith(user.userId);
+      expect(userRepository.updateUser).toHaveBeenCalledWith(user);
       expect(bcrypt.compare).toHaveBeenCalledWith(request.body.password, user.password);
     });
 
     it('If the phone number does not exist, returns 404 for the request', async () => {
-      userRepository.findByName = jest.fn(() => {
+      userRepository.findByName = jest.fn(() => User.parse({ id: user.userId }));
+      userRepository.findById = jest.fn(() => {
         user.phone = null;
         return user;
       });
+
       bcrypt.compare = jest.fn(async () => true);
       const login = async () => authController.login(request, response);
 
@@ -239,33 +247,47 @@ describe('Auth Controller', () => {
         new FailureObject(ErrorCode.NOT_FOUND, 'Phone number was not found', 404)
       );
       expect(userRepository.findByName).toHaveBeenCalledWith(request.body.name);
+      expect(userRepository.findById).toHaveBeenCalledWith(user.userId);
       expect(bcrypt.compare).toHaveBeenCalledWith(request.body.password, user.password);
     });
 
     it('If login is successful, returns 201 for the request', async () => {
       const id = user.userId;
       const password = user.password;
-      userRepository.findByName = jest.fn(() => user);
+      userRepository.findByName = jest.fn(() => User.parse({ id }));
       bcrypt.compare = jest.fn(async () => true);
       const token = faker.random.alphaNumeric(189);
       jwt.sign = jest.fn(() => token);
       response.cookie = jest.fn();
-      const options: CookieOptions = {
+      const accessTokenOptions: CookieOptions = {
         maxAge: config.jwt.accessExpiresInSec * 1000,
         httpOnly: true,
         sameSite: 'none',
         secure: true,
       };
+      const refreshTokenOptions: CookieOptions = {
+        ...accessTokenOptions,
+        maxAge: config.jwt.refreshExpiresInSec * 1000,
+      };
 
+      userRepository.findById = jest.fn(() => user);
+      userRepository.updateUser = jest.fn();
       await authController.login(request, response);
 
       expect(userRepository.findByName).toHaveBeenCalledWith(request.body.name);
+      expect(userRepository.findById).toHaveBeenCalledWith(user.userId);
+      expect(userRepository.updateUser).toBeCalledTimes(1);
+      expect(userRepository.updateUser).toHaveBeenCalledWith(user);
       expect(bcrypt.compare).toHaveBeenCalledWith(request.body.password, password);
-      expect(jwt.sign).toHaveBeenCalledWith({ id }, config.jwt.accessSecretKey, {
+      expect(jwt.sign).nthCalledWith(1, { id }, config.jwt.accessSecretKey, {
         expiresIn: config.jwt.accessExpiresInSec,
       });
-      expect(response.cookie).toHaveBeenCalledWith(config.cookie.accessTokenKey, token, options);
-      expect(response._getJSONData()).toEqual({ token, user: user.toJson() });
+      expect(jwt.sign).lastCalledWith({ id }, config.jwt.refreshSecretKey, {
+        expiresIn: config.jwt.refreshExpiresInSec,
+      });
+      expect(response.cookie).nthCalledWith(1, config.cookie.accessTokenKey, token, accessTokenOptions);
+      expect(response.cookie).lastCalledWith(config.cookie.refreshTokenKey, token, refreshTokenOptions);
+      expect(response._getJSONData()).toEqual({ token: { access: token, refresh: token }, user: user.toJson() });
       expect(response._getJSONData().userId).toBeUndefined();
       expect(response._getJSONData().password).toBeUndefined();
       expect(response.statusCode).toBe(201);

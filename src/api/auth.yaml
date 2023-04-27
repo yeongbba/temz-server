@@ -22,12 +22,12 @@ paths:
               schema:
                 type: object
                 properties:
-                  isDormant:
+                  isValid:
                     type: boolean
                 required:
-                  - isDormant
+                  - isValid
                 example:
-                  isDormant: true
+                  isValid: true
         '400':
           $ref: '#/components/responses/BadRequest'
         '500':
@@ -472,7 +472,12 @@ components:
       type: object
       properties:
         token:
-          type: string
+          type: object
+          properties:
+            access:
+              type: string
+            refresh:
+              type: string
         user:
           $ref: '#/components/schemas/FullUser'
       required:
