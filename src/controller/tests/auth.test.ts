@@ -322,11 +322,13 @@ describe('Auth Controller', () => {
     });
 
     it('If the user found successfully, returns 200 for the request', async () => {
-      userRepository.findByPhone = jest.fn(() => user);
+      userRepository.findByPhone = jest.fn(() => User.parse({ id: user.userId }));
+      userRepository.findById = jest.fn(() => user);
 
       await authController.findName(request, response);
 
       expect(userRepository.findByPhone).toHaveBeenCalledWith(request.body.phone);
+      expect(userRepository.findById).toHaveBeenCalledWith(user.userId);
       expect(response._getJSONData()).toEqual({ name: user.name });
       expect(response.statusCode).toBe(200);
     });
@@ -362,9 +364,26 @@ describe('Auth Controller', () => {
       expect(userRepository.findByName).toHaveBeenCalledWith(request.body.name);
     });
 
+    it('If new password is same with old one, returns 400 for the request', async () => {
+      userRepository.findByName = jest.fn(() => User.parse({ id: user.userId }));
+      userRepository.findById = jest.fn(() => user);
+      bcrypt.compare = jest.fn(async () => true);
+
+      const resetPassword = async () => authController.resetPassword(request, response);
+
+      await expect(resetPassword()).rejects.toStrictEqual(
+        new FailureObject(ErrorCode.INVALID_VALUE, 'Invalid password', 400)
+      );
+      expect(userRepository.findByName).toHaveBeenCalledWith(request.body.name);
+      expect(userRepository.findById).toHaveBeenCalledWith(user.userId);
+      expect(bcrypt.compare).toHaveBeenCalledWith(request.body.password, user.password);
+    });
+
     it('If the password is changed, returns 201 for the request', async () => {
-      userRepository.findByName = jest.fn(() => user);
+      userRepository.findByName = jest.fn(() => User.parse({ id: user.userId }));
+      userRepository.findById = jest.fn(() => user);
       userRepository.updateUser = jest.fn();
+      bcrypt.compare = jest.fn(async () => false);
       const hashed = faker.random.alphaNumeric(60);
       bcrypt.hash = jest.fn(async () => hashed);
       user.password = hashed;
@@ -372,8 +391,10 @@ describe('Auth Controller', () => {
       await authController.resetPassword(request, response);
 
       expect(userRepository.findByName).toHaveBeenCalledWith(request.body.name);
+      expect(userRepository.findById).toHaveBeenCalledWith(user.userId);
+      expect(bcrypt.compare).toHaveBeenCalledWith(request.body.password, user.password);
       expect(bcrypt.hash).toHaveBeenCalledWith(request.body.password, config.bcrypt.saltRounds);
-      expect(userRepository.updateUser).toHaveBeenCalledWith(user.userId, user);
+      expect(userRepository.updateUser).toHaveBeenCalledWith(user);
       expect(response.statusCode).toBe(201);
     });
   });
@@ -408,7 +429,8 @@ describe('Auth Controller', () => {
 
     it('If the user does not match, returns 400 for the request', async () => {
       user.name = faker.internet.userName();
-      userRepository.findByPhone = jest.fn(() => user);
+      userRepository.findByPhone = jest.fn(() => User.parse({ id: user.userId }));
+      userRepository.findById = jest.fn(() => user);
 
       const checkPhone = async () => authController.checkPhone(request, response);
 
@@ -416,14 +438,17 @@ describe('Auth Controller', () => {
         new FailureObject(ErrorCode.INVALID_VALUE, 'Name does not match the owner of the phone', 400)
       );
       expect(userRepository.findByPhone).toHaveBeenCalledWith(request.body.phone);
+      expect(userRepository.findById).toHaveBeenCalledWith(user.userId);
     });
 
     it('If the user match, returns 200 for the request', async () => {
-      userRepository.findByPhone = jest.fn(() => user);
+      userRepository.findByPhone = jest.fn(() => User.parse({ id: user.userId }));
+      userRepository.findById = jest.fn(() => user);
 
       await authController.checkPhone(request, response);
 
       expect(userRepository.findByPhone).toHaveBeenCalledWith(request.body.phone);
+      expect(userRepository.findById).toHaveBeenCalledWith(user.userId);
       expect(response.statusCode).toBe(200);
     });
   });
