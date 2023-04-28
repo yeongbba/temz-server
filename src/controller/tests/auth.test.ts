@@ -453,6 +453,64 @@ describe('Auth Controller', () => {
     });
   });
 
+  describe('checkPassword', () => {
+    let user: User;
+    let request = httpMocks.createRequest();
+    let response = httpMocks.createResponse();
+
+    beforeEach(() => {
+      user = User.parse(fakeUser())!;
+
+      request = httpMocks.createRequest({
+        method: 'POST',
+        url: '/auth/check-password',
+        body: {
+          password: user.password,
+        },
+      });
+      response = httpMocks.createResponse();
+    });
+
+    it('If the user cannot be found, returns 404 for the request', async () => {
+      request.userId = user.userId;
+      userRepository.findById = jest.fn(() => User.parse(null));
+
+      const checkPassword = async () => authController.checkPassword(request, response);
+
+      await expect(checkPassword()).rejects.toStrictEqual(
+        new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404)
+      );
+      expect(userRepository.findById).toHaveBeenCalledWith(request.userId);
+    });
+
+    it('If the password match, returns 200 and true for the request', async () => {
+      request.userId = user.userId;
+      userRepository.findById = jest.fn(() => user);
+      bcrypt.compare = jest.fn(async () => true);
+
+      await authController.checkPassword(request, response);
+
+      expect(userRepository.findById).toHaveBeenCalledWith(user.userId);
+      expect(bcrypt.compare).toHaveBeenCalledWith(request.body.password, user.password);
+      expect(response._getJSONData()).toEqual({ isValid: true });
+      expect(response.statusCode).toBe(200);
+    });
+
+    it('If the password does not match, returns 200 and false for the request', async () => {
+      request.userId = user.userId;
+      user.password = '13!' + faker.internet.password();
+      userRepository.findById = jest.fn(() => user);
+      bcrypt.compare = jest.fn(async () => false);
+
+      await authController.checkPassword(request, response);
+
+      expect(userRepository.findById).toHaveBeenCalledWith(user.userId);
+      expect(bcrypt.compare).toHaveBeenCalledWith(request.body.password, user.password);
+      expect(response._getJSONData()).toEqual({ isValid: false });
+      expect(response.statusCode).toBe(200);
+    });
+  });
+
   describe('logout', () => {
     let request = httpMocks.createRequest();
     let response = httpMocks.createResponse();

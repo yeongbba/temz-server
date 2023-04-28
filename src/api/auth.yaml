@@ -265,6 +265,51 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServer'
       security: []
+  /auth/check-password:
+    post:
+      tags:
+        - auth
+      summary: Check Password
+      operationId: checkPassword
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  description: Password between 8 and 20 characters included at least one character, number, special symbol.
+                  type: string
+                  format: password
+                  pattern: '(?=.*[0-9])(?=.*[a-z])(?=.*\W)(?=\S+$).{8,20}'
+                  writeOnly: true
+              required:
+                - password
+              example:
+                password: abcdefg098!
+        required: true
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isValid:
+                    type: boolean
+                required:
+                  - isValid
+                example:
+                  isValid: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServer'
   /auth/check-phone:
     post:
       tags:
@@ -484,7 +529,9 @@ components:
         - token
         - user
       example:
-        token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzZmY2ZDkxYjgzZjkxMWFkNTc3ODdhNyIsImlhdCI6MTY3NzY4NTc5MiwiZXhwIjoxNjc3NzcyMTkyfQ.oFowTlE08Ixv0Nbl-GWDG52pLZ5co4Z4kc09N9CRPVA
+        token: 
+          access: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzZmY2ZDkxYjgzZjkxMWFkNTc3ODdhNyIsImlhdCI6MTY3NzY4NTc5MiwiZXhwIjoxNjc3NzcyMTkyfQ.oFowTlE08Ixv0Nbl-GWDG52pLZ5co4Z4kc09N9CRPVA
+          refresh: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0NGEyNmU1ODExYWNjYWFiNjY3OWI3NCIsImlhdCI6MTY4MjU4MTIzNCwiZXhwIjoxNjgzMTg2MDM0fQ.Xjo_cZsBGLnY-dMwiWUn0Bk5asZm8xFXy7uCD8ZqziU
         user:
           name: john_doe
           phone: '01012345678'
