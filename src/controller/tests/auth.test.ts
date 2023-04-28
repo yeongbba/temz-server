@@ -187,7 +187,7 @@ describe('Auth Controller', () => {
     });
   });
 
-  describe.only('login', () => {
+  describe('login', () => {
     let user: User;
     let request = httpMocks.createRequest();
     let response = httpMocks.createResponse();
@@ -451,10 +451,12 @@ describe('Auth Controller', () => {
   });
 
   describe('update', () => {
+    let user: User;
     let request = httpMocks.createRequest();
     let response = httpMocks.createResponse();
 
     beforeEach(() => {
+      user = User.parse(fakeUser())!;
       request = httpMocks.createRequest({
         method: 'POST',
         url: '/auth/update',
@@ -474,21 +476,43 @@ describe('Auth Controller', () => {
     });
 
     it('If update is successful, returns 204 for the request', async () => {
-      userRepository.updateUser = jest.fn();
-      request.userId = faker.random.alphaNumeric(24);
+      request.userId = user.userId;
+      userRepository.findById = jest.fn(() => user);
+      userRepository.updateUser = jest.fn(() => user);
 
       await authController.update(request, response);
 
-      expect(userRepository.updateUser).toHaveBeenCalledWith(request.userId, User.parse(request.body));
+      expect(userRepository.findById).toHaveBeenCalledWith(request.userId);
+      expect(userRepository.updateUser).toHaveBeenCalledWith(
+        User.parse({ id: request.userId, ...request.body }),
+        user.phone
+      );
       expect(response.statusCode).toBe(204);
+    });
+
+    it('If the user cannot be found, returns 404 for the request', async () => {
+      request.userId = user.userId;
+      userRepository.findById = jest.fn(() => user);
+      userRepository.updateUser = jest.fn(() => User.parse(null));
+
+      const update = async () => authController.update(request, response);
+
+      await expect(update()).rejects.toStrictEqual(new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404));
+      expect(userRepository.findById).toHaveBeenCalledWith(request.userId);
+      expect(userRepository.updateUser).toHaveBeenCalledWith(
+        User.parse({ id: request.userId, ...request.body }),
+        user.phone
+      );
     });
   });
 
   describe('remove', () => {
+    let user: User;
     let request = httpMocks.createRequest();
     let response = httpMocks.createResponse();
 
     beforeEach(() => {
+      user = User.parse(fakeUser())!;
       request = httpMocks.createRequest({
         method: 'DELETE',
         url: '/auth/remove',
@@ -497,15 +521,29 @@ describe('Auth Controller', () => {
     });
 
     it('If the user is removed, returns 204 for the request', async () => {
-      request.userId = faker.random.alphaNumeric(24);
+      request.userId = user.userId;
+      userRepository.findById = jest.fn(() => user);
       userRepository.removeUser = jest.fn();
       response.cookie = jest.fn();
 
       await authController.remove(request, response);
 
-      expect(userRepository.removeUser).toHaveBeenCalledWith(request.userId);
-      expect(response.cookie).toHaveBeenCalledWith(config.cookie.accessTokenKey, '');
+      expect(userRepository.findById).toHaveBeenCalledWith(request.userId);
+      expect(userRepository.removeUser).toHaveBeenCalledWith(user);
+      expect(response.cookie).nthCalledWith(1, config.cookie.accessTokenKey, '');
+      expect(response.cookie).lastCalledWith(config.cookie.refreshTokenKey, '');
+      expect(response.cookie).toBeCalledTimes(2);
       expect(response.statusCode).toBe(204);
+    });
+
+    it('If the user cannot be found, returns 404 for the request', async () => {
+      request.userId = user.userId;
+      userRepository.findById = jest.fn(() => User.parse(null));
+
+      const remove = async () => authController.remove(request, response);
+
+      await expect(remove()).rejects.toStrictEqual(new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404));
+      expect(userRepository.findById).toHaveBeenCalledWith(request.userId);
     });
   });
 });

@@ -168,7 +168,6 @@ export class AuthController {
     res.sendStatus(201);
   };
 
-  //update remove test,
   update = async (req: Request, res: Response) => {
     const { name, profile, email, phone, wallet } = req.body;
     const data = User.parse({
@@ -198,8 +197,7 @@ export class AuthController {
       throw failure;
     }
 
-    const token = getToken(req, 'refresh');
-    await Promise.all([this.userRepository.removeUser(user), this.userRepository.removeRefreshToken(token)]);
+    await this.userRepository.removeUser(user);
     this.removeToken(res, 'access');
     this.removeToken(res, 'refresh');
     res.sendStatus(204);
