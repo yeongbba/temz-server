@@ -445,7 +445,9 @@ describe('Auth Controller', () => {
 
       authController.logout(request, response);
 
-      expect(response.cookie).toHaveBeenCalledWith(config.cookie.accessTokenKey, '');
+      expect(response.cookie).nthCalledWith(1, config.cookie.accessTokenKey, '');
+      expect(response.cookie).lastCalledWith(config.cookie.refreshTokenKey, '');
+      expect(response.cookie).toBeCalledTimes(2);
       expect(response.statusCode).toBe(201);
     });
   });

@@ -160,9 +160,7 @@ export class AuthController {
     res.sendStatus(200);
   };
 
-  logout = async (req: Request, res: Response) => {
-    const token = getToken(req, 'refresh');
-    await this.userRepository.removeRefreshToken(token);
+  logout = (req: Request, res: Response) => {
     this.removeToken(res, 'access');
     this.removeToken(res, 'refresh');
     res.sendStatus(201);
