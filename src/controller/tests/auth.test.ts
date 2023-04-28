@@ -573,4 +573,38 @@ describe('Auth Controller', () => {
       expect(userRepository.findById).toHaveBeenCalledWith(request.userId);
     });
   });
+
+  describe('wakeup', () => {
+    let request = httpMocks.createRequest();
+    let response = httpMocks.createResponse();
+
+    beforeEach(() => {
+      request = httpMocks.createRequest({
+        method: 'PUT',
+        url: '/auth/wakeup',
+        body: {},
+      });
+      response = httpMocks.createResponse();
+    });
+
+    it('If update is successful, returns 204 for the request', async () => {
+      request.userId = faker.random.alphaNumeric(24);
+      userRepository.updateUser = jest.fn(() => User.parse({ id: request.userId }));
+
+      await authController.wakeup(request, response);
+
+      expect(userRepository.updateUser).toHaveBeenCalledWith(User.parse({ id: request.userId, isDormant: false }));
+      expect(response.statusCode).toBe(204);
+    });
+
+    it('If the user cannot be found, returns 404 for the request', async () => {
+      request.userId = faker.random.alphaNumeric(24);
+      userRepository.updateUser = jest.fn(() => User.parse(null));
+
+      const wakeup = async () => authController.wakeup(request, response);
+
+      await expect(wakeup()).rejects.toStrictEqual(new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404));
+      expect(userRepository.updateUser).toHaveBeenCalledWith(User.parse({ id: request.userId, isDormant: false }));
+    });
+  });
 });

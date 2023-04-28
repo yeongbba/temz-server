@@ -207,8 +207,8 @@ export class AuthController {
       isDormant: false,
     });
 
-    const newUser: User = await this.userRepository.updateUser(data);
-    if (!newUser.userId) {
+    const user: User = await this.userRepository.updateUser(data);
+    if (!user.userId) {
       const failure = new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404);
       throw failure;
     }
