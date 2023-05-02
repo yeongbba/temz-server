@@ -88,11 +88,11 @@ export class AuthController {
     const refresh = this.createJwtToken(user.userId, 'refresh');
     this.setToken(res, refresh, 'refresh');
     user.refreshToken = refresh;
+    await this.userRepository.createRefreshToken(refresh);
 
     user.failLoginCount = 0;
     user.lastLogin = new Date();
     await this.userRepository.updateUser(user);
-
     res.status(201).json({ token: { access, refresh }, user: user.toJson() });
   };
 
@@ -221,8 +221,9 @@ export class AuthController {
     const refresh: RefreshToken = await this.userRepository.findRefreshToken(token);
 
     const InvalidFailure = new FailureObject(ErrorCode.INVALID_VALUE, 'Refresh token is invalid', 401);
-    if (!refresh) {
-      await this.userRepository.removeRefreshToken(token);
+    if (!refresh.tokenId) {
+      this.removeToken(res, 'access');
+      this.removeToken(res, 'refresh');
       throw InvalidFailure;
     }
 
@@ -232,14 +233,18 @@ export class AuthController {
 
       if (!user) {
         await this.userRepository.removeRefreshToken(token);
+        this.removeToken(res, 'access');
+        this.removeToken(res, 'refresh');
         throw InvalidFailure;
       }
 
       const access = this.createJwtToken(user.userId, 'access');
       this.setToken(res, access, 'access');
-      res.status(201).json({ token: { access } });
+      res.status(201).json({ access });
     } else {
       await this.userRepository.removeRefreshToken(token);
+      this.removeToken(res, 'access');
+      this.removeToken(res, 'refresh');
     }
   };
 

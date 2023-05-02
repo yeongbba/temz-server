@@ -164,7 +164,7 @@ paths:
             Set-Cookie:
               schema:
                 type: string
-                example: TEMZ_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzZmY2ZDkxYjgzZjkxMWFkNTc3ODdhNyIsImlhdCI6MTY3NzY4NTc5MiwiZXhwIjoxNjc3NzcyMTkyfQ.oFowTlE08Ixv0Nbl-GWDG52pLZ5co4Z4kc09N9CRPVA; Path=/; HttpOnly
+                example: TEMZ_ACCESS_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzZmY2ZDkxYjgzZjkxMWFkNTc3ODdhNyIsImlhdCI6MTY3NzY4NTc5MiwiZXhwIjoxNjc3NzcyMTkyfQ.oFowTlE08Ixv0Nbl-GWDG52pLZ5co4Z4kc09N9CRPVA; TEMZ_REFRESH_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0NGEyNmU1ODExYWNjYWFiNjY3OWI3NCIsImlhdCI6MTY4MjU4MTIzNCwiZXhwIjoxNjgzMTg2MDM0fQ.Xjo_cZsBGLnY-dMwiWUn0Bk5asZm8xFXy7uCD8ZqziU; Path=/; HttpOnly
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -417,13 +417,46 @@ paths:
             Set-Cookie:
               schema:
                 type: string
-                example: TEMZ_TOKEN=; Path=/;
+                example: TEMZ_ACCESS_TOKEN=; TEMZ_REFRESH_TOKEN=; Path=/;
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServer'
+  /auth/token:
+    get:
+      tags:
+        - auth
+      summary: Get New Access Token
+      operationId: token
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access:
+                    type: string
+                required:
+                  - access
+                example:
+                  access: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzZmY2ZDkxYjgzZjkxMWFkNTc3ODdhNyIsImlhdCI6MTY3NzY4NTc5MiwiZXhwIjoxNjc3NzcyMTkyfQ.oFowTlE08Ixv0Nbl-GWDG52pLZ5co4Z4kc09N9CRPVA
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: TEMZ_ACCESS_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzZmY2ZDkxYjgzZjkxMWFkNTc3ODdhNyIsImlhdCI6MTY3NzY4NTc5MiwiZXhwIjoxNjc3NzcyMTkyfQ.oFowTlE08Ixv0Nbl-GWDG52pLZ5co4Z4kc09N9CRPVA; TEMZ_REFRESH_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0NGEyNmU1ODExYWNjYWFiNjY3OWI3NCIsImlhdCI6MTY4MjU4MTIzNCwiZXhwIjoxNjgzMTg2MDM0fQ.Xjo_cZsBGLnY-dMwiWUn0Bk5asZm8xFXy7uCD8ZqziU; Path=/; HttpOnly
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+      security:
+        - csrf: []
 components:
   schemas:
     User:

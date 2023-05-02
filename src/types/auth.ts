@@ -89,11 +89,11 @@ export class Profile {
 }
 
 export class RefreshToken {
-  userId?: string;
+  tokenId?: string;
   token?: string;
 
   constructor(refresh: { id?: string; token?: string }) {
-    this.userId = refresh?.id;
+    this.tokenId = refresh?.id;
     this.token = refresh?.token;
   }
 
