@@ -1,14 +1,15 @@
 import httpMocks from 'node-mocks-http';
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { AuthController } from '../auth';
 import { faker } from '@faker-js/faker';
-import { User } from '../../types/auth';
+import { RefreshToken, User } from '../../types/auth';
 import { FailureObject } from '../../util/error.util';
 import { ErrorCode } from '../../types/error.util';
 import { config } from '../../config';
 import { CookieOptions } from 'express';
 import { fakeUser } from '../../util/tests/auth.util';
+import { getToken } from '../../util/auth.util';
 
 jest.mock('jsonwebtoken');
 jest.mock('bcrypt');
@@ -663,6 +664,120 @@ describe('Auth Controller', () => {
 
       await expect(wakeup()).rejects.toStrictEqual(new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404));
       expect(userRepository.updateUser).toHaveBeenCalledWith(User.parse({ id: request.userId, isDormant: false }));
+    });
+  });
+
+  describe.only('token', () => {
+    let request = httpMocks.createRequest();
+    let response = httpMocks.createResponse();
+
+    beforeEach(() => {
+      request = httpMocks.createRequest({
+        method: 'GET',
+        url: '/auth/token',
+        headers: {
+          'R-Authorization': `Bearer ${faker.random.alphaNumeric(189)}`,
+        },
+      });
+      response = httpMocks.createResponse();
+    });
+
+    test('If R-Authorization header is not exist, returns 401 for the request', async () => {
+      request.headers = {};
+
+      const token = async () => authController.token(request, response);
+
+      await expect(token()).rejects.toStrictEqual(
+        new FailureObject(ErrorCode.NULL_ARGS, `R-Authorization token should not be null`, 401)
+      );
+    });
+
+    it('If the refresh token cannot be found, returns 401 for the request', async () => {
+      const header = getToken(request, 'refresh');
+      userRepository.findRefreshToken = jest.fn(() => RefreshToken.parse(null));
+      response.cookie = jest.fn();
+
+      const token = async () => authController.token(request, response);
+
+      await expect(token()).rejects.toStrictEqual(
+        new FailureObject(ErrorCode.INVALID_VALUE, 'Refresh token is invalid', 401)
+      );
+      expect(userRepository.findRefreshToken).toHaveBeenCalledWith(header);
+      expect(response.cookie).nthCalledWith(1, config.cookie.accessTokenKey, '');
+      expect(response.cookie).lastCalledWith(config.cookie.refreshTokenKey, '');
+      expect(response.cookie).toBeCalledTimes(2);
+    });
+
+    it('If the user cannot be found, returns 401 for the request', async () => {
+      const header = getToken(request, 'refresh');
+      const userId = faker.random.alphaNumeric(24);
+      userRepository.findRefreshToken = jest.fn(() => RefreshToken.parse({ id: faker.random.alphaNumeric(24) }));
+      userRepository.findById = jest.fn(() => User.parse(null));
+      userRepository.removeRefreshToken = jest.fn();
+      const mockFn = jest.fn();
+      const decoded = { id: userId } as JwtPayload;
+      jwt.verify = mockFn.mockImplementation(() => decoded);
+      response.cookie = jest.fn();
+
+      const token = async () => authController.token(request, response);
+
+      await expect(token()).rejects.toStrictEqual(
+        new FailureObject(ErrorCode.INVALID_VALUE, 'Refresh token is invalid', 401)
+      );
+      expect(userRepository.findRefreshToken).toHaveBeenCalledWith(header);
+      expect(userRepository.removeRefreshToken).toHaveBeenCalledWith(header);
+      expect(userRepository.findById).toHaveBeenCalledWith(userId);
+      expect(jwt.verify).toHaveBeenCalledWith(header, config.jwt.refreshSecretKey);
+      expect(response.cookie).nthCalledWith(1, config.cookie.accessTokenKey, '');
+      expect(response.cookie).lastCalledWith(config.cookie.refreshTokenKey, '');
+      expect(response.cookie).toBeCalledTimes(2);
+    });
+
+    it('remove refresh token for the request with unsupported token', async () => {
+      const header = getToken(request, 'refresh');
+      userRepository.findRefreshToken = jest.fn(() => RefreshToken.parse({ id: faker.random.alphaNumeric(24) }));
+      userRepository.removeRefreshToken = jest.fn();
+      response.cookie = jest.fn();
+      jwt.verify = jest.fn();
+
+      await authController.token(request, response);
+
+      expect(userRepository.findRefreshToken).toHaveBeenCalledWith(header);
+      expect(userRepository.removeRefreshToken).toHaveBeenCalledWith(header);
+      expect(jwt.verify).toHaveBeenCalledWith(header, config.jwt.refreshSecretKey);
+      expect(response.cookie).nthCalledWith(1, config.cookie.accessTokenKey, '');
+      expect(response.cookie).lastCalledWith(config.cookie.refreshTokenKey, '');
+      expect(response.cookie).toBeCalledTimes(2);
+    });
+
+    it('If the token generate successfully, returns 201 for the request', async () => {
+      const header = getToken(request, 'refresh');
+      const userId = faker.random.alphaNumeric(24);
+      userRepository.findRefreshToken = jest.fn(() => RefreshToken.parse({ id: faker.random.alphaNumeric(24) }));
+      userRepository.findById = jest.fn(() => User.parse({ id: userId }));
+      const mockFn = jest.fn();
+      const decoded = { id: userId } as JwtPayload;
+      jwt.verify = mockFn.mockImplementation(() => decoded);
+      const token = faker.random.alphaNumeric(189);
+      jwt.sign = jest.fn(() => token);
+      response.cookie = jest.fn();
+      const accessTokenOptions: CookieOptions = {
+        maxAge: config.jwt.accessExpiresInSec * 1000,
+        httpOnly: true,
+        sameSite: 'none',
+        secure: true,
+      };
+
+      await authController.token(request, response);
+
+      expect(userRepository.findRefreshToken).toHaveBeenCalledWith(header);
+      expect(userRepository.findById).toHaveBeenCalledWith(userId);
+      expect(jwt.verify).toHaveBeenCalledWith(header, config.jwt.refreshSecretKey);
+      expect(response.cookie).toHaveBeenCalledWith(config.cookie.accessTokenKey, token, accessTokenOptions);
+      expect(response.statusCode).toBe(201);
+      expect(jwt.sign).toHaveBeenCalledWith({ id: userId }, config.jwt.accessSecretKey, {
+        expiresIn: config.jwt.accessExpiresInSec,
+      });
     });
   });
 });

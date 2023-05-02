@@ -229,9 +229,9 @@ export class AuthController {
 
     const decoded = jwt.verify(token, config.jwt.refreshSecretKey) as JwtPayload;
     if (decoded) {
-      const user = await this.userRepository.findById((decoded as JwtPayload).id);
+      const user: User = await this.userRepository.findById((decoded as JwtPayload).id);
 
-      if (!user) {
+      if (!user.userId) {
         await this.userRepository.removeRefreshToken(token);
         this.removeToken(res, 'access');
         this.removeToken(res, 'refresh');
