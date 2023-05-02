@@ -667,7 +667,7 @@ describe('Auth Controller', () => {
     });
   });
 
-  describe.only('token', () => {
+  describe('token', () => {
     let request = httpMocks.createRequest();
     let response = httpMocks.createResponse();
 
