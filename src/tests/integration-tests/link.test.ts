@@ -46,9 +46,9 @@ describe('Link APIs', () => {
     it('Return 201 if social link created successfully', async () => {
       const links = SocialLinks.parse(fakeSocialLinks(false)).toJson();
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
 
-      const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+      const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
       const res = await request.post(`/link/social`, links, {
         headers,
       });
@@ -59,9 +59,9 @@ describe('Link APIs', () => {
     it('Return 409 if the social link is already registered', async () => {
       const links = SocialLinks.parse(fakeSocialLinks(false)).toJson();
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
 
-      const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+      const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
       const firstRes = await request.post(`/link/social`, links, {
         headers,
       });
@@ -114,9 +114,9 @@ describe('Link APIs', () => {
     it('Return 204 if social link updated successfully', async () => {
       const links = SocialLinks.parse(fakeSocialLinks(false)).toJson();
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
 
-      const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+      const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
 
       await request.post(`/link/social`, links, {
         headers,
@@ -139,9 +139,9 @@ describe('Link APIs', () => {
     it('Return 404 if the social link is not registered', async () => {
       const links = SocialLinks.parse(fakeSocialLinks()).toJson();
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
 
-      const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+      const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
       const res = await request.put(`/link/social`, links, {
         headers,
       });
@@ -193,9 +193,9 @@ describe('Link APIs', () => {
     it('Return 200 and social links if the link is found successfully', async () => {
       const links = SocialLinks.parse(fakeSocialLinks(false)).toJson();
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
 
-      const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+      const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
 
       await request.post(`/link/social`, links, {
         headers,
@@ -213,9 +213,9 @@ describe('Link APIs', () => {
 
     it('Return 200 and empty links if the social link is not found', async () => {
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
 
-      const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+      const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
 
       const res = await request.get(`/link/social`, {
         headers,
@@ -242,9 +242,9 @@ describe('Link APIs', () => {
     it('Return 201 if general link created successfully', async () => {
       const links = GeneralLinks.parse(fakeGeneralLinks(false)).toJson();
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
 
-      const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+      const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
       const res = await request.post(`/link/general`, links, {
         headers,
       });
@@ -255,9 +255,9 @@ describe('Link APIs', () => {
     it('Return 406 if the number of links that can be created is exceeded', async () => {
       const links = GeneralLinks.parse(fakeGeneralLinks(false)).toJson();
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
 
-      const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+      const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
 
       for (let i = 0; i < THEME_MAX_COUNT; i++) {
         await request.post(`/link/general`, links, {
@@ -320,9 +320,9 @@ describe('Link APIs', () => {
     it('Return 204 if general link updated successfully', async () => {
       const links = GeneralLinks.parse(fakeGeneralLinks(false)).toJson();
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
 
-      const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+      const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
 
       await request.post(`/link/general`, links, {
         headers,
@@ -345,9 +345,9 @@ describe('Link APIs', () => {
     it('Return 404 if the general link is not registered', async () => {
       const links = GeneralLinks.parse(fakeGeneralLinks()).toJson();
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
 
-      const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+      const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
       const res = await request.put(`/link/general`, links, {
         headers,
       });
@@ -404,9 +404,9 @@ describe('Link APIs', () => {
     it('Return 200 and general links if the link is found successfully', async () => {
       const links = GeneralLinks.parse(fakeGeneralLinks(false)).toJson();
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
 
-      const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+      const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
 
       await request.post(`/link/general`, links, {
         headers,
@@ -424,9 +424,9 @@ describe('Link APIs', () => {
 
     it('Return 200 and empty array if the general link is not found', async () => {
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
 
-      const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+      const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
 
       const res = await request.get(`/link/general`, {
         headers,
@@ -453,9 +453,9 @@ describe('Link APIs', () => {
     it('Return 204 if general link removed successfully', async () => {
       const links = GeneralLinks.parse(fakeGeneralLinks(false)).toJson();
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
 
-      const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+      const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
 
       await request.post(`/link/general`, links, {
         headers,
@@ -479,9 +479,9 @@ describe('Link APIs', () => {
     it('Return 404 if the general link is not registered', async () => {
       const links = GeneralLinks.parse(fakeGeneralLinks()).toJson();
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
 
-      const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+      const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
       const res = await request.delete(`/link/general`, {
         params: {
           linkId: links.linkId,

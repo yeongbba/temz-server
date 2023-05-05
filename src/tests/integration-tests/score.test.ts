@@ -40,9 +40,9 @@ describe('Score APIs', () => {
     it('Return 201 if score created successfully', async () => {
       const score = Score.parse(fakeScore(false)).toJson();
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
 
-      const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+      const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
       const res = await request.post(`/score`, score, {
         headers,
       });
@@ -103,9 +103,9 @@ describe('Score APIs', () => {
     it('Return 204 if score updated successfully', async () => {
       const score = Score.parse(fakeScore(false)).toJson();
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
 
-      const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+      const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
 
       await request.post(`/score`, score, {
         headers,
@@ -128,9 +128,9 @@ describe('Score APIs', () => {
     it('Return 404 if the score is not registered', async () => {
       const score = Score.parse(fakeScore()).toJson();
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
 
-      const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+      const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
       const res = await request.put(`/score`, score, {
         headers,
       });
@@ -192,9 +192,9 @@ describe('Score APIs', () => {
     it('Return 200 and scores if the scores is found successfully without queryParams', async () => {
       const score = Score.parse(fakeScore(false)).toJson();
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
 
-      const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+      const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
 
       await request.post(`/score`, score, {
         headers,
@@ -213,9 +213,9 @@ describe('Score APIs', () => {
     it('Return 200 and scores if the scores is found successfully with queryParams', async () => {
       const scores = new Array(3).fill(Score.parse(fakeScore(false)).toJson());
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
 
-      const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+      const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
 
       for (const score of scores) {
         await request.post(`/score`, score, {
@@ -243,9 +243,9 @@ describe('Score APIs', () => {
 
     it('Return 200 and empty array if scores are not found', async () => {
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
 
-      const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+      const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
 
       const res = await request.get(`/score`, {
         headers,
@@ -268,13 +268,13 @@ describe('Score APIs', () => {
     });
   });
 
-  describe.only('DELETE to /score', () => {
+  describe('DELETE to /score', () => {
     it('Return 204 if the score removed successfully', async () => {
       const score = Score.parse(fakeScore(false)).toJson();
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
 
-      const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+      const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
 
       await request.post(`/score`, score, {
         headers,
@@ -298,9 +298,9 @@ describe('Score APIs', () => {
     it('Return 404 if the score is not registered', async () => {
       const score = Score.parse(fakeScore()).toJson();
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
 
-      const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+      const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
       const res = await request.delete(`/score`, {
         params: {
           scoreId: score.scoreId,
