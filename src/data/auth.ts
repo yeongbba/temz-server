@@ -22,7 +22,7 @@ const userSchema = new Mongoose.Schema(
     lastLogin: { type: Date, required: true, default: Date.now },
     lastResetPassword: { type: Date, required: true, default: Date.now },
     failLoginCount: { type: Number, required: true, default: 0 },
-    refreshToken: { type: String, unique: true },
+    refreshToken: { type: String },
   },
   { timestamps: true }
 );

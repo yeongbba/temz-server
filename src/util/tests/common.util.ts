@@ -84,7 +84,7 @@ export const csrfMiddleWareTest = [
     testFn: testFn(async (request, options, value, reason) => {
       const { token } = await loginUser(request);
 
-      const headers = { Authorization: `Bearer ${token}` };
+      const headers = { Authorization: `Bearer ${token.access}` };
       const res = await sendRequest(request, options, {
         headers,
       });
@@ -101,10 +101,10 @@ export const csrfMiddleWareTest = [
     name: 'returns 403 if the token is invalid',
     testFn: testFn(async (request, options, value, reason) => {
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
 
       const headers = {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token.access}`,
         [config.csrf.tokenKey]: csrf.token.slice(0, -1) + faker.random.alpha(),
       };
       const res = await sendRequest(request, options, {
@@ -124,7 +124,7 @@ export const authMiddleWareTest = [
     name: 'returns 401 if the token is not in the cookie or header',
     testFn: testFn(async (request, options, value, reason) => {
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
 
       const headers = { Authorization: `Bearer `, [config.csrf.tokenKey]: csrf.token };
       const res = await sendRequest(request, options, {
@@ -134,7 +134,7 @@ export const authMiddleWareTest = [
       expect(res.status).toBe(401);
       expect(res.data).toEqual(
         fakeFailures([
-          new FailureObject(ErrorCode.INVALID_VALUE, 'Authentication token should not be null', 401, reason),
+          new FailureObject(ErrorCode.INVALID_VALUE, 'Authorization token should not be null', 401, reason),
         ])
       );
     }),
@@ -143,7 +143,7 @@ export const authMiddleWareTest = [
     name: 'returns 401 if the token is malformed',
     testFn: testFn(async (request, options, value, reason) => {
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
 
       const headers = { Authorization: `Bearer ${faker.random.alphaNumeric(4)}`, [config.csrf.tokenKey]: csrf.token };
       const res = await sendRequest(request, options, {
@@ -160,8 +160,8 @@ export const authMiddleWareTest = [
     name: 'returns 401 if the token is invalid',
     testFn: testFn(async (request, options, value, reason) => {
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
-      const fakeToken = token.slice(0, -1) + faker.random.alpha();
+      const csrf = await csrfToken(request, token.access);
+      const fakeToken = token.access.slice(0, -1) + faker.random.alpha();
 
       const headers = {
         Authorization: `Bearer ${fakeToken}`,
@@ -181,7 +181,7 @@ export const authMiddleWareTest = [
     name: 'returns 401 if there is no Authorization header in the request',
     testFn: testFn(async (request, options, value, reason) => {
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
 
       const headers = {
         [config.csrf.tokenKey]: csrf.token,
@@ -198,7 +198,7 @@ export const authMiddleWareTest = [
     name: 'returns 401 unless it is in Bearer format',
     testFn: testFn(async (request, options, value, reason) => {
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
 
       const headers = {
         Authorization: 'Basic ',
@@ -220,7 +220,7 @@ export const authMiddleWareTest = [
     name: 'returns 401 if token is expired',
     testFn: testFn(async (request, options, value, reason) => {
       const { token, user } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
       const expiredToken = jwt.sign({ id: user.userId }, config.jwt.accessSecretKey, {
         expiresIn: 0,
       });
@@ -247,7 +247,7 @@ export const itemCountTest = (value: ItemCountValue[]) => ({
     const { parentFieldName, failedFieldName, maxItems } = value as ItemCountValue;
     const rootField = setRootField(options);
     const { token } = await loginUser(request);
-    const csrf = await csrfToken(request, token);
+    const csrf = await csrfToken(request, token.access);
     let array = [];
     let item = null;
 
@@ -266,7 +266,7 @@ export const itemCountTest = (value: ItemCountValue[]) => ({
       }
     }
 
-    const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+    const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
     const res = await sendRequest(request, options, {
       headers,
     });
@@ -292,7 +292,7 @@ export const typeTest = (value: TypeValue[]) => ({
     const { parentFieldName, failedFieldName, fakeValue, type, format, item } = value as TypeValue;
     const rootField = setRootField(options);
     const { token } = await loginUser(request);
-    const csrf = await csrfToken(request, token);
+    const csrf = await csrfToken(request, token.access);
     if (parentFieldName) {
       const currentField = setCurrentField(parentFieldName, rootField);
 
@@ -309,7 +309,7 @@ export const typeTest = (value: TypeValue[]) => ({
       }
     }
 
-    const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+    const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
     const res = await sendRequest(request, options, {
       headers,
     });
@@ -329,7 +329,7 @@ export const maxLengthTest = (value: MaxLengthValue[]) => ({
     const { parentFieldName, failedFieldName, fakeValue, maxLength } = value as MaxLengthValue;
     const rootField = setRootField(options);
     const { token } = await loginUser(request);
-    const csrf = await csrfToken(request, token);
+    const csrf = await csrfToken(request, token.access);
 
     if (parentFieldName) {
       const currentField = setCurrentField(parentFieldName, rootField);
@@ -338,7 +338,7 @@ export const maxLengthTest = (value: MaxLengthValue[]) => ({
       rootField[failedFieldName] = fakeValue;
     }
 
-    const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+    const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
     const res = await sendRequest(request, options, {
       headers,
     });
@@ -364,7 +364,7 @@ export const minLengthTest = (value: MinLengthValue[]) => ({
     const { parentFieldName, failedFieldName, fakeValue, minLength } = value as MinLengthValue;
     const rootField = setRootField(options);
     const { token } = await loginUser(request);
-    const csrf = await csrfToken(request, token);
+    const csrf = await csrfToken(request, token.access);
 
     if (parentFieldName) {
       const currentField = setCurrentField(parentFieldName, rootField);
@@ -373,7 +373,7 @@ export const minLengthTest = (value: MinLengthValue[]) => ({
       rootField[failedFieldName] = fakeValue;
     }
 
-    const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+    const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
     const res = await sendRequest(request, options, {
       headers,
     });
@@ -400,7 +400,7 @@ export const formatTest = (value: FormatValue[]) => ({
     const rootField = setRootField(options);
 
     const { token } = await loginUser(request);
-    const csrf = await csrfToken(request, token);
+    const csrf = await csrfToken(request, token.access);
     if (parentFieldName) {
       const currentField = setCurrentField(parentFieldName, rootField);
       currentField[failedFieldName] = fakeValue;
@@ -408,7 +408,7 @@ export const formatTest = (value: FormatValue[]) => ({
       rootField[failedFieldName] = fakeValue;
     }
 
-    const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+    const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
     const res = await sendRequest(request, options, {
       headers,
     });
@@ -428,7 +428,7 @@ export const patternTest = (value: PatternValue[]) => ({
     const rootField = setRootField(options);
 
     const { token } = await loginUser(request);
-    const csrf = await csrfToken(request, token);
+    const csrf = await csrfToken(request, token.access);
     if (parentFieldName) {
       const currentField = setCurrentField(parentFieldName, rootField);
       currentField[failedFieldName] = fakeValue;
@@ -436,7 +436,7 @@ export const patternTest = (value: PatternValue[]) => ({
       rootField[failedFieldName] = fakeValue;
     }
 
-    const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+    const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
     const res = await sendRequest(request, options, {
       headers,
     });
@@ -458,7 +458,7 @@ export const missingTest = (value: MissingValue[]) => ({
     const rootField = setRootField(options);
 
     const { token } = await loginUser(request);
-    const csrf = await csrfToken(request, token);
+    const csrf = await csrfToken(request, token.access);
     if (parentFieldName) {
       const currentField = setCurrentField(parentFieldName, rootField);
       delete currentField[failedFieldName];
@@ -466,7 +466,7 @@ export const missingTest = (value: MissingValue[]) => ({
       delete rootField[failedFieldName];
     }
 
-    const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+    const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
     const res = await sendRequest(request, options, {
       headers,
     });
@@ -492,7 +492,7 @@ export const maximumTest = (value: MaximumValue[]) => ({
     const { parentFieldName, failedFieldName, fakeValue, maximum } = value as MaximumValue;
     const rootField = setRootField(options);
     const { token } = await loginUser(request);
-    const csrf = await csrfToken(request, token);
+    const csrf = await csrfToken(request, token.access);
 
     if (parentFieldName) {
       const currentField = setCurrentField(parentFieldName, rootField);
@@ -501,7 +501,7 @@ export const maximumTest = (value: MaximumValue[]) => ({
       rootField[failedFieldName] = fakeValue;
     }
 
-    const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+    const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
     const res = await sendRequest(request, options, {
       headers,
     });
@@ -520,7 +520,7 @@ export const minimumTest = (value: MinimumValue[]) => ({
     const { parentFieldName, failedFieldName, fakeValue, minimum } = value as MinimumValue;
     const rootField = setRootField(options);
     const { token } = await loginUser(request);
-    const csrf = await csrfToken(request, token);
+    const csrf = await csrfToken(request, token.access);
 
     if (parentFieldName) {
       const currentField = setCurrentField(parentFieldName, rootField);
@@ -529,7 +529,7 @@ export const minimumTest = (value: MinimumValue[]) => ({
       rootField[failedFieldName] = fakeValue;
     }
 
-    const headers = { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token };
+    const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
     const res = await sendRequest(request, options, {
       headers,
     });

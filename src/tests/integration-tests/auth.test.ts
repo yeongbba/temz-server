@@ -1,3 +1,4 @@
+import jwt from 'jsonwebtoken';
 import axios, { AxiosInstance } from 'axios';
 import {
   authFormatTest,
@@ -107,12 +108,19 @@ describe('Auth APIs', () => {
       const { token, user } = await loginUser(request);
 
       const res = await request.get(`/auth/me`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token.access}` },
       });
 
       expect(res.status).toBe(200);
-      expect(res.data).toEqual({
-        user,
+      expect(res.data.user).toMatchObject({
+        name: user.name,
+        phone: user.phone,
+        profile: user.profile,
+        email: user.email,
+        wallet: user.wallet,
+        isDormant: false,
+        createdAt: expect.stringMatching(DATE_REGEX),
+        updatedAt: expect.stringMatching(DATE_REGEX),
       });
     });
 
@@ -132,7 +140,7 @@ describe('Auth APIs', () => {
       const { token } = await loginUser(request);
 
       const res = await request.get(`/auth/csrf`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token.access}` },
       });
 
       expect(res.status).toBe(200);
@@ -221,14 +229,15 @@ describe('Auth APIs', () => {
       });
 
       expect(res.status).toBe(201);
-      expect(res.data.token.length).toBeGreaterThan(0);
+      expect(res.data.token.access.length).toBeGreaterThan(0);
+      expect(res.data.token.refresh.length).toBeGreaterThan(0);
       expect(res.data.user).toMatchObject({
-        isValid: true,
         name: user.name,
         phone: user.phone,
         profile: user.profile,
         email: user.email,
         wallet: user.wallet,
+        isDormant: false,
         createdAt: expect.stringMatching(DATE_REGEX),
         updatedAt: expect.stringMatching(DATE_REGEX),
       });
@@ -439,6 +448,79 @@ describe('Auth APIs', () => {
     });
   });
 
+  describe('POST to /auth/check-password', () => {
+    it('returns 200 and isValid true if the password match', async () => {
+      const user = await createNewUser(request);
+      const login = await request.post('/auth/login', {
+        name: user.name,
+        password: user.password,
+      });
+      const csrf = await csrfToken(request, login.data.token.access);
+
+      const res = await request.post(
+        `/auth/check-password`,
+        {
+          password: user.password,
+        },
+        {
+          headers: { Authorization: `Bearer ${login.data.token.access}`, [config.csrf.tokenKey]: csrf.token },
+        }
+      );
+
+      expect(res.status).toBe(200);
+      expect(res.data).toEqual({ isValid: true });
+    });
+
+    it('returns 200 and isValid false if the password does not match', async () => {
+      const { token } = await loginUser(request);
+      const csrf = await csrfToken(request, token.access);
+
+      const res = await request.post(
+        `/auth/check-password`,
+        {
+          password: '13!' + faker.internet.password(),
+        },
+        {
+          headers: { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token },
+        }
+      );
+
+      expect(res.status).toBe(200);
+      expect(res.status).toBe(200);
+      expect(res.data).toEqual({ isValid: false });
+    });
+
+    describe('Request param test set', () => {
+      let options: TestOptions;
+
+      beforeEach(() => {
+        const user = fakeUser(false);
+        options = {
+          method: 'post',
+          url: '/auth/check-password',
+          data: {
+            password: user.password,
+          },
+        };
+      });
+
+      const missingTest = authMissingTest([{ failedFieldName: 'password' }]);
+      test.each(missingTest.value)(`${missingTest.name}`, async (value) => {
+        await missingTest.testFn(request, options, value);
+      });
+
+      const patternTest = authPatternTest([{ failedFieldName: 'password' }]);
+      test.each(patternTest.value)(`${patternTest.name}`, async (value) => {
+        await patternTest.testFn(request, options, value);
+      });
+
+      const typeTest = authTypeTest([{ failedFieldName: 'password' }]);
+      test.each(typeTest.value)(`${typeTest.name}`, async (value) => {
+        await typeTest.testFn(request, options, value);
+      });
+    });
+  });
+
   describe('POST to /auth/check-phone', () => {
     it('returns 200 if the user exist and the names match', async () => {
       const user = await createNewUser(request);
@@ -528,13 +610,13 @@ describe('Auth APIs', () => {
 
     it('returns 201 if logout is successful', async () => {
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
 
       const res = await request.post(
         `/auth/logout`,
         {},
         {
-          headers: { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token },
+          headers: { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token },
         }
       );
       expect(res.status).toBe(201);
@@ -548,7 +630,7 @@ describe('Auth APIs', () => {
   describe('PUT to /auth/update', () => {
     it('returns 204 if update is successful', async () => {
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
       const updateUser = fakeUser(false);
 
       const res = await request.put(
@@ -561,7 +643,7 @@ describe('Auth APIs', () => {
           wallet: updateUser.wallet,
         },
         {
-          headers: { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token },
+          headers: { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token },
         }
       );
       expect(res.status).toBe(204);
@@ -645,16 +727,156 @@ describe('Auth APIs', () => {
 
     it('returns 204 if remove is successful', async () => {
       const { token } = await loginUser(request);
-      const csrf = await csrfToken(request, token);
+      const csrf = await csrfToken(request, token.access);
 
       const res = await request.delete(`/auth/remove`, {
-        headers: { Authorization: `Bearer ${token}`, [config.csrf.tokenKey]: csrf.token },
+        headers: { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token },
       });
       expect(res.status).toBe(204);
     });
 
     test.each([...authMiddleWareTest, ...csrfMiddleWareTest])('$name', async ({ name, testFn }) => {
       await testFn(request, options, null, 'remove');
+    });
+  });
+
+  describe('PUT to /auth/wakeup', () => {
+    let options: TestOptions;
+
+    beforeAll(() => {
+      options = { method: 'put', url: '/auth/wakeup', data: {} };
+    });
+
+    it('returns 204 if wakeup is successful', async () => {
+      const { token } = await loginUser(request);
+      const csrf = await csrfToken(request, token.access);
+
+      const res = await request.put(
+        `/auth/wakeup`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token },
+        }
+      );
+      expect(res.status).toBe(204);
+    });
+
+    test.each([...authMiddleWareTest, ...csrfMiddleWareTest])('$name', async ({ name, testFn }) => {
+      await testFn(request, options, null, 'wakeup');
+    });
+  });
+
+  describe('POST to /auth/token', () => {
+    let options: TestOptions;
+
+    beforeAll(() => {
+      options = { method: 'post', url: '/auth/token', data: {} };
+    });
+
+    it('returns 201 if access token is regenerated successfully', async () => {
+      const { token } = await loginUser(request);
+      const csrf = await csrfToken(request, token.access);
+
+      const res = await request.post(
+        `/auth/token`,
+        {},
+        {
+          headers: { 'R-Authorization': `Bearer ${token.refresh}`, [config.csrf.tokenKey]: csrf.token },
+        }
+      );
+
+      expect(res.status).toBe(201);
+      expect(res.data.access.length).toBeGreaterThan(0);
+    });
+
+    it('returns 401 if the token is not in the cookie or header', async () => {
+      const { token } = await loginUser(request);
+      const csrf = await csrfToken(request, token.access);
+
+      const headers = { 'R-Authorization': `Bearer `, [config.csrf.tokenKey]: csrf.token };
+      const res = await request.post(
+        `/auth/token`,
+        {},
+        {
+          headers,
+        }
+      );
+      expect(res.status).toBe(401);
+      expect(res.data).toEqual(
+        fakeFailures([new FailureObject(ErrorCode.NULL_ARGS, 'R-Authorization token should not be null', 401)])
+      );
+    });
+
+    it('returns 401 if the token is invalid', async () => {
+      const { token } = await loginUser(request);
+      const csrf = await csrfToken(request, token.access);
+      const fakeToken = token.refresh.slice(0, -1) + faker.random.alpha();
+
+      const headers = {
+        'R-Authorization': `Bearer ${fakeToken}`,
+        [config.csrf.tokenKey]: csrf.token,
+      };
+      const res = await request.post(
+        `/auth/token`,
+        {},
+        {
+          headers,
+        }
+      );
+
+      expect(res.status).toBe(401);
+      expect(res.data).toEqual(
+        fakeFailures([new FailureObject(ErrorCode.INVALID_VALUE, 'Refresh token is invalid', 401)])
+      );
+    });
+
+    it('returns 401 if there is no Authorization header in the request', async () => {
+      const { token } = await loginUser(request);
+      const csrf = await csrfToken(request, token.access);
+
+      const headers = {
+        [config.csrf.tokenKey]: csrf.token,
+      };
+      const res = await request.post(
+        `/auth/token`,
+        {},
+        {
+          headers,
+        }
+      );
+
+      expect(res.status).toBe(401);
+      expect(res.data).toEqual(
+        fakeFailures([new FailureObject(ErrorCode.INVALID_VALUE, 'R-Authorization header required', 401)])
+      );
+    });
+
+    it('returns 401 unless it is in Bearer format', async () => {
+      const { token } = await loginUser(request);
+      const csrf = await csrfToken(request, token.access);
+
+      const headers = {
+        'R-Authorization': 'Basic ',
+        [config.csrf.tokenKey]: csrf.token,
+      };
+      const res = await request.post(
+        `/auth/token`,
+        {},
+        {
+          headers,
+        }
+      );
+
+      expect(res.status).toBe(401);
+      expect(res.data).toEqual(
+        fakeFailures([
+          new FailureObject(ErrorCode.INVALID_VALUE, `R-Authorization header with scheme 'Bearer' required`, 401),
+        ])
+      );
+    });
+
+    test.each(csrfMiddleWareTest)('$name', async ({ name, testFn }) => {
+      await testFn(request, options, null, 'token');
     });
   });
 });

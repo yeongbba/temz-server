@@ -29,7 +29,7 @@ describe('Auth Middleware', () => {
     const auth = async () => authHandler.verify(request);
 
     await expect(auth()).rejects.toStrictEqual(
-      new FailureObject(ErrorCode.NULL_ARGS, 'Authorization token should not be null', 401)
+      new FailureObject(ErrorCode.INVALID_VALUE, 'Authorization header required', 401)
     );
   });
 

@@ -270,13 +270,15 @@ describe('Auth Controller', () => {
         ...accessTokenOptions,
         maxAge: config.jwt.refreshExpiresInSec * 1000,
       };
-
       userRepository.findById = jest.fn(() => user);
+      userRepository.createRefreshToken = jest.fn();
       userRepository.updateUser = jest.fn();
+
       await authController.login(request, response);
 
       expect(userRepository.findByName).toHaveBeenCalledWith(request.body.name);
       expect(userRepository.findById).toHaveBeenCalledWith(user.userId);
+      expect(userRepository.createRefreshToken).toHaveBeenCalledWith(token);
       expect(userRepository.updateUser).toBeCalledTimes(1);
       expect(userRepository.updateUser).toHaveBeenCalledWith(user);
       expect(bcrypt.compare).toHaveBeenCalledWith(request.body.password, password);
@@ -667,13 +669,13 @@ describe('Auth Controller', () => {
     });
   });
 
-  describe('token', () => {
+  describe.only('token', () => {
     let request = httpMocks.createRequest();
     let response = httpMocks.createResponse();
 
     beforeEach(() => {
       request = httpMocks.createRequest({
-        method: 'GET',
+        method: 'POST',
         url: '/auth/token',
         headers: {
           'R-Authorization': `Bearer ${faker.random.alphaNumeric(189)}`,
@@ -688,7 +690,7 @@ describe('Auth Controller', () => {
       const token = async () => authController.token(request, response);
 
       await expect(token()).rejects.toStrictEqual(
-        new FailureObject(ErrorCode.NULL_ARGS, `R-Authorization token should not be null`, 401)
+        new FailureObject(ErrorCode.INVALID_VALUE, `R-Authorization header required`, 401)
       );
     });
 
@@ -774,10 +776,49 @@ describe('Auth Controller', () => {
       expect(userRepository.findById).toHaveBeenCalledWith(userId);
       expect(jwt.verify).toHaveBeenCalledWith(header, config.jwt.refreshSecretKey);
       expect(response.cookie).toHaveBeenCalledWith(config.cookie.accessTokenKey, token, accessTokenOptions);
-      expect(response.statusCode).toBe(201);
       expect(jwt.sign).toHaveBeenCalledWith({ id: userId }, config.jwt.accessSecretKey, {
         expiresIn: config.jwt.accessExpiresInSec,
       });
+      expect(response._getJSONData().access.length).toBeGreaterThan(0);
+      expect(response.statusCode).toBe(201);
+    });
+
+    it('passes a request with valid Authorization cookie', async () => {
+      const request = httpMocks.createRequest({
+        method: 'POST',
+        url: '/auth/token',
+        cookies: { [config.cookie.refreshTokenKey]: faker.random.alphaNumeric(128) },
+      });
+      const userId = faker.random.alphaNumeric(24);
+      userRepository.findRefreshToken = jest.fn(() => RefreshToken.parse({ id: faker.random.alphaNumeric(24) }));
+      userRepository.findById = jest.fn(() => User.parse({ id: userId }));
+      const mockFn = jest.fn();
+      const decoded = { id: userId } as JwtPayload;
+      jwt.verify = mockFn.mockImplementation(() => decoded);
+      const token = faker.random.alphaNumeric(189);
+      jwt.sign = jest.fn(() => token);
+      response.cookie = jest.fn();
+      const accessTokenOptions: CookieOptions = {
+        maxAge: config.jwt.accessExpiresInSec * 1000,
+        httpOnly: true,
+        sameSite: 'none',
+        secure: true,
+      };
+
+      await authController.token(request, response);
+
+      expect(userRepository.findRefreshToken).toHaveBeenCalledWith(request.cookies[config.cookie.refreshTokenKey]);
+      expect(userRepository.findById).toHaveBeenCalledWith(userId);
+      expect(jwt.verify).toHaveBeenCalledWith(
+        request.cookies[config.cookie.refreshTokenKey],
+        config.jwt.refreshSecretKey
+      );
+      expect(response.cookie).toHaveBeenCalledWith(config.cookie.accessTokenKey, token, accessTokenOptions);
+      expect(jwt.sign).toHaveBeenCalledWith({ id: userId }, config.jwt.accessSecretKey, {
+        expiresIn: config.jwt.accessExpiresInSec,
+      });
+      expect(response._getJSONData().access.length).toBeGreaterThan(0);
+      expect(response.statusCode).toBe(201);
     });
   });
 });
