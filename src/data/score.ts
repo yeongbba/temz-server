@@ -2,7 +2,7 @@ import Mongoose from 'mongoose';
 import { MongoDB } from '../database/mongo';
 import { Filter } from '../types/common';
 import { Score } from '../types/score';
-// a
+
 const scoreSchema = new Mongoose.Schema({
   userId: { type: String, required: true },
   scoreId: { type: String, unique: true },
