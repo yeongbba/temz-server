@@ -80,7 +80,6 @@ export class Filter {
       limit: this.limit,
       skip: this.skip,
       sort: this.sort,
-      condition: this.condition,
     };
   }
 }

@@ -62,14 +62,13 @@ export class AuthController {
 
   login = async (req: Request, res: Response) => {
     const { name, password } = req.body;
-    const userByName: User = await this.userRepository.findByName(name);
+    const user: User = await this.userRepository.findByName(name);
 
     const failure = new FailureObject(ErrorCode.INVALID_VALUE, 'Invalid user or password', 401);
-    if (!userByName.userId) {
+    if (!user.userId) {
       throw failure;
     }
 
-    const user: User = await this.userRepository.findById(userByName.userId);
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
       user.failLoginCount = user.failLoginCount++;
@@ -111,13 +110,12 @@ export class AuthController {
   resetPassword = async (req: Request, res: Response) => {
     const { name, password } = req.body;
 
-    const userByName: User = await this.userRepository.findByName(name);
-    if (!userByName.userId) {
+    const user: User = await this.userRepository.findByName(name);
+    if (!user.userId) {
       const failure = new FailureObject(ErrorCode.NOT_FOUND, 'User not found', 404);
       throw failure;
     }
 
-    const user: User = await this.userRepository.findById(userByName.userId);
     const isSamePassword = await bcrypt.compare(password, user.password);
     if (isSamePassword) {
       const failure = new FailureObject(ErrorCode.INVALID_VALUE, 'Invalid password', 400);
