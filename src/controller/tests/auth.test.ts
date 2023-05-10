@@ -218,10 +218,8 @@ describe('Auth Controller', () => {
     });
 
     it('If the password does not match, returns 401 for the request', async () => {
-      userRepository.findByName = jest.fn(() => User.parse({ id: user.userId }));
-      userRepository.findById = jest.fn(() => user);
+      userRepository.findByName = jest.fn(() => user);
       userRepository.updateUser = jest.fn();
-
       bcrypt.compare = jest.fn(async () => false);
       const login = async () => authController.login(request, response);
 
@@ -229,14 +227,12 @@ describe('Auth Controller', () => {
         new FailureObject(ErrorCode.INVALID_VALUE, 'Invalid user or password', 401)
       );
       expect(userRepository.findByName).toHaveBeenCalledWith(request.body.name);
-      expect(userRepository.findById).toHaveBeenCalledWith(user.userId);
       expect(userRepository.updateUser).toHaveBeenCalledWith(user);
       expect(bcrypt.compare).toHaveBeenCalledWith(request.body.password, user.password);
     });
 
     it('If the phone number does not exist, returns 404 for the request', async () => {
-      userRepository.findByName = jest.fn(() => User.parse({ id: user.userId }));
-      userRepository.findById = jest.fn(() => {
+      userRepository.findByName = jest.fn(() => {
         user.phone = null;
         return user;
       });
@@ -248,14 +244,13 @@ describe('Auth Controller', () => {
         new FailureObject(ErrorCode.NOT_FOUND, 'Phone number was not found', 404)
       );
       expect(userRepository.findByName).toHaveBeenCalledWith(request.body.name);
-      expect(userRepository.findById).toHaveBeenCalledWith(user.userId);
       expect(bcrypt.compare).toHaveBeenCalledWith(request.body.password, user.password);
     });
 
     it('If login is successful, returns 201 for the request', async () => {
       const id = user.userId;
       const password = user.password;
-      userRepository.findByName = jest.fn(() => User.parse({ id }));
+      userRepository.findByName = jest.fn(() => user);
       bcrypt.compare = jest.fn(async () => true);
       const token = faker.random.alphaNumeric(189);
       jwt.sign = jest.fn(() => token);
@@ -277,7 +272,6 @@ describe('Auth Controller', () => {
       await authController.login(request, response);
 
       expect(userRepository.findByName).toHaveBeenCalledWith(request.body.name);
-      expect(userRepository.findById).toHaveBeenCalledWith(user.userId);
       expect(userRepository.createRefreshToken).toHaveBeenCalledWith(token);
       expect(userRepository.updateUser).toBeCalledTimes(1);
       expect(userRepository.updateUser).toHaveBeenCalledWith(user);
@@ -368,8 +362,7 @@ describe('Auth Controller', () => {
     });
 
     it('If new password is same with old one, returns 400 for the request', async () => {
-      userRepository.findByName = jest.fn(() => User.parse({ id: user.userId }));
-      userRepository.findById = jest.fn(() => user);
+      userRepository.findByName = jest.fn(() => user);
       bcrypt.compare = jest.fn(async () => true);
 
       const resetPassword = async () => authController.resetPassword(request, response);
@@ -378,13 +371,11 @@ describe('Auth Controller', () => {
         new FailureObject(ErrorCode.INVALID_VALUE, 'Invalid password', 400)
       );
       expect(userRepository.findByName).toHaveBeenCalledWith(request.body.name);
-      expect(userRepository.findById).toHaveBeenCalledWith(user.userId);
       expect(bcrypt.compare).toHaveBeenCalledWith(request.body.password, user.password);
     });
 
     it('If the password is changed, returns 201 for the request', async () => {
-      userRepository.findByName = jest.fn(() => User.parse({ id: user.userId }));
-      userRepository.findById = jest.fn(() => user);
+      userRepository.findByName = jest.fn(() => user);
       userRepository.updateUser = jest.fn();
       bcrypt.compare = jest.fn(async () => false);
       const hashed = faker.random.alphaNumeric(60);
@@ -394,7 +385,6 @@ describe('Auth Controller', () => {
       await authController.resetPassword(request, response);
 
       expect(userRepository.findByName).toHaveBeenCalledWith(request.body.name);
-      expect(userRepository.findById).toHaveBeenCalledWith(user.userId);
       expect(bcrypt.compare).toHaveBeenCalledWith(request.body.password, user.password);
       expect(bcrypt.hash).toHaveBeenCalledWith(request.body.password, config.bcrypt.saltRounds);
       expect(userRepository.updateUser).toHaveBeenCalledWith(user);
