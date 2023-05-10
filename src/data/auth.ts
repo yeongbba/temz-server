@@ -47,6 +47,7 @@ const nameSchema = new Mongoose.Schema(
 
 const phoneSchema = new Mongoose.Schema({
   phone: { type: String, required: true, unique: true, index: true },
+  name: { type: String, required: true, unique: true },
 });
 
 const refreshTokenSchema = new Mongoose.Schema(
@@ -70,7 +71,7 @@ export async function createUser(user: User) {
   const result = await Promise.all([
     UserModel.create({ ...user, _id: userId }),
     NameModel.create({ ...user, _id: userId }),
-    PhoneModel.create({ phone: user.phone, _id: userId }),
+    PhoneModel.create({ phone: user.phone, name: user.name, _id: userId }),
   ]);
   return result[0].id;
 }
@@ -92,7 +93,11 @@ export async function findById(id: string) {
 
 export async function updateUser(user: User, oldPhone?: string) {
   const removeOrUpdate = user.phone
-    ? PhoneModel.findOneAndUpdate({ phone: oldPhone }, { phone: user.phone }, { returnOriginal: false })
+    ? PhoneModel.findOneAndUpdate(
+        { phone: oldPhone },
+        { phone: user.phone, name: user.name, _id: new Mongoose.Types.ObjectId(user.userId) },
+        { returnOriginal: false }
+      )
     : PhoneModel.findOneAndRemove({ phone: oldPhone }, { returnOriginal: false });
 
   const result = await Promise.all([
