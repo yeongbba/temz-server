@@ -1,0 +1,158 @@
+paths:
+  /bookmark:
+    post:
+      tags:
+        - bookmark
+      summary: Create bookmark
+      operationId: createBookmark
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 3
+                  maxLength: 25
+              required:
+                - name
+            example:
+              name: john_doe
+        required: true
+      responses:
+        '201':
+          description: Created
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+    delete:
+      tags:
+        - bookmark
+      summary: Remove bookmark
+      operationId: removeBookmark
+      parameters:
+        - in: query
+          name: followingName
+          required: true
+          schema:
+            type: string
+            minLength: 3
+            maxLength: 25
+          example: john
+      responses:
+        '204':
+          description: No Content
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+  /bookmark/following:
+    get:
+      tags:
+        - bookmark
+      summary: Get following list
+      operationId: getFollowings
+      parameters:
+        - $ref: '#/components/parameters/skipParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/keywordsParam'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  followings:
+                    type: array
+                    maxItems: 30
+                    items:
+                      $ref: '#/components/schemas/Bookmark'
+                required:
+                  - followings
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+  /bookmark/follower:
+    get:
+      tags:
+        - bookmark
+      summary: Get follower list
+      operationId: getFollowers
+      parameters:
+        - $ref: '#/components/parameters/skipParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/keywordsParam'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  followers:
+                    type: array
+                    maxItems: 30
+                    items:
+                      $ref: '#/components/schemas/Bookmark'
+                required:
+                  - followers
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+components:
+  schemas:
+    Bookmark:
+      type: object
+      properties:
+        bookmarkId:
+          type: string
+          minLength: 24
+          maxLength: 24
+          nullable: true
+        followerName:
+          type: string
+          minLength: 3
+          maxLength: 25
+        followerImage:
+          type: string
+          format: url
+          nullable: true
+        followingName:
+          type: string
+          minLength: 3
+          maxLength: 25
+        followingImage:
+          type: string
+          format: url
+          nullable: true
+      required:
+        - bookmarkId
+        - followerName
+        - followerImage
+        - followingName
+        - followingImage
+      example:
+        bookmarkId: 60ff9826591d828bf80577dc
+        followerName: john
+        followerImage: https://www.image.com
+        followingName: james
+        followingImage: https://www.image.com

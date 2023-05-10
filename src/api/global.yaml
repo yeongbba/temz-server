@@ -25,6 +25,8 @@ tags:
     description: Methods to manage links
   - name: score
     description: Methods to manage score
+  - name: bookmark
+    description: Methods to manage bookmark of users
 components:
   responses:
     BadRequest:
@@ -165,6 +167,14 @@ components:
         maximum: 50
         default: 20
       description: The numbers of items to return.
+    keywordsParam:
+      in: query
+      name: keywords
+      required: false
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 50
   securitySchemes:
     jwtAuth:
       description: Bearer token authorization with JWT
