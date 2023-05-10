@@ -1,5 +1,6 @@
-import { linkRepository, userRepository, verifyRepository, scoreRepository } from '../data';
+import { linkRepository, userRepository, verifyRepository, scoreRepository, bookmarkRepository } from '../data';
 import { AuthController } from './auth';
+import { BookmarkController } from './bookmark';
 import { LinkController } from './link';
 import { ScoreController } from './score';
 import { VerifyController } from './verify';
@@ -9,6 +10,7 @@ const controllers = {
   verify: new VerifyController(verifyRepository),
   link: new LinkController(linkRepository),
   score: new ScoreController(scoreRepository),
+  bookmark: new BookmarkController(bookmarkRepository, userRepository),
 };
 
 export default controllers;
