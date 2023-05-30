@@ -103,20 +103,28 @@ export async function updateUser(user: User, oldPhone?: string) {
   const result = await Promise.all([
     UserModel.findByIdAndUpdate(user.userId, user, { returnOriginal: false }),
     NameModel.findOneAndUpdate({ name: user.name }, user, { returnOriginal: false }),
-    FollowingModel.updateMany({ followingName: user.name }, { followingImage: user.profile?.image }),
-    FollowerModel.updateMany({ followerName: user.name }, { followerImage: user.profile?.image }),
     oldPhone ? removeOrUpdate : null,
   ]);
-  return User.parse(result[0]);
+
+  const updateUser = User.parse(result[0]);
+  const profileImage = user.profile?.image;
+  if (profileImage !== undefined && profileImage !== updateUser.profile?.image) {
+    await Promise.all([
+      FollowingModel.updateMany({ followingName: user.name }, { followingImage: profileImage }),
+      FollowerModel.updateMany({ followerName: user.name }, { followerImage: profileImage }),
+    ]);
+  }
+
+  return updateUser;
 }
 
 export async function removeUser(user: User) {
   const result = await Promise.all([
     UserModel.findByIdAndRemove(user.userId, { returnOriginal: false }),
     NameModel.findOneAndRemove({ name: user.name }, { returnOriginal: false }),
+    PhoneModel.findOneAndRemove({ phone: user.phone }, { returnOriginal: false }),
     FollowingModel.deleteMany({ followingName: user.name }),
     FollowerModel.deleteMany({ followerName: user.name }),
-    PhoneModel.findOneAndRemove({ phone: user.phone }, { returnOriginal: false }),
   ]);
   return User.parse(result[0]);
 }

@@ -3,6 +3,7 @@ import { faker } from '@faker-js/faker';
 import {
   filterFields,
   formatTest,
+  itemCountTest,
   maximumTest,
   maxLengthTest,
   minimumTest,
@@ -13,13 +14,17 @@ import {
 import { MaxLengthValue, MissingValue, SelectedField } from '../../types/common';
 import { formatDate } from '../common.util';
 
-export const fakeScore = (useId: boolean = true) => ({
+export const fakeBookmark = (useId: boolean = true) => ({
   id: useId ? new Mongoose.Types.ObjectId().toString() : undefined,
-  course: faker.random.word(),
-  date: formatDate(faker.date.past(3)),
-  firstHalfScore: parseInt(faker.random.numeric(2)),
-  secondHalfScore: parseInt(faker.random.numeric(2)),
-  image: faker.internet.url(),
+  userId: new Mongoose.Types.ObjectId().toString(),
+  userName: faker.random.word(),
+  userImage: faker.internet.url(),
+  followerId: new Mongoose.Types.ObjectId().toString(),
+  followerName: faker.random.word(),
+  followerImage: faker.internet.url(),
+  followingId: new Mongoose.Types.ObjectId().toString(),
+  followingName: faker.random.word(),
+  followingImage: faker.internet.url(),
 });
 
 export const scoreTypeTest = () => {
