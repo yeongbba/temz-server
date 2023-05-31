@@ -3,6 +3,7 @@ import { MongoDB } from '../database/mongo';
 import { RefreshToken, User } from '../types/auth';
 import { config } from '../config';
 import { FollowerModel, FollowingModel } from './bookmark';
+import { EquipmentModel } from './equipment';
 
 const profileSchema = new Mongoose.Schema({
   title: { type: String, required: true },
@@ -112,6 +113,7 @@ export async function updateUser(user: User, oldPhone?: string) {
     await Promise.all([
       FollowingModel.updateMany({ followingName: user.name }, { followingImage: profileImage }),
       FollowerModel.updateMany({ followerName: user.name }, { followerImage: profileImage }),
+      EquipmentModel.findOneAndUpdate({ userId: user.userId }, { userImage: profileImage }, { returnOriginal: false }),
     ]);
   }
 
