@@ -50,13 +50,13 @@ export async function createBookmark(bookmark: Bookmark) {
   return result[0].id;
 }
 
-export async function findFollowings(bookmark: Bookmark, filter: Filter) {
-  const result = await FollowingModel.find({ userId: bookmark.userId, ...filter.condition }, null, filter.toJson());
+export async function findFollowings(userId: string, filter: Filter) {
+  const result = await FollowingModel.find({ userId, ...filter.condition }, null, filter.toJson());
   return result?.map((bookmark) => Bookmark.parse(bookmark));
 }
 
-export async function findFollowers(bookmark: Bookmark, filter: Filter) {
-  const result = await FollowerModel.find({ userId: bookmark.userId, ...filter.condition }, null, filter.toJson());
+export async function findFollowers(userId: string, filter: Filter) {
+  const result = await FollowerModel.find({ userId, ...filter.condition }, null, filter.toJson());
   return result?.map((bookmark) => Bookmark.parse(bookmark));
 }
 
@@ -72,5 +72,5 @@ export async function removeBookmark(bookmark: Bookmark) {
     ),
   ]);
 
-  return Bookmark.parse({ ...result[0], ...result[1] });
+  return Bookmark.parse(result[0]);
 }
