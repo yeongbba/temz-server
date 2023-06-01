@@ -1,0 +1,300 @@
+paths:
+  /my-equipment:
+    get:
+      tags:
+        - equipment
+      summary: Get score records
+      operationId: getMyEquipment
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Equipment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+  /equipment:
+    get:
+      tags:
+        - equipment
+      summary: Get score records
+      operationId: getEquipments
+      parameters:
+        - $ref: '#/components/parameters/skipParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/keywordsParam'
+        - in: query
+          name: type
+          required: false
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 50
+        - in: query
+          name: brand
+          required: false
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 50
+        - in: query
+          name: model
+          required: false
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 50                        
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  equipments:
+                    type: array
+                    maxItems: 30
+                    items:
+                      $ref: '#/components/schemas/Equipment'
+                required:
+                  - equipments
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+    post:
+      tags:
+        - equipment
+      summary: Create equipment list
+      operationId: createEquipment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Equipment'
+        required: true
+      responses:
+        '201':
+          description: Created
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'          
+        '500':
+          $ref: '#/components/responses/InternalServer'
+    put:
+      tags:
+        - equipment
+      summary: Update equipment list
+      operationId: updateEquipment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Equipment'
+        required: true
+      responses:
+        '204':
+          description: No Content
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+    delete:
+      tags:
+        - equipment
+      summary: Remove all equipment list
+      operationId: removeEquipment
+      responses:
+        '204':
+          description: No Content
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+components:
+  schemas:
+    Equipment:
+      type: object
+      properties:
+        equipmentId:
+          type: string
+          minLength: 24
+          maxLength: 24
+          nullable: true
+        equipment:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                maxLength: 50
+              list:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    brand:
+                      type: string
+                      maxLength: 50
+                    model:
+                      type: string
+                      maxLength: 50
+                    sex:
+                      type: string
+                      maxLength: 1
+                    hand:
+                      type: string
+                      maxLength: 1                                        
+                    year:
+                      type: string
+                      maxLength: 4                                        
+                    length:
+                      type: integer
+                      minimum: 0
+                      maximum: 1000        
+                    cover:
+                      type: boolean
+                    purchaseInfo:
+                      type: string
+                      maxLength: 2000      
+                    headSpec:
+                      type: string
+                      maxLength: 50          
+                    loftAngle:
+                      type: number
+                      format: float                            
+                      minimum: 0
+                      maximum: 360
+                    headVolume:
+                      type: number
+                      format: float                            
+                      minimum: 0
+                      maximum: 1000
+                    headImport:
+                      type: string
+                      maxLength: 50              
+                    shaftSpec:
+                      type: string
+                      maxLength: 50     
+                    stiffness:
+                      type: number
+                      format: float                            
+                      minimum: 0
+                      maximum: 1000         
+                    flex:
+                      type: number
+                      format: float                            
+                      minimum: 0
+                      maximum: 1000        
+                    weight:
+                      type: number
+                      format: float                            
+                      minimum: 0
+                      maximum: 1000                                                                                    
+                    torque:
+                      type: number
+                      format: float                            
+                      minimum: 0
+                      maximum: 1000      
+                    shaftImport:
+                      type: string
+                      maxLength: 50     
+                    images:
+                      type: array
+                      maxItems: 5
+                      items:
+                        type: string                                
+                  required:
+                    - brand
+                    - model
+                    - sex
+                    - hand
+                    - year
+                    - length
+                    - cover
+                    - purchaseInfo
+                    - headSpec
+                    - loftAngle
+                    - headVolume
+                    - headImport
+                    - shaftSpec
+                    - stiffness
+                    - flex
+                    - weight
+                    - torque
+                    - shaftImport                
+            required:
+              - type
+              - list
+      required:
+        - equipmentId
+        - equipment
+      example:
+        equipmentId: 60ff9826591d828bf80577dc
+        equipment:
+          - type: '드라이버'
+            list:
+              - brand: 'VX'
+                model: 'abc-20'
+                sex: 'M'
+                hand: 'R'
+                year: '2016'
+                length: 100
+                cover: true
+                purchaseInfo: '온라인 구매'
+                headSpec: '헤드 스펙'
+                loftAngle: 20
+                headVolume: 40
+                headImport: '골프존'
+                shaftSpec: 100
+                stiffness: 200
+                flex: 130
+                weight: 34
+                torque: 4
+                shaftImport: '바자크'
+                images:
+                  - 'https://images.com'
+                  - 'https://images2.com'
+          - type: '우드'
+            list:
+              - brand: 'VX'
+                model: 'abc-20'
+                sex: 'M'
+                hand: 'R'
+                year: '2016'
+                length: 100
+                cover: true
+                purchaseInfo: '온라인 구매'
+                headSpec: '헤드 스펙'
+                loftAngle: 20
+                headVolume: 40
+                headImport: '골프존'
+                shaftSpec: 100
+                stiffness: 200
+                flex: 130
+                weight: 34
+                torque: 4
+                shaftImport: '바자크'
+                images:
+                  - 'https://images.com'
+                  - 'https://images2.com'

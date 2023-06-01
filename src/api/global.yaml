@@ -27,6 +27,8 @@ tags:
     description: Methods to manage score
   - name: bookmark
     description: Methods to manage bookmark of users
+  - name: equipment
+    description: Methods to manage equipment
 components:
   responses:
     BadRequest:
