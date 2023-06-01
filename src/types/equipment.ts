@@ -58,8 +58,8 @@ export class EquipmentDetail {
   sex?: string;
   hand?: string;
   year?: string;
-  length?: string;
-  cover?: string;
+  length?: number;
+  cover?: boolean;
   purchaseInfo?: string;
   headSpec?: string;
   loftAngle?: string;
@@ -79,8 +79,8 @@ export class EquipmentDetail {
     sex?: string;
     hand?: string;
     year?: string;
-    length?: string;
-    cover?: string;
+    length?: number;
+    cover?: boolean;
     purchaseInfo?: string;
     headSpec?: string;
     loftAngle?: string;
