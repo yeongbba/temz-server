@@ -65,8 +65,26 @@ export async function findMyEquipment(userId: string) {
   return Equipment.parse(result);
 }
 
-export async function findEquipments(filter: Filter) {
-  const result = await EquipmentModel.find({ ...filter.condition }, null, filter.toJson());
+export async function findEquipments(filter: Filter, useKeywords: boolean) {
+  const parentSchema = `equipment.list`;
+  const condition = {};
+
+  const entries = Object.entries(filter.condition);
+  if (useKeywords) {
+    const or = [];
+    for (const [key, value] of entries) {
+      const field = {};
+      field[`${parentSchema}.${key}`] = value;
+      or.push(field);
+    }
+    condition['$or'] = or;
+  } else {
+    for (const [key, value] of entries) {
+      condition[`${parentSchema}.${key}`] = value;
+    }
+  }
+
+  const result = await EquipmentModel.find(condition, null, filter.toJson());
   return Equipment.parse(result);
 }
 
