@@ -89,6 +89,7 @@ describe('Score Controller', () => {
       request = httpMocks.createRequest({
         method: 'GET',
         url: `/score`,
+        query: { limit: 30, skip: 0 },
       });
       response = httpMocks.createResponse();
     });
