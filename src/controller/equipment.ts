@@ -10,7 +10,7 @@ export class EquipmentController {
 
   getMyEquipment = async (req: Request, res: Response) => {
     const equipment: Equipment = await this.equipmentRepository.findMyEquipment((req as any).userId);
-    res.status(200).json({ equipment });
+    res.status(200).json(equipment);
   };
 
   getEquipments = async (req: Request, res: Response) => {
@@ -21,6 +21,7 @@ export class EquipmentController {
     const type = req.query.type as string;
     const brand = req.query.brand as string;
     const model = req.query.model as string;
+
     const condition = {
       type: keywords ? new RegExp(`${keywords}`, 'gi') : new RegExp(`${type}`, 'gi'),
       brand: keywords ? new RegExp(`${keywords}`, 'gi') : new RegExp(`${brand}`, 'gi'),
@@ -28,7 +29,7 @@ export class EquipmentController {
     };
 
     const filter = Filter.parse({ limit, skip, condition });
-    const equipments: Equipment[] = await this.equipmentRepository.findMyEquipment(filter, useKeywords);
+    const equipments: Equipment[] = await this.equipmentRepository.findEquipments(filter, useKeywords);
     res.status(200).json({ equipments: equipments.map((equipment) => equipment.toJson()) });
   };
 

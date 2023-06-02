@@ -11,7 +11,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Equipment'
+                $ref: '#/components/schemas/EquipmentResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -59,11 +59,8 @@ paths:
                 properties:
                   equipments:
                     type: array
-                    maxItems: 30
                     items:
-                      $ref: '#/components/schemas/Equipment'
-                required:
-                  - equipments
+                      $ref: '#/components/schemas/EquipmentResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -132,7 +129,7 @@ paths:
           $ref: '#/components/responses/InternalServer'
 components:
   schemas:
-    Equipment:
+    EquipmentRequest:
       type: object
       properties:
         equipmentId:
@@ -298,3 +295,70 @@ components:
                 images:
                   - 'https://images.com'
                   - 'https://images2.com'
+    EquipmentResponse:
+      allOf:
+        - type: object
+          properties:
+            userName:
+              type: string
+              minLength: 3
+              maxLength: 25
+            userImage:
+              type: string
+              format: url
+          required:
+            - userName
+            - userImage
+        - $ref: '#/components/schemas/Equipment'
+      example:
+        equipment:
+          equipmentId: 60ff9826591d828bf80577dc
+          userName: john_doe
+          userImage: https://localhost/image
+          equipment:
+            - type: '드라이버'
+              list:
+                - brand: 'VX'
+                  model: 'abc-20'
+                  sex: 'M'
+                  hand: 'R'
+                  year: '2016'
+                  length: 100
+                  cover: true
+                  purchaseInfo: '온라인 구매'
+                  headSpec: '헤드 스펙'
+                  loftAngle: 20
+                  headVolume: 40
+                  headImport: '골프존'
+                  shaftSpec: 100
+                  stiffness: 200
+                  flex: 130
+                  weight: 34
+                  torque: 4
+                  shaftImport: '바자크'
+                  images:
+                    - 'https://images.com'
+                    - 'https://images2.com'
+            - type: '우드'
+              list:
+                - brand: 'VX'
+                  model: 'abc-20'
+                  sex: 'M'
+                  hand: 'R'
+                  year: '2016'
+                  length: 100
+                  cover: true
+                  purchaseInfo: '온라인 구매'
+                  headSpec: '헤드 스펙'
+                  loftAngle: 20
+                  headVolume: 40
+                  headImport: '골프존'
+                  shaftSpec: 100
+                  stiffness: 200
+                  flex: 130
+                  weight: 34
+                  torque: 4
+                  shaftImport: '바자크'
+                  images:
+                    - 'https://images.com'
+                    - 'https://images2.com'

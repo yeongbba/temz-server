@@ -55,8 +55,8 @@ export class EquipmentList {
 export class EquipmentDetail {
   brand?: string;
   model?: string;
-  sex?: string;
-  hand?: string;
+  sex?: 'M' | 'W';
+  hand?: 'R' | 'L';
   year?: string;
   length?: number;
   cover?: boolean;
@@ -76,8 +76,8 @@ export class EquipmentDetail {
   constructor(detail: {
     brand?: string;
     model?: string;
-    sex?: string;
-    hand?: string;
+    sex?: 'M' | 'W';
+    hand?: 'R' | 'L';
     year?: string;
     length?: number;
     cover?: boolean;
