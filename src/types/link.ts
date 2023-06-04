@@ -77,10 +77,12 @@ export class GeneralLinks {
 export class GeneralLink {
   link?: string;
   description?: string;
+  viewCount?: number;
 
-  constructor(content: { link?: string; description?: string }) {
+  constructor(content: { link?: string; description?: string; viewCount?: number }) {
     this.link = content?.link;
     this.description = content?.description;
+    this.viewCount = content?.viewCount;
   }
 
   static parse(raw: any) {

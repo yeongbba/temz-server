@@ -17,6 +17,7 @@ import {
   generalLinkItemCountTest,
   generalLinkMaxLengthTest,
   generalLinkMinLengthTest,
+  generalLinkMinimumTest,
   generalLinkMissingTest,
   generalLinkTypeTest,
   socialLinkFormatTest,
@@ -310,6 +311,11 @@ describe('Link APIs', () => {
         await typeTest.testFn(request, options, value);
       });
 
+      const minimumTest = generalLinkMinimumTest();
+      test.each(minimumTest.value)(`${minimumTest.name}`, async (value) => {
+        await minimumTest.testFn(request, options, value);
+      });
+
       test.each([...authMiddleWareTest, ...csrfMiddleWareTest])('$name', async ({ name, testFn }) => {
         await testFn(request, options, null, 'general');
       });
@@ -392,6 +398,11 @@ describe('Link APIs', () => {
       const typeTest = generalLinkTypeTest();
       test.each(typeTest.value)(`${typeTest.name}`, async (value) => {
         await typeTest.testFn(request, options, value);
+      });
+
+      const minimumTest = generalLinkMinimumTest();
+      test.each(minimumTest.value)(`${minimumTest.name}`, async (value) => {
+        await minimumTest.testFn(request, options, value);
       });
 
       test.each([...authMiddleWareTest, ...csrfMiddleWareTest])('$name', async ({ name, testFn }) => {

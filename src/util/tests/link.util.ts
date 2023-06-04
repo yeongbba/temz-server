@@ -6,6 +6,7 @@ import {
   itemCountTest,
   maxLengthTest,
   minLengthTest,
+  minimumTest,
   missingTest,
   typeTest,
 } from './common.util';
@@ -28,6 +29,7 @@ export const fakeGeneralLinks = (useId: boolean = true) => ({
     {
       description: faker.random.alpha(10),
       link: faker.internet.url(),
+      viewCount: parseInt(faker.random.numeric(1)),
     },
   ],
 });
@@ -153,6 +155,12 @@ export const generalLinkTypeTest = () => {
       fakeValue: fakeNumber,
       type: 'string',
     },
+    {
+      parentFieldName: 'links',
+      failedFieldName: 'viewCount',
+      fakeValue: fakeString,
+      type: 'integer',
+    },
   ]);
 };
 
@@ -209,6 +217,7 @@ export const generalLinkMissingTest = (selectedFields?: SelectedField[]) => {
     { failedFieldName: 'links' },
     { parentFieldName: 'links', failedFieldName: 'description' },
     { parentFieldName: 'links', failedFieldName: 'link' },
+    { parentFieldName: 'links', failedFieldName: 'viewCount' },
   ];
 
   const value = filterFields<MissingValue>(fields, selectedFields);
@@ -220,6 +229,17 @@ export const generalLinkItemCountTest = () => {
     {
       failedFieldName: 'links',
       maxItems: 9,
+    },
+  ]);
+};
+
+export const generalLinkMinimumTest = () => {
+  return minimumTest([
+    {
+      parentFieldName: 'links',
+      failedFieldName: 'viewCount',
+      fakeValue: -1,
+      minimum: 0,
     },
   ]);
 };

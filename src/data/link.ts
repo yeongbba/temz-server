@@ -16,6 +16,7 @@ const socialSchema = new Mongoose.Schema({
 const generalSchema = new Mongoose.Schema({
   description: { type: String, required: true, maxLength: 50 },
   link: { type: String, required: true },
+  viewCount: { type: Number, required: true, default: 0 },
 });
 
 const themeSchema = new Mongoose.Schema({

@@ -233,9 +233,13 @@ components:
               link:
                 type: string
                 format: url
+              viewCount:
+                type: integer
+                minimum: 0
             required:
               - description
               - link
+              - viewCount
       required:
         - linkId
         - title
@@ -246,5 +250,7 @@ components:
           links:
             - description: '슬라이스 방지 레슨 01'
               link: 'https://youtube.com'
+              viewcount: 2
             - description: '슬라이스 방지 레슨 02'
               link: 'https://twitter.com'
+              viewcount: 3
