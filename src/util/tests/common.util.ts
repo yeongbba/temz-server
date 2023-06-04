@@ -396,16 +396,25 @@ export const formatTest = (value: FormatValue[]) => ({
   value,
   name: 'returns 400 when $failedFieldName field is wrong format',
   testFn: testFn(async (request, options, value) => {
-    const { parentFieldName, failedFieldName, fakeValue, format } = value as FormatValue;
+    const { parentFieldName, failedFieldName, fakeValue, format, item } = value as FormatValue;
     const rootField = setRootField(options);
 
     const { token } = await loginUser(request);
     const csrf = await csrfToken(request, token.access);
     if (parentFieldName) {
       const currentField = setCurrentField(parentFieldName, rootField);
-      currentField[failedFieldName] = fakeValue;
+
+      if (item) {
+        currentField[failedFieldName].unshift(fakeValue);
+      } else {
+        currentField[failedFieldName] = fakeValue;
+      }
     } else {
-      rootField[failedFieldName] = fakeValue;
+      if (item) {
+        rootField[failedFieldName].unshift(fakeValue);
+      } else {
+        rootField[failedFieldName] = fakeValue;
+      }
     }
 
     const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
@@ -415,7 +424,9 @@ export const formatTest = (value: FormatValue[]) => ({
 
     expect(res.status).toBe(400);
     expect(res.data).toEqual(
-      fakeFailures([new FailureObject(ErrorCode.FORMAT_OPENAPI, `must match format "${format}"`, 400, failedFieldName)])
+      fakeFailures([
+        new FailureObject(ErrorCode.FORMAT_OPENAPI, `must match format "${format}"`, 400, item ? '0' : failedFieldName),
+      ])
     );
   }),
 });

@@ -9,18 +9,18 @@ const equipmentDetailSchema = new Mongoose.Schema({
   sex: { type: String, required: false },
   hand: { type: String, required: false },
   year: { type: String, required: true },
-  length: { type: String, required: false },
-  cover: { type: String, required: true },
+  length: { type: Number, required: false },
+  cover: { type: Boolean, required: true },
   purchaseInfo: { type: String, required: true },
   headSpec: { type: String, required: false },
-  loftAngle: { type: String, required: false },
-  headVolume: { type: String, required: false },
+  loftAngle: { type: Number, required: false },
+  headVolume: { type: Number, required: false },
   headImport: { type: String, required: false },
   shaftSpec: { type: String, required: false },
-  stiffness: { type: String, required: false },
-  flex: { type: String, required: false },
-  weight: { type: String, required: false },
-  torque: { type: String, required: false },
+  stiffness: { type: Number, required: false },
+  flex: { type: Number, required: false },
+  weight: { type: Number, required: false },
+  torque: { type: Number, required: false },
   shaftImport: { type: String, required: false },
   images: [{ type: String, required: false }],
 });
@@ -33,7 +33,7 @@ const equipmentListSchema = new Mongoose.Schema({
 const equipmentSchema = new Mongoose.Schema({
   userId: { type: String, required: true },
   userName: { type: String, required: true },
-  userImage: { type: String, required: true },
+  userImage: { type: String, required: false },
   equipment: [{ type: equipmentListSchema, index: true }],
 });
 
@@ -74,18 +74,27 @@ export async function findEquipments(filter: Filter, useKeywords: boolean) {
     const or = [];
     for (const [key, value] of entries) {
       const field = {};
-      field[`${parentSchema}.${key}`] = value;
+      if (key === 'type') {
+        field[`equipment.${key}`] = value;
+      } else {
+        field[`${parentSchema}.${key}`] = value;
+      }
       or.push(field);
     }
     condition['$or'] = or;
   } else {
     for (const [key, value] of entries) {
+      if (key === 'type') {
+        condition[`equipment.${key}`] = value;
+      } else {
+        condition[`${parentSchema}.${key}`] = value;
+      }
       condition[`${parentSchema}.${key}`] = value;
     }
   }
 
   const result = await EquipmentModel.find(condition, null, filter.toJson());
-  return Equipment.parse(result);
+  return result?.map((equipment) => Equipment.parse(equipment));
 }
 
 export async function removeEquipment(userId: string) {

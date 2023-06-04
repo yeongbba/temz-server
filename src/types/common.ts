@@ -45,7 +45,13 @@ export type TypeValue = {
 };
 export type MaxLengthValue = { parentFieldName?: string; failedFieldName: string; fakeValue: any; maxLength: number };
 export type MinLengthValue = { parentFieldName?: string; failedFieldName: string; fakeValue: any; minLength: number };
-export type FormatValue = { parentFieldName?: string; failedFieldName: string; fakeValue: any; format: string };
+export type FormatValue = {
+  parentFieldName?: string;
+  failedFieldName: string;
+  fakeValue: any;
+  format: string;
+  item?: boolean;
+};
 export type PatternValue = { parentFieldName?: string; failedFieldName: string; fakeValue: any; pattern: string };
 export type MissingValue = { parentFieldName?: string; failedFieldName: string };
 export type MaximumValue = { parentFieldName?: string; failedFieldName: string; fakeValue: any; maximum: number };

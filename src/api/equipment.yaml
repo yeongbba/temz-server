@@ -76,7 +76,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Equipment'
+              $ref: '#/components/schemas/EquipmentRequest'
         required: true
       responses:
         '201':
@@ -98,7 +98,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Equipment'
+              $ref: '#/components/schemas/EquipmentRequest'
         required: true
       responses:
         '204':
@@ -139,6 +139,7 @@ components:
           nullable: true
         equipment:
           type: array
+          nullable: true
           items:
             type: object
             properties:
@@ -220,7 +221,8 @@ components:
                       type: array
                       maxItems: 5
                       items:
-                        type: string                                
+                        type: string      
+                        format: url                            
                   required:
                     - brand
                     - model
@@ -263,7 +265,7 @@ components:
                 loftAngle: 20
                 headVolume: 40
                 headImport: '골프존'
-                shaftSpec: 100
+                shaftSpec: '샤프트 스펙'
                 stiffness: 200
                 flex: 130
                 weight: 34
@@ -286,7 +288,7 @@ components:
                 loftAngle: 20
                 headVolume: 40
                 headImport: '골프존'
-                shaftSpec: 100
+                shaftSpec: '샤프트 스펙'
                 stiffness: 200
                 flex: 130
                 weight: 34
@@ -303,13 +305,14 @@ components:
               type: string
               minLength: 3
               maxLength: 25
+              nullable: true
             userImage:
               type: string
               format: url
+              nullable: true
           required:
             - userName
-            - userImage
-        - $ref: '#/components/schemas/Equipment'
+        - $ref: '#/components/schemas/EquipmentRequest'
       example:
         equipment:
           equipmentId: 60ff9826591d828bf80577dc
@@ -330,7 +333,7 @@ components:
                   loftAngle: 20
                   headVolume: 40
                   headImport: '골프존'
-                  shaftSpec: 100
+                  shaftSpec: '샤프트 스펙'
                   stiffness: 200
                   flex: 130
                   weight: 34
@@ -353,7 +356,7 @@ components:
                   loftAngle: 20
                   headVolume: 40
                   headImport: '골프존'
-                  shaftSpec: 100
+                  shaftSpec: '샤프트 스펙'
                   stiffness: 200
                   flex: 130
                   weight: 34

@@ -3,6 +3,7 @@ import { faker } from '@faker-js/faker';
 import {
   filterFields,
   formatTest,
+  itemCountTest,
   maximumTest,
   maxLengthTest,
   minimumTest,
@@ -30,11 +31,11 @@ export const fakeEquipment = (useId: boolean = true) => ({
           length: parseInt(faker.random.numeric(3)),
           cover: true,
           purchaseInfo: faker.random.words(),
-          headSpec: '헤드 스펙',
+          headSpec: faker.random.alpha(5),
           loftAngle: parseInt(faker.random.numeric(2)),
           headVolume: parseInt(faker.random.numeric(2)),
-          headImport: '골프존',
-          shaftSpec: parseInt(faker.random.numeric(3)),
+          headImport: faker.random.alpha(5),
+          shaftSpec: faker.random.alpha(5),
           stiffness: parseInt(faker.random.numeric(3)),
           flex: parseInt(faker.random.numeric(3)),
           weight: parseInt(faker.random.numeric(2)),
@@ -47,86 +48,280 @@ export const fakeEquipment = (useId: boolean = true) => ({
   ],
 });
 
-export const scoreTypeTest = () => {
+export const equipmentTypeTest = () => {
   const fakeNumber = parseInt(faker.random.numeric(5));
   const fakeString = faker.random.alpha(10);
   return typeTest([
     {
-      failedFieldName: 'scoreId',
+      failedFieldName: 'equipmentId',
       fakeValue: fakeNumber,
       type: 'string',
     },
     {
-      failedFieldName: 'course',
+      failedFieldName: 'equipment',
+      fakeValue: fakeString,
+      type: 'array',
+    },
+    {
+      failedFieldName: 'equipment',
+      fakeValue: fakeString,
+      type: 'object',
+      item: true,
+    },
+    {
+      parentFieldName: 'equipment',
+      failedFieldName: 'list',
+      fakeValue: fakeNumber,
+      type: 'array',
+    },
+    {
+      parentFieldName: 'equipment',
+      failedFieldName: 'list',
+      fakeValue: fakeNumber,
+      type: 'object',
+      item: true,
+    },
+    {
+      parentFieldName: 'equipment',
+      failedFieldName: 'type',
       fakeValue: fakeNumber,
       type: 'string',
     },
     {
-      failedFieldName: 'date',
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'brand',
       fakeValue: fakeNumber,
       type: 'string',
-      format: 'date',
     },
     {
-      failedFieldName: 'firstHalfScore',
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'model',
+      fakeValue: fakeNumber,
+      type: 'string',
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'sex',
+      fakeValue: fakeNumber,
+      type: 'string',
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'hand',
+      fakeValue: fakeNumber,
+      type: 'string',
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'year',
+      fakeValue: fakeNumber,
+      type: 'string',
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'length',
       fakeValue: fakeString,
       type: 'integer',
     },
     {
-      failedFieldName: 'secondHalfScore',
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'cover',
       fakeValue: fakeString,
-      type: 'integer',
+      type: 'boolean',
     },
     {
-      failedFieldName: 'image',
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'purchaseInfo',
       fakeValue: fakeNumber,
       type: 'string',
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'headSpec',
+      fakeValue: fakeNumber,
+      type: 'string',
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'loftAngle',
+      fakeValue: fakeString,
+      type: 'number',
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'headVolume',
+      fakeValue: fakeString,
+      type: 'number',
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'headImport',
+      fakeValue: fakeNumber,
+      type: 'string',
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'shaftSpec',
+      fakeValue: fakeNumber,
+      type: 'string',
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'stiffness',
+      fakeValue: fakeString,
+      type: 'number',
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'weight',
+      fakeValue: fakeString,
+      type: 'number',
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'torque',
+      fakeValue: fakeString,
+      type: 'number',
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'shaftImport',
+      fakeValue: fakeNumber,
+      type: 'string',
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'flex',
+      fakeValue: fakeString,
+      type: 'number',
     },
   ]);
 };
 
-export const scoreFormatTest = () => {
+export const equipmentFormatTest = () => {
   return formatTest([
-    { failedFieldName: 'date', fakeValue: faker.random.alpha(10), format: 'date' },
-    { failedFieldName: 'image', fakeValue: faker.random.alpha(10), format: 'url' },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'images',
+      fakeValue: faker.random.alpha(10),
+      format: 'url',
+      item: true,
+    },
   ]);
 };
 
-export const scoreMissingTest = (selectedFields?: SelectedField[]) => {
+export const equipmentMissingTest = (selectedFields?: SelectedField[]) => {
   const fields: MissingValue[] = [
-    { failedFieldName: 'scoreId' },
-    { failedFieldName: 'course' },
-    { failedFieldName: 'date' },
-    { failedFieldName: 'firstHalfScore' },
-    { failedFieldName: 'secondHalfScore' },
-    { failedFieldName: 'image' },
+    { failedFieldName: 'equipmentId' },
+    { failedFieldName: 'equipment' },
+    { parentFieldName: 'equipment', failedFieldName: 'list' },
+    { parentFieldName: 'equipment', failedFieldName: 'type' },
+    { parentFieldName: 'equipment.list', failedFieldName: 'brand' },
+    { parentFieldName: 'equipment.list', failedFieldName: 'model' },
+    { parentFieldName: 'equipment.list', failedFieldName: 'sex' },
+    { parentFieldName: 'equipment.list', failedFieldName: 'hand' },
+    { parentFieldName: 'equipment.list', failedFieldName: 'year' },
+    { parentFieldName: 'equipment.list', failedFieldName: 'length' },
+    { parentFieldName: 'equipment.list', failedFieldName: 'cover' },
+    { parentFieldName: 'equipment.list', failedFieldName: 'purchaseInfo' },
+    { parentFieldName: 'equipment.list', failedFieldName: 'headSpec' },
+    { parentFieldName: 'equipment.list', failedFieldName: 'loftAngle' },
+    { parentFieldName: 'equipment.list', failedFieldName: 'headVolume' },
+    { parentFieldName: 'equipment.list', failedFieldName: 'headImport' },
+    { parentFieldName: 'equipment.list', failedFieldName: 'shaftSpec' },
+    { parentFieldName: 'equipment.list', failedFieldName: 'stiffness' },
+    { parentFieldName: 'equipment.list', failedFieldName: 'weight' },
+    { parentFieldName: 'equipment.list', failedFieldName: 'torque' },
+    { parentFieldName: 'equipment.list', failedFieldName: 'shaftImport' },
+    { parentFieldName: 'equipment.list', failedFieldName: 'flex' },
   ];
 
   const value = filterFields<MissingValue>(fields, selectedFields);
   return missingTest(value);
 };
 
-export const scoreMinLengthTest = () => {
+export const equipmentMinLengthTest = () => {
   return minLengthTest([
     {
-      failedFieldName: 'scoreId',
+      failedFieldName: 'equipmentId',
       fakeValue: faker.random.alphaNumeric(23),
       minLength: 24,
     },
   ]);
 };
 
-export const scoreMaxLengthTest = (selectedFields?: SelectedField[]) => {
+export const equipmentMaxLengthTest = (selectedFields?: SelectedField[]) => {
   const fields: MaxLengthValue[] = [
     {
-      failedFieldName: 'scoreId',
+      failedFieldName: 'equipmentId',
       fakeValue: faker.random.alphaNumeric(25),
       maxLength: 24,
     },
     {
-      failedFieldName: 'course',
-      fakeValue: faker.random.alphaNumeric(31),
-      maxLength: 30,
+      parentFieldName: 'equipment',
+      failedFieldName: 'type',
+      fakeValue: faker.random.alphaNumeric(51),
+      maxLength: 50,
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'brand',
+      fakeValue: faker.random.alphaNumeric(51),
+      maxLength: 50,
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'model',
+      fakeValue: faker.random.alphaNumeric(51),
+      maxLength: 50,
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'sex',
+      fakeValue: faker.random.alphaNumeric(2),
+      maxLength: 1,
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'hand',
+      fakeValue: faker.random.alphaNumeric(2),
+      maxLength: 1,
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'year',
+      fakeValue: faker.random.alphaNumeric(5),
+      maxLength: 4,
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'purchaseInfo',
+      fakeValue: faker.random.alphaNumeric(2001),
+      maxLength: 2000,
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'headSpec',
+      fakeValue: faker.random.alphaNumeric(51),
+      maxLength: 50,
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'headImport',
+      fakeValue: faker.random.alphaNumeric(51),
+      maxLength: 50,
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'shaftSpec',
+      fakeValue: faker.random.alphaNumeric(51),
+      maxLength: 50,
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'shaftImport',
+      fakeValue: faker.random.alphaNumeric(51),
+      maxLength: 50,
     },
   ];
 
@@ -135,32 +330,106 @@ export const scoreMaxLengthTest = (selectedFields?: SelectedField[]) => {
   return maxLengthTest(value);
 };
 
-export const scoreMaximumTest = () => {
+export const equipmentMaximumTest = () => {
   return maximumTest([
     {
-      failedFieldName: 'firstHalfScore',
-      fakeValue: parseInt(faker.random.numeric(4)),
-      maximum: 300,
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'length',
+      fakeValue: parseInt(faker.random.numeric(5)),
+      maximum: 1000,
     },
     {
-      failedFieldName: 'secondHalfScore',
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'loftAngle',
       fakeValue: parseInt(faker.random.numeric(4)),
-      maximum: 300,
+      maximum: 360,
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'headVolume',
+      fakeValue: parseInt(faker.random.numeric(5)),
+      maximum: 1000,
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'stiffness',
+      fakeValue: parseInt(faker.random.numeric(5)),
+      maximum: 1000,
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'weight',
+      fakeValue: parseInt(faker.random.numeric(5)),
+      maximum: 1000,
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'torque',
+      fakeValue: parseInt(faker.random.numeric(5)),
+      maximum: 1000,
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'flex',
+      fakeValue: parseInt(faker.random.numeric(5)),
+      maximum: 1000,
     },
   ]);
 };
 
-export const scoreMinimumTest = () => {
+export const equipmentMinimumTest = () => {
   return minimumTest([
     {
-      failedFieldName: 'firstHalfScore',
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'length',
       fakeValue: -1,
       minimum: 0,
     },
     {
-      failedFieldName: 'secondHalfScore',
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'loftAngle',
       fakeValue: -1,
       minimum: 0,
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'headVolume',
+      fakeValue: -1,
+      minimum: 0,
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'stiffness',
+      fakeValue: -1,
+      minimum: 0,
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'weight',
+      fakeValue: -1,
+      minimum: 0,
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'torque',
+      fakeValue: -1,
+      minimum: 0,
+    },
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'flex',
+      fakeValue: -1,
+      minimum: 0,
+    },
+  ]);
+};
+
+export const equipmentItemCountTest = () => {
+  return itemCountTest([
+    {
+      parentFieldName: 'equipment.list',
+      failedFieldName: 'images',
+      maxItems: 5,
     },
   ]);
 };

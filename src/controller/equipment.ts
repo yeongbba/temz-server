@@ -10,7 +10,7 @@ export class EquipmentController {
 
   getMyEquipment = async (req: Request, res: Response) => {
     const equipment: Equipment = await this.equipmentRepository.findMyEquipment((req as any).userId);
-    res.status(200).json(equipment);
+    res.status(200).json(equipment.toJson());
   };
 
   getEquipments = async (req: Request, res: Response) => {

@@ -51,7 +51,6 @@ export class EquipmentList {
   }
 }
 
-// type 맞추기
 export class EquipmentDetail {
   brand?: string;
   model?: string;
@@ -62,14 +61,14 @@ export class EquipmentDetail {
   cover?: boolean;
   purchaseInfo?: string;
   headSpec?: string;
-  loftAngle?: string;
-  headVolume?: string;
+  loftAngle?: number;
+  headVolume?: number;
   headImport?: string;
   shaftSpec?: string;
-  stiffness?: string;
-  flex?: string;
-  weight?: string;
-  torque?: string;
+  stiffness?: number;
+  flex?: number;
+  weight?: number;
+  torque?: number;
   shaftImport?: string;
   images?: string[];
 
@@ -83,14 +82,14 @@ export class EquipmentDetail {
     cover?: boolean;
     purchaseInfo?: string;
     headSpec?: string;
-    loftAngle?: string;
-    headVolume?: string;
+    loftAngle?: number;
+    headVolume?: number;
     headImport?: string;
     shaftSpec?: string;
-    stiffness?: string;
-    flex?: string;
-    weight?: string;
-    torque?: string;
+    stiffness?: number;
+    flex?: number;
+    weight?: number;
+    torque?: number;
     shaftImport?: string;
     images?: string[];
   }) {
