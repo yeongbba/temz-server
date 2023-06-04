@@ -3,8 +3,8 @@ export class Score {
   userId?: string;
   course?: string;
   date?: string;
-  firstHalfScore?: string;
-  secondHalfScore?: string;
+  firstHalfScore?: number;
+  secondHalfScore?: number;
   image?: string;
 
   constructor(score?: {
@@ -12,8 +12,8 @@ export class Score {
     userId?: string;
     course?: string;
     date?: string;
-    firstHalfScore?: string;
-    secondHalfScore?: string;
+    firstHalfScore?: number;
+    secondHalfScore?: number;
     image?: string;
   }) {
     this.scoreId = score?.id;
