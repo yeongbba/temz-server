@@ -29,6 +29,8 @@ tags:
     description: Methods to manage bookmark of users
   - name: equipment
     description: Methods to manage equipment
+  - name: traffic
+    description: Methods to caculate traffic
 components:
   responses:
     BadRequest:
