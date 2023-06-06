@@ -289,7 +289,7 @@ export const typeTest = (value: TypeValue[]) => ({
   value,
   name: 'returns 400 when $failedFieldName field is wrong type',
   testFn: testFn(async (request, options, value) => {
-    const { parentFieldName, failedFieldName, fakeValue, type, format, item } = value as TypeValue;
+    const { parentFieldName, failedFieldName, fakeValue, type, format, item, nullable } = value as TypeValue;
     const rootField = setRootField(options);
     const { token } = await loginUser(request);
     const csrf = await csrfToken(request, token.access);
@@ -317,7 +317,9 @@ export const typeTest = (value: TypeValue[]) => ({
     const errorCode = format === 'date' ? ErrorCode.X_EOV_TYPE_OPENAPI : ErrorCode.TYPE_OPENAPI;
     expect(res.status).toBe(400);
     expect(res.data).toEqual(
-      fakeFailures([new FailureObject(errorCode, `must be ${type}`, 400, item ? '0' : failedFieldName)])
+      fakeFailures([
+        new FailureObject(errorCode, `must be ${type}${nullable ? ' or null' : ''}`, 400, item ? '0' : failedFieldName),
+      ])
     );
   }),
 });

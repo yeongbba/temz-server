@@ -6,7 +6,7 @@ const trafficSchema = new Mongoose.Schema({
   userId: { type: String, required: true },
   trafficId: { type: String, unique: true },
   view: { type: Number, required: true, default: 0 },
-  date: { type: Date, required: true },
+  date: { type: String, required: true },
 });
 
 trafficSchema.index({ userId: 1, date: 1 });
@@ -44,5 +44,5 @@ export async function findTotalTraffic(userId: string) {
     },
     { $project: { total: { $sum: '$view' } } },
   ]);
-  return TotalTraffic.parse(result);
+  return TotalTraffic.parse(result[0]);
 }

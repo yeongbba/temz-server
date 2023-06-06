@@ -24,17 +24,12 @@ export const fakeTotalTraffic = (useId: boolean = true) => ({
   total: parseInt(faker.random.numeric(2)),
 });
 
-export const scoreTypeTest = () => {
+export const trafficTypeTest = () => {
   const fakeNumber = parseInt(faker.random.numeric(5));
   const fakeString = faker.random.alpha(10);
   return typeTest([
     {
-      failedFieldName: 'scoreId',
-      fakeValue: fakeNumber,
-      type: 'string',
-    },
-    {
-      failedFieldName: 'course',
+      failedFieldName: 'trafficId',
       fakeValue: fakeNumber,
       type: 'string',
     },
@@ -43,67 +38,47 @@ export const scoreTypeTest = () => {
       fakeValue: fakeNumber,
       type: 'string',
       format: 'date',
+      nullable: true,
     },
     {
-      failedFieldName: 'firstHalfScore',
+      failedFieldName: 'view',
       fakeValue: fakeString,
       type: 'integer',
-    },
-    {
-      failedFieldName: 'secondHalfScore',
-      fakeValue: fakeString,
-      type: 'integer',
-    },
-    {
-      failedFieldName: 'image',
-      fakeValue: fakeNumber,
-      type: 'string',
     },
   ]);
 };
 
-export const scoreFormatTest = () => {
-  return formatTest([
-    { failedFieldName: 'date', fakeValue: faker.random.alpha(10), format: 'date' },
-    { failedFieldName: 'image', fakeValue: faker.random.alpha(10), format: 'url' },
-  ]);
+export const trafficFormatTest = () => {
+  return formatTest([{ failedFieldName: 'date', fakeValue: faker.random.alpha(10), format: 'date' }]);
 };
 
-export const scoreMissingTest = (selectedFields?: SelectedField[]) => {
+export const trafficMissingTest = (selectedFields?: SelectedField[]) => {
   const fields: MissingValue[] = [
-    { failedFieldName: 'scoreId' },
-    { failedFieldName: 'course' },
+    { failedFieldName: 'trafficId' },
+    { failedFieldName: 'view' },
     { failedFieldName: 'date' },
-    { failedFieldName: 'firstHalfScore' },
-    { failedFieldName: 'secondHalfScore' },
-    { failedFieldName: 'image' },
   ];
 
   const value = filterFields<MissingValue>(fields, selectedFields);
   return missingTest(value);
 };
 
-export const scoreMinLengthTest = () => {
+export const trafficMinLengthTest = () => {
   return minLengthTest([
     {
-      failedFieldName: 'scoreId',
+      failedFieldName: 'trafficId',
       fakeValue: faker.random.alphaNumeric(23),
       minLength: 24,
     },
   ]);
 };
 
-export const scoreMaxLengthTest = (selectedFields?: SelectedField[]) => {
+export const trafficMaxLengthTest = (selectedFields?: SelectedField[]) => {
   const fields: MaxLengthValue[] = [
     {
-      failedFieldName: 'scoreId',
+      failedFieldName: 'trafficId',
       fakeValue: faker.random.alphaNumeric(25),
       maxLength: 24,
-    },
-    {
-      failedFieldName: 'course',
-      fakeValue: faker.random.alphaNumeric(31),
-      maxLength: 30,
     },
   ];
 
@@ -112,30 +87,10 @@ export const scoreMaxLengthTest = (selectedFields?: SelectedField[]) => {
   return maxLengthTest(value);
 };
 
-export const scoreMaximumTest = () => {
-  return maximumTest([
-    {
-      failedFieldName: 'firstHalfScore',
-      fakeValue: parseInt(faker.random.numeric(4)),
-      maximum: 300,
-    },
-    {
-      failedFieldName: 'secondHalfScore',
-      fakeValue: parseInt(faker.random.numeric(4)),
-      maximum: 300,
-    },
-  ]);
-};
-
-export const scoreMinimumTest = () => {
+export const trafficMinimumTest = () => {
   return minimumTest([
     {
-      failedFieldName: 'firstHalfScore',
-      fakeValue: -1,
-      minimum: 0,
-    },
-    {
-      failedFieldName: 'secondHalfScore',
+      failedFieldName: 'view',
       fakeValue: -1,
       minimum: 0,
     },

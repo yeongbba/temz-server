@@ -109,7 +109,8 @@ components:
           minimum: 0
         date:
           type: string
-          format: date-time
+          format: date
+          nullable: true
       required:
         - trafficId
         - view
