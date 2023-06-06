@@ -118,13 +118,13 @@ describe('Equipment Controller', () => {
 
     it('Return 200, if my equipment successfully found', async () => {
       request.userId = faker.random.alphaNumeric(24);
-      const equipment = fakeEquipment();
+      const equipment = Equipment.parse(fakeEquipment());
       equipmentRepository.findMyEquipment = jest.fn(() => equipment);
 
       await equipmentController.getMyEquipment(request, response);
 
       expect(equipmentRepository.findMyEquipment).toHaveBeenCalledWith(request.userId);
-      expect(response._getJSONData()).toEqual(equipment);
+      expect(response._getJSONData()).toEqual(equipment.toJson());
       expect(response.statusCode).toBe(200);
     });
   });
