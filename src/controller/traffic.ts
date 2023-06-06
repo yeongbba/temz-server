@@ -8,7 +8,7 @@ export class TrafficController {
 
   getTraffic = async (req: Request, res: Response) => {
     const date = req.query.date as string;
-    const data = Traffic.parse({ userId: (req as any).userId, date: new Date(date) });
+    const data = Traffic.parse({ userId: (req as any).userId, date });
     const traffic: Traffic = await this.trafficRepository.findTraffic(data);
     res.status(200).json(traffic.toJson());
   };
