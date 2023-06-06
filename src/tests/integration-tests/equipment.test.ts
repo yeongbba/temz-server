@@ -207,7 +207,7 @@ describe('Equipment APIs', () => {
 
       const headers = { Authorization: `Bearer ${token.access}`, [config.csrf.tokenKey]: csrf.token };
 
-      await request.post(`/my-equipment`, equipment, {
+      await request.post(`/equipment`, equipment, {
         headers,
       });
 
@@ -235,7 +235,7 @@ describe('Equipment APIs', () => {
       expect(res.data).toEqual(Equipment.parse(null).toJson());
     });
 
-    describe.only('Request param test set', () => {
+    describe('Request param test set', () => {
       let options: TestOptions;
 
       beforeAll(() => {

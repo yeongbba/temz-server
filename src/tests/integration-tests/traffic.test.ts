@@ -183,8 +183,8 @@ describe('Traffic APIs', () => {
     });
   });
 
-  describe.only('GET to /traffic/total', () => {
-    test.only('Return 200 and total traffic if total traffic is found successfully', async () => {
+  describe('GET to /traffic/total', () => {
+    test('Return 200 and total traffic if total traffic is found successfully', async () => {
       const fake = fakeTraffic(false);
       const traffic = Traffic.parse(fake).toJson();
       const { token } = await loginUser(request);
