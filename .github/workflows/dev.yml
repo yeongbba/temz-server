@@ -17,7 +17,7 @@ jobs:
         with:
           node-version: 16.x
       - name: Test unit
-        run: yarn test:unit
+        run: yarn test:unit:gh
         env:
           IS_TEST: ${{ secrets.IS_TEST }}
           ACCESS_SECRET: ${{ secrets.ACCESS_SECRET }}
