@@ -6,15 +6,7 @@ import { ErrorCode } from '../../types/error.util';
 import { FailureObject } from '../../util/error.util';
 import { CsrfHandler } from '../csrf';
 
-jest.mock('bcrypt', () => {
-  const originalModule = jest.requireActual('bcrypt');
-
-  return {
-    __esModule: true,
-    ...originalModule,
-    default: jest.fn(),
-  };
-});
+// jest.mock('bcrypt');
 
 describe('Csrf Middleware', () => {
   let csrfHandler: CsrfHandler;
@@ -77,7 +69,8 @@ describe('Csrf Middleware', () => {
       body: {},
       headers: { [config.csrf.tokenKey]: `${faker.random.alphaNumeric(60)}` },
     });
-    bcrypt.compare = jest.fn(async () => false);
+    const bcryptCompare = jest.fn().mockResolvedValue(false);
+    (bcrypt.compare as jest.Mock) = bcryptCompare;
 
     const csrf = async () => csrfHandler.csrfCheck(request);
 
@@ -93,7 +86,9 @@ describe('Csrf Middleware', () => {
       body: {},
       headers: { [config.csrf.tokenKey]: `${faker.random.alphaNumeric(60)}` },
     });
-    bcrypt.compare = jest.fn(async () => true);
+    const bcryptCompare = jest.fn().mockResolvedValue(false);
+    (bcrypt.compare as jest.Mock) = bcryptCompare;
+    // bcrypt.compare = jest.fn(async () => true);
 
     const csrf = await csrfHandler.csrfCheck(request);
 
