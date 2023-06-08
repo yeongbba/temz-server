@@ -1,0 +1,580 @@
+paths:
+  /auth/check-name:
+    get:
+      tags:
+        - auth
+      summary: Checks User Name
+      operationId: checkName
+      parameters:
+        - in: query
+          name: name
+          required: true
+          schema:
+            type: string
+            minLength: 3
+            maxLength: 25
+          example: john_doe
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isValid:
+                    type: boolean
+                required:
+                  - isValid
+                example:
+                  isValid: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+      security: []
+  /auth/me:
+    get:
+      tags:
+        - auth
+      summary: Gets My Info
+      operationId: me
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FullUser'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+      security:
+        - jwtAuth: []
+  /auth/csrf:
+    get:
+      tags:
+        - auth
+      summary: Generates token to prevent csrf
+      operationId: csrf
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                required:
+                  - token
+                example:
+                  token: $2b$04$VcCt.82PcVWv.W7RXRwJae32BUifnbEkaomvNeK8PANmAGWF1fCVu
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+      security:
+        - jwtAuth: []
+  /auth/signup:
+    post:
+      tags:
+        - auth
+      summary: Signs up a user to the TEMZ service
+      operationId: signup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/User'
+                - type: object
+                  properties:
+                    password:
+                      description: Password between 8 and 20 characters included at least one character, number, special symbol.
+                      type: string
+                      format: password
+                      pattern: '(?=.*[0-9])(?=.*[a-z])(?=.*\W)(?=\S+$).{8,20}'
+                      writeOnly: true
+                  required:
+                    - password
+                  example:
+                    name: john_doe
+                    password: abcdefg098!
+                    phone: '01012345678'
+                    email: john.doe@gmail.com
+                    wallet: '0x4DD7e3c6273027458CsdfEW23456F0eeF0998b10'
+                    profile:
+                      title: john_doe
+                      description: john_doe's profile
+                      image: https://localhost/image
+                      background: https://localhost/background
+        required: true
+      responses:
+        '201':
+          description: Created
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/DuplicatedValue'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+      security: []
+  /auth/login:
+    post:
+      tags:
+        - auth
+      summary: Logins to the TEMZ service
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 3
+                  maxLength: 25
+                password:
+                  description: Password between 8 and 20 characters included at least one character, number, special symbol.
+                  type: string
+                  format: password
+                  pattern: '(?=.*[0-9])(?=.*[a-z])(?=.*\W)(?=\S+$).{8,20}'
+                  writeOnly: true
+              required:
+                - name
+                - password
+            example:
+              name: john_doe
+              password: password098!
+        required: true
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Auth'
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: TEMZ_ACCESS_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzZmY2ZDkxYjgzZjkxMWFkNTc3ODdhNyIsImlhdCI6MTY3NzY4NTc5MiwiZXhwIjoxNjc3NzcyMTkyfQ.oFowTlE08Ixv0Nbl-GWDG52pLZ5co4Z4kc09N9CRPVA; TEMZ_REFRESH_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0NGEyNmU1ODExYWNjYWFiNjY3OWI3NCIsImlhdCI6MTY4MjU4MTIzNCwiZXhwIjoxNjgzMTg2MDM0fQ.Xjo_cZsBGLnY-dMwiWUn0Bk5asZm8xFXy7uCD8ZqziU; Path=/; HttpOnly
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                failures:
+                  - code: invalid-value
+                    message: Invalid user or password
+                    status: 401
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+      security: []
+  /auth/find-name:
+    post:
+      tags:
+        - auth
+      summary: Finds User Name
+      operationId: findName
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone:
+                  type: string
+                  pattern: '^(010)(\d{4})(\d{4})$'
+              required:
+                - phone
+              example:
+                phone: '01012345678'
+        required: true
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    minLength: 3
+                    maxLength: 25
+                required:
+                  - name
+                example:
+                  name: john_doe
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+      security: []
+  /auth/reset-password:
+    post:
+      tags:
+        - auth
+      summary: Resets Password
+      operationId: resetPassword
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 3
+                  maxLength: 25
+                password:
+                  description: Password between 8 and 20 characters included at least one character, number, special symbol.
+                  type: string
+                  format: password
+                  pattern: '(?=.*[0-9])(?=.*[a-z])(?=.*\W)(?=\S+$).{8,20}'
+                  writeOnly: true
+              required:
+                - name
+                - password
+              example:
+                name: john_doe
+                password: abcdefg098!
+        required: true
+      responses:
+        '201':
+          description: Success
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+      security: []
+  /auth/check-password:
+    post:
+      tags:
+        - auth
+      summary: Check Password
+      operationId: checkPassword
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  description: Password between 8 and 20 characters included at least one character, number, special symbol.
+                  type: string
+                  format: password
+                  pattern: '(?=.*[0-9])(?=.*[a-z])(?=.*\W)(?=\S+$).{8,20}'
+                  writeOnly: true
+              required:
+                - password
+              example:
+                password: abcdefg098!
+        required: true
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isValid:
+                    type: boolean
+                required:
+                  - isValid
+                example:
+                  isValid: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+  /auth/check-phone:
+    post:
+      tags:
+        - auth
+      summary: Checks Phone of Owner
+      operationId: checkPhone
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 3
+                  maxLength: 25
+                phone:
+                  type: string
+                  pattern: '^(010)(\d{4})(\d{4})$'
+              required:
+                - name
+                - phone
+              example:
+                name: john_doe
+                phone: '01012345678'
+        required: true
+      responses:
+        '200':
+          description: Success
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+      security: []
+  /auth/logout:
+    post:
+      tags:
+        - auth
+      summary: Logouts to the TEMZ service
+      operationId: logout
+      responses:
+        '201':
+          description: Success
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: TEMZ_TOKEN=; Path=/;
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+  /auth/update:
+    put:
+      tags:
+        - auth
+      summary: Updates User Info
+      operationId: update
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        '201':
+          description: Updated
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+  /auth/wakeup:
+    put:
+      tags:
+        - auth
+      summary: Wake up User Account
+      operationId: wakeup
+      responses:
+        '204':
+          description: No Content
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+  /auth/remove:
+    delete:
+      tags:
+        - auth
+      summary: Removes User Info
+      operationId: remove
+      responses:
+        '201':
+          description: Success
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: TEMZ_ACCESS_TOKEN=; TEMZ_REFRESH_TOKEN=; Path=/;
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+  /auth/token:
+    post:
+      tags:
+        - auth
+      summary: Get New Access Token
+      operationId: token
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access:
+                    type: string
+                required:
+                  - access
+                example:
+                  access: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzZmY2ZDkxYjgzZjkxMWFkNTc3ODdhNyIsImlhdCI6MTY3NzY4NTc5MiwiZXhwIjoxNjc3NzcyMTkyfQ.oFowTlE08Ixv0Nbl-GWDG52pLZ5co4Z4kc09N9CRPVA
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: TEMZ_ACCESS_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzZmY2ZDkxYjgzZjkxMWFkNTc3ODdhNyIsImlhdCI6MTY3NzY4NTc5MiwiZXhwIjoxNjc3NzcyMTkyfQ.oFowTlE08Ixv0Nbl-GWDG52pLZ5co4Z4kc09N9CRPVA; TEMZ_REFRESH_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0NGEyNmU1ODExYWNjYWFiNjY3OWI3NCIsImlhdCI6MTY4MjU4MTIzNCwiZXhwIjoxNjgzMTg2MDM0fQ.Xjo_cZsBGLnY-dMwiWUn0Bk5asZm8xFXy7uCD8ZqziU; Path=/; HttpOnly
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+      security: 
+        - csrf: []
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 25
+        phone:
+          type: string
+          pattern: '^(010)(\d{4})(\d{4})$'
+        email:
+          type: string
+          format: email
+          nullable: true
+        wallet:
+          type: string
+          minLength: 25
+          maxLength: 42
+          nullable: true
+        profile:
+          type: object
+          properties:
+            title:
+              type: string
+              maxLength: 25
+            description:
+              type: string
+              maxLength: 500
+            image:
+              type: string
+              format: url
+            background:
+              type: string
+              format: url
+          required:
+            - title
+      required:
+        - name
+        - profile
+        - phone
+      example:
+        name: john_doe
+        phone: '01012345678'
+        email: john.doe@gmail.com
+        wallet: '0x4DD7e3c6273027458CsdfEW23456F0eeF0998b10'
+        profile:
+          title: john_doe
+          description: john_doe's profile
+          image: https://localhost/image
+          background: https://localhost/background
+    FullUser:
+      type: object
+      properties:
+        user:
+          allOf:
+            - type: object
+              properties:
+                isDormant:
+                  type: boolean
+                  readOnly: true
+                createdAt:
+                  type: string
+                  format: date-time
+                  readOnly: true
+                updatedAt:
+                  type: string
+                  format: date-time
+                  readOnly: true
+              required:
+                - isDormant
+                - createdAt
+                - updatedAt
+            - $ref: '#/components/schemas/User'
+      example:
+        user:
+          name: john_doe
+          phone: '01012345678'
+          email: john.doe@gmail.com
+          wallet: '0x4DD7e3c6273027458CsdfEW23456F0eeF0998b10'
+          profile:
+            title: john_doe
+            description: john_doe's profile
+            image: https://localhost/image
+            background: https://localhost/background
+          isDormant: true
+          createdAt: '2023-03-01T15:21:53.241Z'
+          updatedAt: '2023-03-01T15:21:53.241Z'
+    Auth:
+      type: object
+      properties:
+        token:
+          type: object
+          properties:
+            access:
+              type: string
+            refresh:
+              type: string
+        user:
+          $ref: '#/components/schemas/FullUser'
+      required:
+        - token
+        - user
+      example:
+        token: 
+          access: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzZmY2ZDkxYjgzZjkxMWFkNTc3ODdhNyIsImlhdCI6MTY3NzY4NTc5MiwiZXhwIjoxNjc3NzcyMTkyfQ.oFowTlE08Ixv0Nbl-GWDG52pLZ5co4Z4kc09N9CRPVA
+          refresh: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0NGEyNmU1ODExYWNjYWFiNjY3OWI3NCIsImlhdCI6MTY4MjU4MTIzNCwiZXhwIjoxNjgzMTg2MDM0fQ.Xjo_cZsBGLnY-dMwiWUn0Bk5asZm8xFXy7uCD8ZqziU
+        user:
+          name: john_doe
+          phone: '01012345678'
+          email: john.doe@gmail.com
+          wallet: '0x4DD7e3c6273027458CsdfEW23456F0eeF0998b10'
+          profile:
+            title: john_doe
+            description: john_doe's profile
+            image: https://localhost/image
+            background: https://localhost/background
+          isDormant: true
+          createdAt: '2023-03-01T15:21:53.241Z'
+          updatedAt: '2023-03-01T15:21:53.241Z'

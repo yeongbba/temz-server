@@ -1,0 +1,256 @@
+paths:
+  /link/social:
+    get:
+      tags:
+        - link
+      summary: Get social network links
+      operationId: getSocialLinks
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SocialLinks'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+    post:
+      tags:
+        - link
+      summary: Create social network links
+      operationId: createSocialLinks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SocialLinks'
+        required: true
+      responses:
+        '201':
+          description: Created
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/DuplicatedValue'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+    put:
+      tags:
+        - link
+      summary: Update social network links
+      operationId: updateSocialLinks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SocialLinks'
+        required: true
+      responses:
+        '204':
+          description: No Content
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+  /link/general:
+    get:
+      tags:
+        - link
+      summary: Get general links
+      operationId: getThemes
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  themes:
+                    type: array
+                    maxItems: 5
+                    items:
+                      $ref: '#/components/schemas/GeneralLinks'
+                required:
+                  - themes
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+    post:
+      tags:
+        - link
+      summary: Create general links
+      operationId: createGeneralLinks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GeneralLinks'
+        required: true
+      responses:
+        '201':
+          description: Created
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '406':
+          $ref: '#/components/responses/NotAcceptable'
+        '409':
+          $ref: '#/components/responses/DuplicatedValue'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+    put:
+      tags:
+        - link
+      summary: Update general links
+      operationId: updateGeneralLinks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GeneralLinks'
+        required: true
+      responses:
+        '204':
+          description: No Content
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+    delete:
+      tags:
+        - link
+      summary: Remove general links
+      operationId: removeGeneralLinks
+      parameters:
+        - in: query
+          name: linkId
+          required: true
+          schema:
+            type: string
+            minLength: 24
+            maxLength: 24
+          example: 60ff9826591d828bf80577dc
+      responses:
+        '204':
+          description: No Content
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+components:
+  schemas:
+    SocialLinks:
+      type: object
+      properties:
+        linkId:
+          type: string
+          minLength: 24
+          maxLength: 24
+          nullable: true
+        youtube:
+          type: string
+          format: url
+          nullable: true
+        twitter:
+          type: string
+          format: url
+          nullable: true
+        tiktok:
+          type: string
+          format: url
+          nullable: true
+        instagram:
+          type: string
+          format: url
+          nullable: true
+        facebook:
+          type: string
+          format: url
+          nullable: true
+        telegram:
+          type: string
+          format: url
+          nullable: true
+      required:
+        - linkId
+        - youtube
+        - twitter
+        - tiktok
+        - instagram
+        - facebook
+        - telegram
+      example:
+        linkId: 60ff9826591d828bf80577dc
+        youtube: https://www.youtube.com
+        twitter: https://www.twitter.com
+        tiktok: https://www.tiktok.com
+        instagram: https://www.instagram.com
+        facebook: https://www.facebook.com
+        telegram: https://www.telegram.com
+    GeneralLinks:
+      type: object
+      properties:
+        linkId:
+          type: string
+          minLength: 24
+          maxLength: 24
+          nullable: true
+        title:
+          type: string
+          maxLength: 50
+        links:
+          type: array
+          maxItems: 9
+          items:
+            type: object
+            properties:
+              description:
+                type: string
+                maxLength: 50
+              link:
+                type: string
+                format: url
+              viewCount:
+                type: integer
+                minimum: 0
+            required:
+              - description
+              - link
+              - viewCount
+      required:
+        - linkId
+        - title
+        - links
+      example:
+        - linkId: 60ff9826591d828bf80577dc
+          title: 골린이 탈출 대작전
+          links:
+            - description: '슬라이스 방지 레슨 01'
+              link: 'https://youtube.com'
+              viewcount: 2
+            - description: '슬라이스 방지 레슨 02'
+              link: 'https://twitter.com'
+              viewcount: 3

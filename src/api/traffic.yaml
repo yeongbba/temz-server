@@ -1,0 +1,122 @@
+paths:
+  /traffic/total:
+    get:
+      tags:
+        - traffic
+      summary: Get total traffic record of user
+      operationId: getTotalTraffic
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    minimum: 0
+                required:
+                  - total
+                example:
+                  total: 300
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+  /traffic:
+    get:
+      tags:
+        - traffic
+      summary: Get traffic record of specific date
+      operationId: getTraffic
+      parameters:
+        - in: query
+          name: date
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Traffic'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+    post:
+      tags:
+        - traffic
+      summary: Create traffic record
+      operationId: createTraffic
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Traffic'
+        required: true
+      responses:
+        '201':
+          description: Created
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+    put:
+      tags:
+        - traffic
+      summary: Update traffic record
+      operationId: updateTraffic
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Traffic'
+        required: true
+      responses:
+        '204':
+          description: No Content
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+components:
+  schemas:
+    Traffic:
+      type: object
+      properties:
+        trafficId:
+          type: string
+          minLength: 24
+          maxLength: 24
+          nullable: true
+        view:
+          type: integer
+          minimum: 0
+        date:
+          type: string
+          format: date
+          nullable: true
+      required:
+        - trafficId
+        - view
+        - date
+      example:
+        trafficId: 60ff9826591d828bf80577dc
+        view: 43
+        date: '2023-03-01'
+

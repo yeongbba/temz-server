@@ -1,0 +1,140 @@
+paths:
+  /score:
+    get:
+      tags:
+        - score
+      summary: Get score records
+      operationId: getScores
+      parameters:
+        - $ref: '#/components/parameters/skipParam'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scores:
+                    type: array
+                    maxItems: 20
+                    items:
+                      $ref: '#/components/schemas/Score'
+                required:
+                  - scores
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+    post:
+      tags:
+        - score
+      summary: Create score record
+      operationId: createScore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Score'
+        required: true
+      responses:
+        '201':
+          description: Created
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+    put:
+      tags:
+        - score
+      summary: Update score record
+      operationId: updateScore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Score'
+        required: true
+      responses:
+        '204':
+          description: No Content
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+    delete:
+      tags:
+        - score
+      summary: Remove score record
+      operationId: removeScore
+      parameters:
+        - in: query
+          name: scoreId
+          required: true
+          schema:
+            type: string
+            minLength: 24
+            maxLength: 24
+          example: 60ff9826591d828bf80577dc
+      responses:
+        '204':
+          description: No Content
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+components:
+  schemas:
+    Score:
+      type: object
+      properties:
+        scoreId:
+          type: string
+          minLength: 24
+          maxLength: 24
+          nullable: true
+        course:
+          type: string
+          maxLength: 30
+        date:
+          type: string
+          format: date
+        firstHalfScore:
+          type: integer
+          minimum: 0
+          maximum: 300
+        secondHalfScore:
+          type: integer
+          minimum: 0
+          maximum: 300
+        image:
+          type: string
+          format: url
+          nullable: true
+      required:
+        - scoreId
+        - course
+        - date
+        - firstHalfScore
+        - secondHalfScore
+        - image
+      example:
+        scoreId: 60ff9826591d828bf80577dc
+        course: 골드
+        date: '2023-03-01'
+        firstHalfScore: 60
+        secondHalfScore: 59
+        image: https://www.image.com

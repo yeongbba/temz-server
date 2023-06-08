@@ -1,0 +1,8 @@
+{
+  "clearMocks": true,
+  "collectCoverage": false,
+  "coverageDirectory": "coverage",
+  "coverageProvider": "v8",
+  "setupFiles": ["dotenv/config"],
+  "testPathIgnorePatterns": ["/dist/"]
+}
