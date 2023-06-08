@@ -6,7 +6,15 @@ import { ErrorCode } from '../../types/error.util';
 import { FailureObject } from '../../util/error.util';
 import { CsrfHandler } from '../csrf';
 
-jest.mock('bcrypt');
+jest.mock('bcrypt', () => {
+  const originalModule = jest.requireActual('bcrypt');
+
+  return {
+    __esModule: true,
+    ...originalModule,
+    default: jest.fn(),
+  };
+});
 
 describe('Csrf Middleware', () => {
   let csrfHandler: CsrfHandler;
