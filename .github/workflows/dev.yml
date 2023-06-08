@@ -16,6 +16,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16.16.0
+      - name: rebuild
+        run: yarn rebuild
       - name: Test unit
         run: yarn test:unit:gh
         env:
