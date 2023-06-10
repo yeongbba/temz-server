@@ -53,6 +53,7 @@ jobs:
   auth-test:
     # needs: unit-test
     # environment: test
+    runs-on: ubuntu-latest
     steps:
 
       - uses: ./.github/workflows/reusable.yml
@@ -60,9 +61,7 @@ jobs:
       #   TEST_FILE: auth.test.ts
         with:
           TEST_FILE: auth.test.ts
-        secrets: inherit
     # name: auth integration test
-    # runs-on: ubuntu-latest
     # steps:
     #   - uses: actions/checkout@v3
     #   - name: Use Node.js 16.16.0
