@@ -36,15 +36,20 @@ export async function startServer(port?: number): Promise<ServerInfo> {
   app.use(cookieParser());
   app.use(helmet());
   app.use(cors(corsOption));
-  app.use(morgan('tiny'));
+
   app.use(limiter(rateLimitDB.client));
+  if (!config.environment.test) {
+    app.use(morgan('tiny'));
+  }
 
   const openAPIDocument = createOpenAPIDoc();
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openAPIDocument));
   app.use(validator(openAPIDocument));
 
   app.use((req: Request, res: Response) => {
-    console.error(req);
+    if (!config.environment.test) {
+      console.error(req);
+    }
     res.status(404).json({
       code: ErrorCode.NOT_FOUND,
       message: 'Cannot found the resource',
@@ -53,7 +58,10 @@ export async function startServer(port?: number): Promise<ServerInfo> {
   });
 
   app.use((error: any, req: Request, res: Response, next: NextFunction) => {
-    console.error(error);
+    if (!config.environment.test) {
+      console.error(req);
+    }
+
     let failures = [];
     const isFailureObject = error instanceof FailureObject;
     if (isFailureObject) {

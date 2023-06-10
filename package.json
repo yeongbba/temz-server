@@ -18,7 +18,8 @@
     "test:watch": "DOTENV_CONFIG_PATH=./.env.test jest --watch",
     "test:watch:verbose": "DOTENV_CONFIG_PATH=./.env.test jest --watch --verbose",
     "test:coverage": "DOTENV_CONFIG_PATH=./.env.test jest --coverage",
-    "test:unit:gh": "jest --testPathIgnorePatterns=/tests/integration-tests"
+    "test:unit:action": "jest --testPathIgnorePatterns=/tests/integration-tests",
+    "test:integration:action": "jest --testPathPattern=/tests/integration-tests"
   },
   "dependencies": {
     "axios": "^1.4.0",

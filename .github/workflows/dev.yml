@@ -6,11 +6,43 @@ on:
   pull_request:
     branches: [ dev ]
 jobs:
-  test:
+  unit-test:
     environment: test
-    name: Test
+    name: unit test
     runs-on: ubuntu-latest
     env:
+      IS_TEST: ${{ secrets.IS_TEST }}
+      ACCESS_SECRET: ${{ secrets.ACCESS_SECRET }}
+      ACCESS_EXPIRES_SEC: ${{ secrets.ACCESS_EXPIRES_SEC }}
+      REFRESH_SECRET: ${{ secrets.REFRESH_SECRET }}
+      REFRESH_EXPIRES_SEC: ${{ secrets.REFRESH_EXPIRES_SEC }}
+      ACCESS_TOKEN_KEY: ${{ secrets.ACCESS_TOKEN_KEY }}
+      REFRESH_TOKEN_KEY: ${{ secrets.REFRESH_TOKEN_KEY }}
+      BCRYPT_SALT_ROUNDS: ${{ secrets.BCRYPT_SALT_ROUNDS }}
+      HOST_PORT: ${{ secrets.HOST_PORT }}
+      CSRF_SECRET_KEY: ${{ secrets.CSRF_SECRET_KEY }}
+      CSRF_TOKEN_KEY: ${{ secrets.CSRF_TOKEN_KEY }}
+      SENS_HOST_PHONE: ${{ secrets.SENS_HOST_PHONE }}
+      VERIFICATION_ALLOW_COUNT: ${{ secrets.VERIFICATION_ALLOW_COUNT }}
+      VERIFICATION_GENERAL_EXPIRE_MINUTE: ${{ secrets.VERIFICATION_GENERAL_EXPIRE_MINUTE }}
+      VERIFICATION_BLOCK_EXPIRE_MINUTE: ${{ secrets.VERIFICATION_BLOCK_EXPIRE_MINUTE }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 16.16.0
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.16.0
+      - name: rebuild
+        run: yarn rebuild
+      - name: Test unit
+        run: yarn test:unit:action
+
+  integration-test:
+    environment: test
+    name: integration test
+    runs-on: ubuntu-latest
+    env:
+      CI: true
       IS_TEST: ${{ secrets.IS_TEST }}
       ACCESS_SECRET: ${{ secrets.ACCESS_SECRET }}
       ACCESS_EXPIRES_SEC: ${{ secrets.ACCESS_EXPIRES_SEC }}
@@ -37,17 +69,21 @@ jobs:
       VERIFICATION_ALLOW_COUNT: ${{ secrets.VERIFICATION_ALLOW_COUNT }}
       VERIFICATION_GENERAL_EXPIRE_MINUTE: ${{ secrets.VERIFICATION_GENERAL_EXPIRE_MINUTE }}
       VERIFICATION_BLOCK_EXPIRE_MINUTE: ${{ secrets.VERIFICATION_BLOCK_EXPIRE_MINUTE }}
-      TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
-      TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
-      TWILIO_SERVICE_SID: ${{ secrets.TWILIO_SERVICE_SID }}
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js 16.16.0
         uses: actions/setup-node@v3
         with:
           node-version: 16.16.0
+      - name: Start MongoDB
+        uses: supercharge/mongodb-github-action@1.9.0
+        with:
+          mongodb-version: 6.0
+      - name: Setup Redis with password
+        uses: getong/redis-action@v1
+        with:
+          redis password: ${{ secrets.REDIS_PW }
       - name: rebuild
         run: yarn rebuild
-      - name: Test unit
-        run: yarn test:unit:gh
-
+      - name: Test integration
+        run: yarn test:integration:action
