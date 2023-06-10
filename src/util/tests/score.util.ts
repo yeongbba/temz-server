@@ -16,7 +16,7 @@ import { formatDate } from '../common.util';
 export const fakeScore = (useId: boolean = true) => ({
   id: useId ? new Mongoose.Types.ObjectId().toString() : undefined,
   course: faker.lorem.word(5),
-  date: formatDate(faker.date.past(3)),
+  date: formatDate(faker.date.past({ years: 3 })),
   firstHalfScore: parseInt(faker.string.numeric(2)),
   secondHalfScore: parseInt(faker.string.numeric(2)),
   image: faker.internet.url(),
