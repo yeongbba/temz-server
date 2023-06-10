@@ -51,7 +51,7 @@ jobs:
   #     - name: Test unit
   #       run: yarn test:unit:action
   auth-test:
-    needs: unit-test
+    # needs: unit-test
     environment: test
     runs-on: ubuntu-latest
     steps:
