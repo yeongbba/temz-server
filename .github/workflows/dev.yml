@@ -51,8 +51,8 @@ jobs:
       - name: Test unit
         run: yarn test:unit:action
   auth-test:
-    # needs: unit-test
-    # environment: test
+    needs: unit-test
+    environment: test
     runs-on: ubuntu-latest
     steps:
 
@@ -61,7 +61,7 @@ jobs:
       #   TEST_FILE: auth.test.ts
         with:
           TEST_FILE: auth.test.ts
-    # name: auth integration test
+    name: auth integration test
     # steps:
     #   - uses: actions/checkout@v3
     #   - name: Use Node.js 16.16.0
