@@ -52,6 +52,8 @@ jobs:
         run: yarn test:unit:action
   auth-test:
     environment: test
+    env: 
+      TEST_FILE: auth.test.ts
     name: integration test
     runs-on: ubuntu-latest
     steps:
@@ -71,26 +73,4 @@ jobs:
       - name: rebuild
         run: yarn rebuild
       - name: Test integration
-        run: jest --testPathPattern=/tests/integration-tests/auth.test.ts
-  bookmark-test:
-    environment: test
-    name: integration test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js 16.16.0
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16.16.0
-      - name: Start MongoDB
-        uses: supercharge/mongodb-github-action@1.9.0
-        with:
-          mongodb-version: 6.0
-      - name: Setup Redis with password
-        uses: getong/redis-action@v1
-        with:
-          redis password: ${{ secrets.REDIS_PW }}
-      - name: rebuild
-        run: yarn rebuild
-      - name: Test integration
-        run: jest --testPathPattern=/tests/integration-tests/bookmark.test.ts
+        run: yarn test:integration:action
