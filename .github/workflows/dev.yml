@@ -82,7 +82,7 @@ jobs:
       - name: Setup Redis with password
         uses: getong/redis-action@v1
         with:
-          redis password: ${{ secrets.REDIS_PW }
+          redis password: ${{ secrets.REDIS_PW }}
       - name: rebuild
         run: yarn rebuild
       - name: Test integration
