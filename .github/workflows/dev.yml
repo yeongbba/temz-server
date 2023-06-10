@@ -60,7 +60,7 @@ jobs:
       - uses: ./.github/workflows/reusable.yml
         with:
           TEST_FILE: auth.test.ts
-        name: auth integration test
+    name: auth integration test
     # steps:
     #   - uses: actions/checkout@v3
     #   - name: Use Node.js 16.16.0
