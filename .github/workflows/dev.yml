@@ -51,7 +51,7 @@ jobs:
   #     - name: Test unit
   #       run: yarn test:unit:action
   auth-test:
-  ` uses: './.github/workflows/action.yml'
+    uses: './.github/workflows/action.yml'
     with:
       TEST_FILE: auth.test.ts
     # environment: test
