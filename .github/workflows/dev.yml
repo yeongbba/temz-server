@@ -53,12 +53,14 @@ jobs:
   auth-test:
     # needs: unit-test
     # environment: test
-    uses: ./.github/workflows/reusable.yml
-    # env: 
-    #   TEST_FILE: auth.test.ts
-    with:
-      TEST_FILE: auth.test.ts
-    secrets: inherit
+    steps:
+
+      - uses: ./.github/workflows/reusable.yml
+      # env: 
+      #   TEST_FILE: auth.test.ts
+        with:
+          TEST_FILE: auth.test.ts
+        secrets: inherit
     # name: auth integration test
     # runs-on: ubuntu-latest
     # steps:
