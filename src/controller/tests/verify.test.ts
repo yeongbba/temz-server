@@ -36,7 +36,7 @@ describe('Verify Controller', () => {
     });
 
     it('If the api is called more than allowCount in a row, return 429', async () => {
-      const code = parseInt(faker.random.numeric(6));
+      const code = parseInt(faker.string.numeric(6));
       verifyUtil.generateCode = jest.fn(() => code);
       verifyRepository.checkExistPhone = jest.fn(() => true);
       verifyRepository.getVerifyCode = jest.fn(() => ({ code, count: config.verification.allowCount + 1 }));
@@ -59,7 +59,7 @@ describe('Verify Controller', () => {
 
     it('If the api called again but send the sms successfully, return 200', async () => {
       const phone = request.body.phone;
-      const code = parseInt(faker.random.numeric(6));
+      const code = parseInt(faker.string.numeric(6));
       const count = config.verification.allowCount - 1;
       verifyUtil.generateCode = jest.fn(() => code);
       verifyUtil.sendSMSMessage = jest.fn();
@@ -91,7 +91,7 @@ describe('Verify Controller', () => {
 
     it('If the api called first time and send the sms successfully, return 200', async () => {
       const phone = request.body.phone;
-      const code = parseInt(faker.random.numeric(6));
+      const code = parseInt(faker.string.numeric(6));
       verifyUtil.generateCode = jest.fn(() => code);
       verifyUtil.sendSMSMessage = jest.fn();
       verifyRepository.checkExistPhone = jest.fn();
@@ -126,7 +126,7 @@ describe('Verify Controller', () => {
 
     beforeEach(() => {
       const phone = generatePhoneNumber();
-      code = faker.random.numeric(6);
+      code = faker.string.numeric(6);
 
       request = httpMocks.createRequest({
         method: 'POST',
@@ -152,7 +152,7 @@ describe('Verify Controller', () => {
     });
 
     it('Return status value false with 200 if code verification is fail', async () => {
-      const fakeCode = faker.random.numeric(6);
+      const fakeCode = faker.string.numeric(6);
       verifyRepository.getVerifyCode = jest.fn(() => ({ code: fakeCode }));
 
       await verifyController.checkVerificationToken(request, response);

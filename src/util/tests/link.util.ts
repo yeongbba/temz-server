@@ -24,18 +24,18 @@ export const fakeSocialLinks = (useId: boolean = true) => ({
 
 export const fakeGeneralLinks = (useId: boolean = true) => ({
   id: useId ? new Mongoose.Types.ObjectId().toString() : undefined,
-  title: faker.random.alpha(10),
+  title: faker.string.alpha(10),
   links: [
     {
-      description: faker.random.alpha(10),
+      description: faker.string.alpha(10),
       link: faker.internet.url(),
-      viewCount: parseInt(faker.random.numeric(1)),
+      viewCount: parseInt(faker.string.numeric(1)),
     },
   ],
 });
 
 export const socialLinkTypeTest = () => {
-  const fakeNumber = parseInt(faker.random.numeric(5));
+  const fakeNumber = parseInt(faker.string.numeric(5));
   return typeTest([
     {
       failedFieldName: 'linkId',
@@ -77,12 +77,12 @@ export const socialLinkTypeTest = () => {
 
 export const socialLinkFormatTest = () => {
   return formatTest([
-    { failedFieldName: 'youtube', fakeValue: faker.random.alpha(10), format: 'url' },
-    { failedFieldName: 'twitter', fakeValue: faker.random.alpha(10), format: 'url' },
-    { failedFieldName: 'tiktok', fakeValue: faker.random.alpha(10), format: 'url' },
-    { failedFieldName: 'instagram', fakeValue: faker.random.alpha(10), format: 'url' },
-    { failedFieldName: 'facebook', fakeValue: faker.random.alpha(10), format: 'url' },
-    { failedFieldName: 'telegram', fakeValue: faker.random.alpha(10), format: 'url' },
+    { failedFieldName: 'youtube', fakeValue: faker.string.alpha(10), format: 'url' },
+    { failedFieldName: 'twitter', fakeValue: faker.string.alpha(10), format: 'url' },
+    { failedFieldName: 'tiktok', fakeValue: faker.string.alpha(10), format: 'url' },
+    { failedFieldName: 'instagram', fakeValue: faker.string.alpha(10), format: 'url' },
+    { failedFieldName: 'facebook', fakeValue: faker.string.alpha(10), format: 'url' },
+    { failedFieldName: 'telegram', fakeValue: faker.string.alpha(10), format: 'url' },
   ]);
 };
 
@@ -102,7 +102,7 @@ export const socialLinkMinLengthTest = () => {
   return minLengthTest([
     {
       failedFieldName: 'linkId',
-      fakeValue: faker.random.alphaNumeric(23),
+      fakeValue: faker.string.alphanumeric(23),
       minLength: 24,
     },
   ]);
@@ -112,15 +112,15 @@ export const socialLinkMaxLengthTest = () => {
   return maxLengthTest([
     {
       failedFieldName: 'linkId',
-      fakeValue: faker.random.alphaNumeric(25),
+      fakeValue: faker.string.alphanumeric(25),
       maxLength: 24,
     },
   ]);
 };
 
 export const generalLinkTypeTest = () => {
-  const fakeNumber = parseInt(faker.random.numeric(5));
-  const fakeString = faker.random.word();
+  const fakeNumber = parseInt(faker.string.numeric(5));
+  const fakeString = faker.lorem.word(5);
   return typeTest([
     {
       failedFieldName: 'linkId',
@@ -168,7 +168,7 @@ export const generalLinkMinLengthTest = () => {
   return minLengthTest([
     {
       failedFieldName: 'linkId',
-      fakeValue: faker.random.alphaNumeric(23),
+      fakeValue: faker.string.alphanumeric(23),
       minLength: 24,
     },
   ]);
@@ -178,18 +178,18 @@ export const generalLinkMaxLengthTest = (selectedFields?: SelectedField[]) => {
   const fields: MaxLengthValue[] = [
     {
       failedFieldName: 'linkId',
-      fakeValue: faker.random.alphaNumeric(25),
+      fakeValue: faker.string.alphanumeric(25),
       maxLength: 24,
     },
     {
       failedFieldName: 'title',
-      fakeValue: faker.random.alpha({ count: 51 }),
+      fakeValue: faker.string.alpha(51),
       maxLength: 50,
     },
     {
       parentFieldName: 'links',
       failedFieldName: 'description',
-      fakeValue: faker.random.alpha({ count: 51 }),
+      fakeValue: faker.string.alpha(51),
       maxLength: 50,
     },
   ];
@@ -204,7 +204,7 @@ export const generalLinkFormatTest = () => {
     {
       parentFieldName: 'links',
       failedFieldName: 'link',
-      fakeValue: faker.random.alpha(10),
+      fakeValue: faker.string.alpha(10),
       format: 'url',
     },
   ]);

@@ -31,8 +31,8 @@ describe('Link Controller', () => {
     });
 
     it('Return 409, if there is already a registered social links', async () => {
-      request.userId = faker.random.alphaNumeric(24);
-      linkRepository.findSocialLinksByUserId = jest.fn(() => SocialLinks.parse({ id: faker.random.alphaNumeric(24) }));
+      request.userId = faker.string.alphanumeric(24);
+      linkRepository.findSocialLinksByUserId = jest.fn(() => SocialLinks.parse({ id: faker.string.alphanumeric(24) }));
 
       const createSocialLinks = async () => linkController.createSocialLinks(request, response);
 
@@ -43,7 +43,7 @@ describe('Link Controller', () => {
     });
 
     it('Return 201, if social links is registered successfully', async () => {
-      request.userId = faker.random.alphaNumeric(24);
+      request.userId = faker.string.alphanumeric(24);
       linkRepository.findSocialLinksByUserId = jest.fn(() => SocialLinks.parse(null));
       linkRepository.createSocialLinks = jest.fn();
 
@@ -73,7 +73,7 @@ describe('Link Controller', () => {
     });
 
     it('Return 404 if there is no registered social links', async () => {
-      request.userId = faker.random.alphaNumeric(24);
+      request.userId = faker.string.alphanumeric(24);
       linkRepository.updateSocialLinks = jest.fn(() => SocialLinks.parse(null));
 
       const updateSocialLinks = async () => linkController.updateSocialLinks(request, response);
@@ -85,8 +85,8 @@ describe('Link Controller', () => {
     });
 
     it('Return 204, if social link is updated successfully', async () => {
-      request.userId = faker.random.alphaNumeric(24);
-      linkRepository.updateSocialLinks = jest.fn(() => SocialLinks.parse({ id: faker.random.alphaNumeric(24) }));
+      request.userId = faker.string.alphanumeric(24);
+      linkRepository.updateSocialLinks = jest.fn(() => SocialLinks.parse({ id: faker.string.alphanumeric(24) }));
 
       await linkController.updateSocialLinks(request, response);
 
@@ -108,7 +108,7 @@ describe('Link Controller', () => {
     });
 
     it('Return 200, if social link successfully found', async () => {
-      request.userId = faker.random.alphaNumeric(24);
+      request.userId = faker.string.alphanumeric(24);
       const socialLinks = SocialLinks.parse({ userId: request.userId, ...fakeSocialLinks() });
       linkRepository.findSocialLinksByUserId = jest.fn(() => socialLinks);
 
@@ -136,9 +136,9 @@ describe('Link Controller', () => {
     });
 
     it('Return 406, if the link is created as much as the limit', async () => {
-      request.userId = faker.random.alphaNumeric(24);
+      request.userId = faker.string.alphanumeric(24);
       linkRepository.findThemesByUserId = jest.fn(() =>
-        new Array(THEME_MAX_COUNT).fill(GeneralLinks.parse({ id: faker.random.alphaNumeric(24) }))
+        new Array(THEME_MAX_COUNT).fill(GeneralLinks.parse({ id: faker.string.alphanumeric(24) }))
       );
 
       const createGeneralLinks = async () => linkController.createGeneralLinks(request, response);
@@ -150,7 +150,7 @@ describe('Link Controller', () => {
     });
 
     it('Return 201, if social links is registered successfully', async () => {
-      request.userId = faker.random.alphaNumeric(24);
+      request.userId = faker.string.alphanumeric(24);
       linkRepository.findThemesByUserId = jest.fn(() => []);
       linkRepository.createGeneralLinks = jest.fn();
 
@@ -180,7 +180,7 @@ describe('Link Controller', () => {
     });
 
     it('Return 404 if there is no registered general links', async () => {
-      request.userId = faker.random.alphaNumeric(24);
+      request.userId = faker.string.alphanumeric(24);
       linkRepository.updateGeneralLinks = jest.fn(() => GeneralLinks.parse(null));
 
       const updateGeneralLinks = async () => linkController.updateGeneralLinks(request, response);
@@ -192,7 +192,7 @@ describe('Link Controller', () => {
     });
 
     it('Return 204, if general link is updated successfully', async () => {
-      request.userId = faker.random.alphaNumeric(24);
+      request.userId = faker.string.alphanumeric(24);
       linkRepository.updateGeneralLinks = jest.fn(() =>
         GeneralLinks.parse({ id: request.body.linkId, ...request.body })
       );
@@ -217,7 +217,7 @@ describe('Link Controller', () => {
     });
 
     it('Return 200, if general link successfully found', async () => {
-      request.userId = faker.random.alphaNumeric(24);
+      request.userId = faker.string.alphanumeric(24);
       const themes = [GeneralLinks.parse({ userId: request.userId, ...fakeGeneralLinks() })];
       linkRepository.findThemesByUserId = jest.fn(() => themes);
 
@@ -245,7 +245,7 @@ describe('Link Controller', () => {
     });
 
     it('Return 204, if general link successfully removed', async () => {
-      request.userId = faker.random.alphaNumeric(24);
+      request.userId = faker.string.alphanumeric(24);
       const linkId = request.query.linkId;
       linkRepository.removeGeneralLinks = jest.fn(() => GeneralLinks.parse({ id: linkId }));
 
@@ -256,7 +256,7 @@ describe('Link Controller', () => {
     });
 
     it('Return 404 if there is no registered general links', async () => {
-      request.userId = faker.random.alphaNumeric(24);
+      request.userId = faker.string.alphanumeric(24);
       const linkId = request.query.linkId;
 
       linkRepository.removeGeneralLinks = jest.fn(() => GeneralLinks.parse(null));

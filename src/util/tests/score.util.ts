@@ -15,16 +15,16 @@ import { formatDate } from '../common.util';
 
 export const fakeScore = (useId: boolean = true) => ({
   id: useId ? new Mongoose.Types.ObjectId().toString() : undefined,
-  course: faker.random.word(),
+  course: faker.lorem.word(5),
   date: formatDate(faker.date.past(3)),
-  firstHalfScore: parseInt(faker.random.numeric(2)),
-  secondHalfScore: parseInt(faker.random.numeric(2)),
+  firstHalfScore: parseInt(faker.string.numeric(2)),
+  secondHalfScore: parseInt(faker.string.numeric(2)),
   image: faker.internet.url(),
 });
 
 export const scoreTypeTest = () => {
-  const fakeNumber = parseInt(faker.random.numeric(5));
-  const fakeString = faker.random.alpha(10);
+  const fakeNumber = parseInt(faker.string.numeric(5));
+  const fakeString = faker.string.alpha(10);
   return typeTest([
     {
       failedFieldName: 'scoreId',
@@ -62,8 +62,8 @@ export const scoreTypeTest = () => {
 
 export const scoreFormatTest = () => {
   return formatTest([
-    { failedFieldName: 'date', fakeValue: faker.random.alpha(10), format: 'date' },
-    { failedFieldName: 'image', fakeValue: faker.random.alpha(10), format: 'url' },
+    { failedFieldName: 'date', fakeValue: faker.string.alpha(10), format: 'date' },
+    { failedFieldName: 'image', fakeValue: faker.string.alpha(10), format: 'url' },
   ]);
 };
 
@@ -85,7 +85,7 @@ export const scoreMinLengthTest = () => {
   return minLengthTest([
     {
       failedFieldName: 'scoreId',
-      fakeValue: faker.random.alphaNumeric(23),
+      fakeValue: faker.string.alphanumeric(23),
       minLength: 24,
     },
   ]);
@@ -95,12 +95,12 @@ export const scoreMaxLengthTest = (selectedFields?: SelectedField[]) => {
   const fields: MaxLengthValue[] = [
     {
       failedFieldName: 'scoreId',
-      fakeValue: faker.random.alphaNumeric(25),
+      fakeValue: faker.string.alphanumeric(25),
       maxLength: 24,
     },
     {
       failedFieldName: 'course',
-      fakeValue: faker.random.alphaNumeric(31),
+      fakeValue: faker.string.alphanumeric(31),
       maxLength: 30,
     },
   ];
@@ -114,12 +114,12 @@ export const scoreMaximumTest = () => {
   return maximumTest([
     {
       failedFieldName: 'firstHalfScore',
-      fakeValue: parseInt(faker.random.numeric(4)),
+      fakeValue: parseInt(faker.string.numeric(4)),
       maximum: 300,
     },
     {
       failedFieldName: 'secondHalfScore',
-      fakeValue: parseInt(faker.random.numeric(4)),
+      fakeValue: parseInt(faker.string.numeric(4)),
       maximum: 300,
     },
   ]);

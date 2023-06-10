@@ -16,31 +16,31 @@ import { formatDate } from '../common.util';
 
 export const fakeEquipment = (useId: boolean = true) => ({
   id: useId ? new Mongoose.Types.ObjectId().toString() : undefined,
-  userName: faker.random.alpha(5),
+  userName: faker.string.alpha(5),
   userImage: faker.internet.url(),
   equipment: [
     {
-      type: faker.random.word(),
+      type: faker.lorem.word(5),
       list: [
         {
-          brand: faker.random.word(),
-          model: faker.random.word(),
+          brand: faker.lorem.word(5),
+          model: faker.lorem.word(5),
           sex: 'M',
           hand: 'R',
-          year: faker.random.numeric(4),
-          length: parseInt(faker.random.numeric(3)),
+          year: faker.string.numeric(4),
+          length: parseInt(faker.string.numeric(3)),
           cover: true,
-          purchaseInfo: faker.random.words(),
-          headSpec: faker.random.alpha(5),
-          loftAngle: parseInt(faker.random.numeric(2)),
-          headVolume: parseInt(faker.random.numeric(2)),
-          headImport: faker.random.alpha(5),
-          shaftSpec: faker.random.alpha(5),
-          stiffness: parseInt(faker.random.numeric(3)),
-          flex: parseInt(faker.random.numeric(3)),
-          weight: parseInt(faker.random.numeric(2)),
-          torque: parseInt(faker.random.numeric(1)),
-          shaftImport: faker.random.word(),
+          purchaseInfo: faker.lorem.words(),
+          headSpec: faker.string.alpha(5),
+          loftAngle: parseInt(faker.string.numeric(2)),
+          headVolume: parseInt(faker.string.numeric(2)),
+          headImport: faker.string.alpha(5),
+          shaftSpec: faker.string.alpha(5),
+          stiffness: parseInt(faker.string.numeric(3)),
+          flex: parseInt(faker.string.numeric(3)),
+          weight: parseInt(faker.string.numeric(2)),
+          torque: parseInt(faker.string.numeric(1)),
+          shaftImport: faker.lorem.word(5),
           images: [faker.internet.url(), faker.internet.url()],
         },
       ],
@@ -49,8 +49,8 @@ export const fakeEquipment = (useId: boolean = true) => ({
 });
 
 export const equipmentTypeTest = () => {
-  const fakeNumber = parseInt(faker.random.numeric(5));
-  const fakeString = faker.random.alpha(10);
+  const fakeNumber = parseInt(faker.string.numeric(5));
+  const fakeString = faker.string.alpha(10);
   return typeTest([
     {
       failedFieldName: 'equipmentId',
@@ -203,7 +203,7 @@ export const equipmentFormatTest = () => {
     {
       parentFieldName: 'equipment.list',
       failedFieldName: 'images',
-      fakeValue: faker.random.alpha(10),
+      fakeValue: faker.string.alpha(10),
       format: 'url',
       item: true,
     },
@@ -244,7 +244,7 @@ export const equipmentMinLengthTest = () => {
   return minLengthTest([
     {
       failedFieldName: 'equipmentId',
-      fakeValue: faker.random.alphaNumeric(23),
+      fakeValue: faker.string.alphanumeric(23),
       minLength: 24,
     },
   ]);
@@ -254,73 +254,73 @@ export const equipmentMaxLengthTest = (selectedFields?: SelectedField[]) => {
   const fields: MaxLengthValue[] = [
     {
       failedFieldName: 'equipmentId',
-      fakeValue: faker.random.alphaNumeric(25),
+      fakeValue: faker.string.alphanumeric(25),
       maxLength: 24,
     },
     {
       parentFieldName: 'equipment',
       failedFieldName: 'type',
-      fakeValue: faker.random.alphaNumeric(51),
+      fakeValue: faker.string.alphanumeric(51),
       maxLength: 50,
     },
     {
       parentFieldName: 'equipment.list',
       failedFieldName: 'brand',
-      fakeValue: faker.random.alphaNumeric(51),
+      fakeValue: faker.string.alphanumeric(51),
       maxLength: 50,
     },
     {
       parentFieldName: 'equipment.list',
       failedFieldName: 'model',
-      fakeValue: faker.random.alphaNumeric(51),
+      fakeValue: faker.string.alphanumeric(51),
       maxLength: 50,
     },
     {
       parentFieldName: 'equipment.list',
       failedFieldName: 'sex',
-      fakeValue: faker.random.alphaNumeric(2),
+      fakeValue: faker.string.alphanumeric(2),
       maxLength: 1,
     },
     {
       parentFieldName: 'equipment.list',
       failedFieldName: 'hand',
-      fakeValue: faker.random.alphaNumeric(2),
+      fakeValue: faker.string.alphanumeric(2),
       maxLength: 1,
     },
     {
       parentFieldName: 'equipment.list',
       failedFieldName: 'year',
-      fakeValue: faker.random.alphaNumeric(5),
+      fakeValue: faker.string.alphanumeric(5),
       maxLength: 4,
     },
     {
       parentFieldName: 'equipment.list',
       failedFieldName: 'purchaseInfo',
-      fakeValue: faker.random.alphaNumeric(2001),
+      fakeValue: faker.string.alphanumeric(2001),
       maxLength: 2000,
     },
     {
       parentFieldName: 'equipment.list',
       failedFieldName: 'headSpec',
-      fakeValue: faker.random.alphaNumeric(51),
+      fakeValue: faker.string.alphanumeric(51),
       maxLength: 50,
     },
     {
       parentFieldName: 'equipment.list',
       failedFieldName: 'headImport',
-      fakeValue: faker.random.alphaNumeric(51),
+      fakeValue: faker.string.alphanumeric(51),
       maxLength: 50,
     },
     {
       parentFieldName: 'equipment.list',
       failedFieldName: 'shaftSpec',
-      fakeValue: faker.random.alphaNumeric(51),
+      fakeValue: faker.string.alphanumeric(51),
       maxLength: 50,
     },
     {
       parentFieldName: 'equipment.list',
       failedFieldName: 'shaftImport',
-      fakeValue: faker.random.alphaNumeric(51),
+      fakeValue: faker.string.alphanumeric(51),
       maxLength: 50,
     },
   ];
@@ -335,43 +335,43 @@ export const equipmentMaximumTest = () => {
     {
       parentFieldName: 'equipment.list',
       failedFieldName: 'length',
-      fakeValue: parseInt(faker.random.numeric(5)),
+      fakeValue: parseInt(faker.string.numeric(5)),
       maximum: 1000,
     },
     {
       parentFieldName: 'equipment.list',
       failedFieldName: 'loftAngle',
-      fakeValue: parseInt(faker.random.numeric(4)),
+      fakeValue: parseInt(faker.string.numeric(4)),
       maximum: 360,
     },
     {
       parentFieldName: 'equipment.list',
       failedFieldName: 'headVolume',
-      fakeValue: parseInt(faker.random.numeric(5)),
+      fakeValue: parseInt(faker.string.numeric(5)),
       maximum: 1000,
     },
     {
       parentFieldName: 'equipment.list',
       failedFieldName: 'stiffness',
-      fakeValue: parseInt(faker.random.numeric(5)),
+      fakeValue: parseInt(faker.string.numeric(5)),
       maximum: 1000,
     },
     {
       parentFieldName: 'equipment.list',
       failedFieldName: 'weight',
-      fakeValue: parseInt(faker.random.numeric(5)),
+      fakeValue: parseInt(faker.string.numeric(5)),
       maximum: 1000,
     },
     {
       parentFieldName: 'equipment.list',
       failedFieldName: 'torque',
-      fakeValue: parseInt(faker.random.numeric(5)),
+      fakeValue: parseInt(faker.string.numeric(5)),
       maximum: 1000,
     },
     {
       parentFieldName: 'equipment.list',
       failedFieldName: 'flex',
-      fakeValue: parseInt(faker.random.numeric(5)),
+      fakeValue: parseInt(faker.string.numeric(5)),
       maximum: 1000,
     },
   ]);

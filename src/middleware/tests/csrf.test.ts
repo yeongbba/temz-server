@@ -67,7 +67,7 @@ describe('Csrf Middleware', () => {
       method: 'POST',
       url: `/auth/update`,
       body: {},
-      headers: { [config.csrf.tokenKey]: `${faker.random.alphaNumeric(60)}` },
+      headers: { [config.csrf.tokenKey]: `${faker.string.alphanumeric(60)}` },
     });
     bcrypt.compare = jest.fn(async () => false);
 
@@ -83,7 +83,7 @@ describe('Csrf Middleware', () => {
       method: 'POST',
       url: `/auth/update`,
       body: {},
-      headers: { [config.csrf.tokenKey]: `${faker.random.alphaNumeric(60)}` },
+      headers: { [config.csrf.tokenKey]: `${faker.string.alphanumeric(60)}` },
     });
     bcrypt.compare = jest.fn(async () => true);
 

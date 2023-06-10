@@ -95,7 +95,7 @@ describe('Equipment Controller', () => {
     });
 
     it('Return 204, if equipment is updated successfully', async () => {
-      equipmentRepository.updateEquipment = jest.fn(() => Equipment.parse({ id: faker.random.alphaNumeric(24) }));
+      equipmentRepository.updateEquipment = jest.fn(() => Equipment.parse({ id: faker.string.alphanumeric(24) }));
 
       await equipmentController.updateEquipment(request, response);
 
@@ -117,7 +117,7 @@ describe('Equipment Controller', () => {
     });
 
     it('Return 200, if my equipment successfully found', async () => {
-      request.userId = faker.random.alphaNumeric(24);
+      request.userId = faker.string.alphanumeric(24);
       const equipment = Equipment.parse(fakeEquipment());
       equipmentRepository.findMyEquipment = jest.fn(() => equipment);
 
@@ -143,8 +143,8 @@ describe('Equipment Controller', () => {
     });
 
     it('Return 200, if equipments successfully found with keywords', async () => {
-      request.userId = faker.random.alphaNumeric(24);
-      request.query.keywords = faker.random.words(2);
+      request.userId = faker.string.alphanumeric(24);
+      request.query.keywords = faker.lorem.words(2);
       const limit = request.query.limit as string;
       const skip = request.query.skip as string;
       const keywords = (request.query.keywords as string)?.split(' ').join('|');
@@ -166,10 +166,10 @@ describe('Equipment Controller', () => {
     });
 
     it('Return 200, if equipments successfully found without keywords', async () => {
-      request.userId = faker.random.alphaNumeric(24);
-      request.query.type = faker.random.alpha(4);
-      request.query.brand = faker.random.alpha(4);
-      request.query.model = faker.random.alpha(4);
+      request.userId = faker.string.alphanumeric(24);
+      request.query.type = faker.string.alpha(4);
+      request.query.brand = faker.string.alpha(4);
+      request.query.model = faker.string.alpha(4);
       const limit = request.query.limit as string;
       const skip = request.query.skip as string;
       const type = request.query.type as string;
@@ -206,8 +206,8 @@ describe('Equipment Controller', () => {
     });
 
     it('Return 204, if equipment successfully removed', async () => {
-      request.userId = faker.random.alphaNumeric(24);
-      equipmentRepository.removeEquipment = jest.fn(() => Equipment.parse({ id: faker.random.alphaNumeric(24) }));
+      request.userId = faker.string.alphanumeric(24);
+      equipmentRepository.removeEquipment = jest.fn(() => Equipment.parse({ id: faker.string.alphanumeric(24) }));
 
       await equipmentController.removeEquipment(request, response);
 
@@ -216,7 +216,7 @@ describe('Equipment Controller', () => {
     });
 
     it('Return 404 if there is no registered score', async () => {
-      request.userId = faker.random.alphaNumeric(24);
+      request.userId = faker.string.alphanumeric(24);
       equipmentRepository.removeEquipment = jest.fn(() => Equipment.parse(null));
 
       const removeEquipment = async () => equipmentController.removeEquipment(request, response);

@@ -244,7 +244,7 @@ describe('Auth APIs', () => {
     });
 
     it('returns 401 when username is not found', async () => {
-      const randomName = faker.random.alpha({ count: 10 });
+      const randomName = faker.string.alpha(10);
       const user = await createNewUser(request);
 
       const res = await request.post('/auth/login', {
@@ -395,7 +395,7 @@ describe('Auth APIs', () => {
     });
 
     it('returns 404 and user name if user does not exist', async () => {
-      const name = faker.random.alpha({ count: 15 });
+      const name = faker.string.alpha(15);
 
       const res = await request.post(`/auth/reset-password`, {
         name,
@@ -549,7 +549,7 @@ describe('Auth APIs', () => {
       const user = await createNewUser(request);
 
       const res = await request.post(`/auth/check-phone`, {
-        name: faker.random.alpha({ count: 15 }),
+        name: faker.string.alpha(15),
         phone: user.phone,
       });
 
@@ -810,7 +810,7 @@ describe('Auth APIs', () => {
     it('returns 401 if the token is invalid', async () => {
       const { token } = await loginUser(request);
       const csrf = await csrfToken(request, token.access);
-      const fakeToken = token.refresh.slice(0, -1) + faker.random.alpha();
+      const fakeToken = token.refresh.slice(0, -1) + faker.string.alpha();
 
       const headers = {
         'R-Authorization': `Bearer ${fakeToken}`,

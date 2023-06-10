@@ -25,7 +25,7 @@ export const verifyMissingTest = (selectedFields?: SelectedField[]) => {
 };
 
 export const verifyTypeTest = (selectedFields?: SelectedField[]) => {
-  const fakeNumber = parseInt(faker.random.numeric(5));
+  const fakeNumber = parseInt(faker.string.numeric(5));
 
   const fields: TypeValue[] = [
     { failedFieldName: 'phone', fakeValue: fakeNumber, type: 'string' },
@@ -38,10 +38,10 @@ export const verifyTypeTest = (selectedFields?: SelectedField[]) => {
 };
 
 export const verifyMinLengthTest = () =>
-  minLengthTest([{ failedFieldName: 'code', fakeValue: faker.random.alpha({ count: 5 }), minLength: 6 }]);
+  minLengthTest([{ failedFieldName: 'code', fakeValue: faker.string.alpha(5), minLength: 6 }]);
 
 export const verifyMaxLengthTest = () =>
-  maxLengthTest([{ failedFieldName: 'code', fakeValue: faker.random.alpha({ count: 7 }), maxLength: 6 }]);
+  maxLengthTest([{ failedFieldName: 'code', fakeValue: faker.string.alpha(7), maxLength: 6 }]);
 
 export const verifyPatternTest = () =>
   patternTest([

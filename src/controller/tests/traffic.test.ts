@@ -31,7 +31,7 @@ describe('Traffic Controller', () => {
     });
 
     it('Return 201, if traffic is created successfully', async () => {
-      request.userId = faker.random.alphaNumeric(24);
+      request.userId = faker.string.alphanumeric(24);
       trafficRepository.createTraffic = jest.fn();
 
       await trafficController.createTraffic(request, response);
@@ -59,7 +59,7 @@ describe('Traffic Controller', () => {
     });
 
     it('Return 404 if there is no registered traffic', async () => {
-      request.userId = faker.random.alphaNumeric(24);
+      request.userId = faker.string.alphanumeric(24);
       trafficRepository.updateTraffic = jest.fn(() => Traffic.parse(null));
 
       const updateTraffic = async () => trafficController.updateTraffic(request, response);
@@ -71,8 +71,8 @@ describe('Traffic Controller', () => {
     });
 
     it('Return 204, if traffic is updated successfully', async () => {
-      request.userId = faker.random.alphaNumeric(24);
-      trafficRepository.updateTraffic = jest.fn(() => Traffic.parse({ id: faker.random.alphaNumeric(24) }));
+      request.userId = faker.string.alphanumeric(24);
+      trafficRepository.updateTraffic = jest.fn(() => Traffic.parse({ id: faker.string.alphanumeric(24) }));
 
       await trafficController.updateTraffic(request, response);
 
@@ -97,7 +97,7 @@ describe('Traffic Controller', () => {
     });
 
     it('Return 200, if traffic successfully found', async () => {
-      request.userId = faker.random.alphaNumeric(24);
+      request.userId = faker.string.alphanumeric(24);
       const date = request.query.date as string;
       const traffic = Traffic.parse({ userId: request.userId, date });
       trafficRepository.findTraffic = jest.fn(() => traffic);
@@ -123,7 +123,7 @@ describe('Traffic Controller', () => {
     });
 
     it('Return 200, if total traffic successfully found', async () => {
-      request.userId = faker.random.alphaNumeric(24);
+      request.userId = faker.string.alphanumeric(24);
       const total = TotalTraffic.parse({ ...fakeTotalTraffic(false) });
       trafficRepository.findTotalTraffic = jest.fn(() => total);
 
