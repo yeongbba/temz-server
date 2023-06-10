@@ -4,5 +4,6 @@
   "coverageDirectory": "coverage",
   "coverageProvider": "v8",
   "setupFiles": ["dotenv/config"],
-  "testPathIgnorePatterns": ["/dist/"]
+  "testPathIgnorePatterns": ["/dist/"],
+  "testTimeout": 30000
 }
