@@ -57,7 +57,7 @@ jobs:
     steps:
       - name: pwd
         run: pwd
-      - uses: .github/workflows/reusable.yml
+      - uses: ./.github/workflows/reusable.yml
         # env: 
         #   TEST_FILE: auth.test.ts
         with:
