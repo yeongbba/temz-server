@@ -54,10 +54,13 @@ jobs:
     needs: unit-test
     environment: test
     runs-on: ubuntu-latest
-    uses: ./.github/workflows/reusable.yml
-    with:
-      TEST_FILE: auth.test.ts
-    name: auth integration test
+    steps:
+      - name: pwd
+        run: pwd
+      - uses: ./.github/workflows/reusable.yml
+        with:
+          TEST_FILE: auth.test.ts
+        name: auth integration test
     # steps:
     #   - uses: actions/checkout@v3
     #   - name: Use Node.js 16.16.0
