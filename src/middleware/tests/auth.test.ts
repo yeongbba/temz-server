@@ -37,7 +37,7 @@ describe('Auth Middleware', () => {
     const request = httpMocks.createRequest({
       method: 'GET',
       url: `/auth/me`,
-      headers: { Authorization: `Bearer ${faker.string.alphanumeric(128)}` },
+      headers: { Authorization: `Bearer ${faker.random.alphaNumeric(128)}` },
     });
     const token = request.header('Authorization')?.split(' ')[1];
     jwt.verify = jest.fn();
@@ -49,11 +49,11 @@ describe('Auth Middleware', () => {
   });
 
   it('returns 401 for the request when cannot find a user by id from the JWT', async () => {
-    const userId = faker.string.alphanumeric(10);
+    const userId = faker.random.alphaNumeric(10);
     const request = httpMocks.createRequest({
       method: 'GET',
       url: `/auth/me`,
-      headers: { Authorization: `Bearer ${faker.string.alphanumeric(128)}` },
+      headers: { Authorization: `Bearer ${faker.random.alphaNumeric(128)}` },
     });
     const token = request.header('Authorization')?.split(' ')[1];
     const mockFn = jest.fn();
@@ -71,11 +71,11 @@ describe('Auth Middleware', () => {
   });
 
   it('passes a request with valid Authorization header', async () => {
-    const userId = faker.string.alphanumeric(10);
+    const userId = faker.random.alphaNumeric(10);
     const request = httpMocks.createRequest({
       method: 'GET',
       url: '/auth/me',
-      headers: { Authorization: `Bearer ${faker.string.alphanumeric(128)}` },
+      headers: { Authorization: `Bearer ${faker.random.alphaNumeric(128)}` },
     });
     const token = request.header('Authorization')?.split(' ')[1];
     const mockFn = jest.fn();
@@ -95,11 +95,11 @@ describe('Auth Middleware', () => {
   });
 
   it('passes a request with valid Authorization cookie', async () => {
-    const userId = faker.string.alphanumeric(10);
+    const userId = faker.random.alphaNumeric(10);
     const request = httpMocks.createRequest({
       method: 'GET',
       url: '/auth/me',
-      cookies: { [config.cookie.accessTokenKey]: faker.string.alphanumeric(128) },
+      cookies: { [config.cookie.accessTokenKey]: faker.random.alphaNumeric(128) },
     });
     const token = request.cookies[config.cookie.accessTokenKey];
     const mockFn = jest.fn();

@@ -314,7 +314,7 @@ describe('Equipment APIs', () => {
       const res = await request.get(`/equipment`, {
         headers,
         params: {
-          keywords: faker.lorem.word(5),
+          keywords: faker.random.word(),
         },
       });
 

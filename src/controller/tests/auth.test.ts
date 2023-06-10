@@ -78,7 +78,7 @@ describe('Auth Controller', () => {
     });
 
     it('If the user cannot be found, returns 404 for the request', async () => {
-      request.userId = faker.string.alphanumeric(24);
+      request.userId = faker.random.alphaNumeric(24);
       userRepository.findById = jest.fn(() => User.parse(null));
 
       const me = async () => authController.me(request, response);
@@ -88,7 +88,7 @@ describe('Auth Controller', () => {
     });
 
     it('Find my information by id', async () => {
-      request.userId = faker.string.alphanumeric(24);
+      request.userId = faker.random.alphaNumeric(24);
       userRepository.findById = jest.fn(() => me);
       await authController.me(request, response);
 
@@ -113,7 +113,7 @@ describe('Auth Controller', () => {
     });
 
     it('Generate csrf token', async () => {
-      const token = faker.string.alphanumeric(60);
+      const token = faker.random.alphaNumeric(60);
       bcrypt.hash = jest.fn(async () => token);
 
       await authController.csrf(request, response);
@@ -172,7 +172,7 @@ describe('Auth Controller', () => {
       userRepository.updateUser = jest.fn(() => User.parse(null));
       userRepository.createUser = jest.fn();
 
-      const hashed = faker.string.alphanumeric(60);
+      const hashed = faker.random.alphaNumeric(60);
       bcrypt.hash = jest.fn(async () => hashed);
       const data = User.parse({
         ...request.body,
@@ -252,7 +252,7 @@ describe('Auth Controller', () => {
       const password = user.password;
       userRepository.findByName = jest.fn(() => user);
       bcrypt.compare = jest.fn(async () => true);
-      const token = faker.string.alphanumeric(189);
+      const token = faker.random.alphaNumeric(189);
       jwt.sign = jest.fn(() => token);
       response.cookie = jest.fn();
       const accessTokenOptions: CookieOptions = {
@@ -378,7 +378,7 @@ describe('Auth Controller', () => {
       userRepository.findByName = jest.fn(() => user);
       userRepository.updateUser = jest.fn();
       bcrypt.compare = jest.fn(async () => false);
-      const hashed = faker.string.alphanumeric(60);
+      const hashed = faker.random.alphaNumeric(60);
       bcrypt.hash = jest.fn(async () => hashed);
       user.password = hashed;
 
@@ -543,11 +543,11 @@ describe('Auth Controller', () => {
           email: faker.internet.email(),
           profile: {
             title: faker.internet.userName(),
-            description: faker.lorem.words(3),
+            description: faker.random.words(3),
             image: faker.internet.avatar(),
             background: faker.internet.avatar(),
           },
-          wallet: `0x${faker.string.numeric(40)}`,
+          wallet: `0x${faker.random.numeric(40)}`,
         },
       });
       response = httpMocks.createResponse();
@@ -639,7 +639,7 @@ describe('Auth Controller', () => {
     });
 
     it('If update is successful, returns 204 for the request', async () => {
-      request.userId = faker.string.alphanumeric(24);
+      request.userId = faker.random.alphaNumeric(24);
       userRepository.updateUser = jest.fn(() => User.parse({ id: request.userId }));
 
       await authController.wakeup(request, response);
@@ -649,7 +649,7 @@ describe('Auth Controller', () => {
     });
 
     it('If the user cannot be found, returns 404 for the request', async () => {
-      request.userId = faker.string.alphanumeric(24);
+      request.userId = faker.random.alphaNumeric(24);
       userRepository.updateUser = jest.fn(() => User.parse(null));
 
       const wakeup = async () => authController.wakeup(request, response);
@@ -668,7 +668,7 @@ describe('Auth Controller', () => {
         method: 'POST',
         url: '/auth/token',
         headers: {
-          'R-Authorization': `Bearer ${faker.string.alphanumeric(189)}`,
+          'R-Authorization': `Bearer ${faker.random.alphaNumeric(189)}`,
         },
       });
       response = httpMocks.createResponse();
@@ -702,8 +702,8 @@ describe('Auth Controller', () => {
 
     it('If the user cannot be found, returns 401 for the request', async () => {
       const header = getToken(request, 'refresh');
-      const userId = faker.string.alphanumeric(24);
-      userRepository.findRefreshToken = jest.fn(() => RefreshToken.parse({ id: faker.string.alphanumeric(24) }));
+      const userId = faker.random.alphaNumeric(24);
+      userRepository.findRefreshToken = jest.fn(() => RefreshToken.parse({ id: faker.random.alphaNumeric(24) }));
       userRepository.findById = jest.fn(() => User.parse(null));
       userRepository.removeRefreshToken = jest.fn();
       const mockFn = jest.fn();
@@ -727,7 +727,7 @@ describe('Auth Controller', () => {
 
     it('remove refresh token for the request with unsupported token', async () => {
       const header = getToken(request, 'refresh');
-      userRepository.findRefreshToken = jest.fn(() => RefreshToken.parse({ id: faker.string.alphanumeric(24) }));
+      userRepository.findRefreshToken = jest.fn(() => RefreshToken.parse({ id: faker.random.alphaNumeric(24) }));
       userRepository.removeRefreshToken = jest.fn();
       response.cookie = jest.fn();
       jwt.verify = jest.fn();
@@ -744,13 +744,13 @@ describe('Auth Controller', () => {
 
     it('If the token generate successfully, returns 201 for the request', async () => {
       const header = getToken(request, 'refresh');
-      const userId = faker.string.alphanumeric(24);
-      userRepository.findRefreshToken = jest.fn(() => RefreshToken.parse({ id: faker.string.alphanumeric(24) }));
+      const userId = faker.random.alphaNumeric(24);
+      userRepository.findRefreshToken = jest.fn(() => RefreshToken.parse({ id: faker.random.alphaNumeric(24) }));
       userRepository.findById = jest.fn(() => User.parse({ id: userId }));
       const mockFn = jest.fn();
       const decoded = { id: userId } as JwtPayload;
       jwt.verify = mockFn.mockImplementation(() => decoded);
-      const token = faker.string.alphanumeric(189);
+      const token = faker.random.alphaNumeric(189);
       jwt.sign = jest.fn(() => token);
       response.cookie = jest.fn();
       const accessTokenOptions: CookieOptions = {
@@ -777,15 +777,15 @@ describe('Auth Controller', () => {
       const request = httpMocks.createRequest({
         method: 'POST',
         url: '/auth/token',
-        cookies: { [config.cookie.refreshTokenKey]: faker.string.alphanumeric(128) },
+        cookies: { [config.cookie.refreshTokenKey]: faker.random.alphaNumeric(128) },
       });
-      const userId = faker.string.alphanumeric(24);
-      userRepository.findRefreshToken = jest.fn(() => RefreshToken.parse({ id: faker.string.alphanumeric(24) }));
+      const userId = faker.random.alphaNumeric(24);
+      userRepository.findRefreshToken = jest.fn(() => RefreshToken.parse({ id: faker.random.alphaNumeric(24) }));
       userRepository.findById = jest.fn(() => User.parse({ id: userId }));
       const mockFn = jest.fn();
       const decoded = { id: userId } as JwtPayload;
       jwt.verify = mockFn.mockImplementation(() => decoded);
-      const token = faker.string.alphanumeric(189);
+      const token = faker.random.alphaNumeric(189);
       jwt.sign = jest.fn(() => token);
       response.cookie = jest.fn();
       const accessTokenOptions: CookieOptions = {

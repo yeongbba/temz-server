@@ -105,7 +105,7 @@ export const csrfMiddleWareTest = [
 
       const headers = {
         Authorization: `Bearer ${token.access}`,
-        [config.csrf.tokenKey]: csrf.token.slice(0, -1) + faker.string.alpha(),
+        [config.csrf.tokenKey]: csrf.token.slice(0, -1) + faker.random.alpha(),
       };
       const res = await sendRequest(request, options, {
         headers,
@@ -145,7 +145,7 @@ export const authMiddleWareTest = [
       const { token } = await loginUser(request);
       const csrf = await csrfToken(request, token.access);
 
-      const headers = { Authorization: `Bearer ${faker.string.alphanumeric(4)}`, [config.csrf.tokenKey]: csrf.token };
+      const headers = { Authorization: `Bearer ${faker.random.alphaNumeric(4)}`, [config.csrf.tokenKey]: csrf.token };
       const res = await sendRequest(request, options, {
         headers,
       });
@@ -161,7 +161,7 @@ export const authMiddleWareTest = [
     testFn: testFn(async (request, options, value, reason) => {
       const { token } = await loginUser(request);
       const csrf = await csrfToken(request, token.access);
-      const fakeToken = token.access.slice(0, -1) + faker.string.alpha();
+      const fakeToken = token.access.slice(0, -1) + faker.random.alpha();
 
       const headers = {
         Authorization: `Bearer ${fakeToken}`,

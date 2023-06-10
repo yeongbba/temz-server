@@ -29,11 +29,11 @@ export const fakeUser = (useId: boolean = true) => ({
   email: faker.internet.email(),
   profile: {
     title: faker.internet.userName(),
-    description: faker.lorem.words(3),
+    description: faker.random.words(3),
     image: faker.internet.avatar(),
     background: faker.internet.avatar(),
   },
-  wallet: `0x${faker.string.numeric(40)}`,
+  wallet: `0x${faker.random.numeric(40)}`,
 });
 
 export const createNewUser = async (request) => {
@@ -67,13 +67,13 @@ export const csrfToken = async (request: AxiosInstance, token: string) => {
 
 export const authMaxLengthTest = (selectedFields?: SelectedField[]) => {
   const fields: MaxLengthValue[] = [
-    { failedFieldName: 'name', fakeValue: faker.string.alpha(26), maxLength: 25 },
-    { failedFieldName: 'wallet', fakeValue: faker.string.alphanumeric(43), maxLength: 42 },
-    { parentFieldName: 'profile', failedFieldName: 'title', fakeValue: faker.string.alpha(26), maxLength: 25 },
+    { failedFieldName: 'name', fakeValue: faker.random.alpha({ count: 26 }), maxLength: 25 },
+    { failedFieldName: 'wallet', fakeValue: faker.random.alphaNumeric(43), maxLength: 42 },
+    { parentFieldName: 'profile', failedFieldName: 'title', fakeValue: faker.random.alpha(26), maxLength: 25 },
     {
       parentFieldName: 'profile',
       failedFieldName: 'description',
-      fakeValue: faker.string.alpha(501),
+      fakeValue: faker.random.alpha(501),
       maxLength: 500,
     },
   ];
@@ -85,8 +85,8 @@ export const authMaxLengthTest = (selectedFields?: SelectedField[]) => {
 
 export const authMinLengthTest = (selectedFields?: SelectedField[]) => {
   const fields: MinLengthValue[] = [
-    { failedFieldName: 'name', fakeValue: faker.string.alpha(2), minLength: 3 },
-    { failedFieldName: 'wallet', fakeValue: faker.string.alphanumeric(24), minLength: 25 },
+    { failedFieldName: 'name', fakeValue: faker.random.alpha({ count: 2 }), minLength: 3 },
+    { failedFieldName: 'wallet', fakeValue: faker.random.alphaNumeric(24), minLength: 25 },
   ];
 
   const value = filterFields<MinLengthValue>(fields, selectedFields);
@@ -110,9 +110,9 @@ export const authMissingTest = (selectedFields?: SelectedField[]) => {
 
 export const authFormatTest = () =>
   formatTest([
-    { failedFieldName: 'email', fakeValue: faker.string.alpha(10), format: 'email' },
-    { parentFieldName: 'profile', failedFieldName: 'image', fakeValue: faker.string.alpha(10), format: 'url' },
-    { parentFieldName: 'profile', failedFieldName: 'background', fakeValue: faker.string.alpha(26), format: 'url' },
+    { failedFieldName: 'email', fakeValue: faker.random.alpha(10), format: 'email' },
+    { parentFieldName: 'profile', failedFieldName: 'image', fakeValue: faker.random.alpha(10), format: 'url' },
+    { parentFieldName: 'profile', failedFieldName: 'background', fakeValue: faker.random.alpha(26), format: 'url' },
   ]);
 
 export const authPatternTest = (selectedFields?: SelectedField[]) => {
@@ -124,7 +124,7 @@ export const authPatternTest = (selectedFields?: SelectedField[]) => {
     },
     {
       failedFieldName: 'password',
-      fakeValue: faker.string.alphanumeric(10),
+      fakeValue: faker.random.alphaNumeric(10),
       pattern: '(?=.*[0-9])(?=.*[a-z])(?=.*\\W)(?=\\S+$).{8,20}',
     },
   ];
@@ -135,8 +135,8 @@ export const authPatternTest = (selectedFields?: SelectedField[]) => {
 };
 
 export const authTypeTest = (selectedFields?: SelectedField[]) => {
-  const fakeNumber = parseInt(faker.string.numeric(5));
-  const fakeString = faker.lorem.word(5);
+  const fakeNumber = parseInt(faker.random.numeric(5));
+  const fakeString = faker.random.word();
 
   const fields: TypeValue[] = [
     {

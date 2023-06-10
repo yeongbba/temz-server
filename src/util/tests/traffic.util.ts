@@ -15,18 +15,18 @@ import { formatDate } from '../common.util';
 
 export const fakeTraffic = (useId: boolean = true) => ({
   id: useId ? new Mongoose.Types.ObjectId().toString() : undefined,
-  view: parseInt(faker.string.numeric(2)),
+  view: parseInt(faker.random.numeric(2)),
   date: formatDate(faker.date.past(3)),
 });
 
 export const fakeTotalTraffic = (useId: boolean = true) => ({
   id: useId ? new Mongoose.Types.ObjectId().toString() : undefined,
-  total: parseInt(faker.string.numeric(2)),
+  total: parseInt(faker.random.numeric(2)),
 });
 
 export const trafficTypeTest = () => {
-  const fakeNumber = parseInt(faker.string.numeric(5));
-  const fakeString = faker.string.alpha(10);
+  const fakeNumber = parseInt(faker.random.numeric(5));
+  const fakeString = faker.random.alpha(10);
   return typeTest([
     {
       failedFieldName: 'trafficId',
@@ -49,7 +49,7 @@ export const trafficTypeTest = () => {
 };
 
 export const trafficFormatTest = () => {
-  return formatTest([{ failedFieldName: 'date', fakeValue: faker.string.alpha(10), format: 'date' }]);
+  return formatTest([{ failedFieldName: 'date', fakeValue: faker.random.alpha(10), format: 'date' }]);
 };
 
 export const trafficMissingTest = (selectedFields?: SelectedField[]) => {
@@ -67,7 +67,7 @@ export const trafficMinLengthTest = () => {
   return minLengthTest([
     {
       failedFieldName: 'trafficId',
-      fakeValue: faker.string.alphanumeric(23),
+      fakeValue: faker.random.alphaNumeric(23),
       minLength: 24,
     },
   ]);
@@ -77,7 +77,7 @@ export const trafficMaxLengthTest = (selectedFields?: SelectedField[]) => {
   const fields: MaxLengthValue[] = [
     {
       failedFieldName: 'trafficId',
-      fakeValue: faker.string.alphanumeric(25),
+      fakeValue: faker.random.alphaNumeric(25),
       maxLength: 24,
     },
   ];

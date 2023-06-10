@@ -105,7 +105,7 @@ describe('Bookmark Controller', () => {
     });
 
     it('Return 200, if following list successfully found', async () => {
-      request.userId = faker.string.alphanumeric(24);
+      request.userId = faker.random.alphaNumeric(24);
       // filter
       const limit = request.query.limit as string;
       const skip = request.query.skip as string;
@@ -142,7 +142,7 @@ describe('Bookmark Controller', () => {
     });
 
     it('Return 200, if follower list successfully found', async () => {
-      request.userId = faker.string.alphanumeric(24);
+      request.userId = faker.random.alphaNumeric(24);
       // filter
       const limit = request.query.limit as string;
       const skip = request.query.skip as string;
@@ -235,7 +235,7 @@ describe('Bookmark Controller', () => {
       request.userId = follower.userId;
       userRepository.findById = jest.fn(() => follower);
       userRepository.findByName = jest.fn(() => following);
-      bookmarkRepository.removeBookmark = jest.fn(() => Bookmark.parse({ id: faker.string.alphanumeric(24) }));
+      bookmarkRepository.removeBookmark = jest.fn(() => Bookmark.parse({ id: faker.random.alphaNumeric(24) }));
 
       await bookmarkController.removeBookmark(request, response);
 

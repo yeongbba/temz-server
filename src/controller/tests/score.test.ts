@@ -33,7 +33,7 @@ describe('Score Controller', () => {
     });
 
     it('Return 201, if score is created successfully', async () => {
-      request.userId = faker.string.alphanumeric(24);
+      request.userId = faker.random.alphaNumeric(24);
       scoreRepository.createScore = jest.fn();
 
       await scoreController.createScore(request, response);
@@ -61,7 +61,7 @@ describe('Score Controller', () => {
     });
 
     it('Return 404 if there is no registered score', async () => {
-      request.userId = faker.string.alphanumeric(24);
+      request.userId = faker.random.alphaNumeric(24);
       scoreRepository.updateScore = jest.fn(() => Score.parse(null));
 
       const updateScore = async () => scoreController.updateScore(request, response);
@@ -71,8 +71,8 @@ describe('Score Controller', () => {
     });
 
     it('Return 204, if social link is updated successfully', async () => {
-      request.userId = faker.string.alphanumeric(24);
-      scoreRepository.updateScore = jest.fn(() => Score.parse({ id: faker.string.alphanumeric(24) }));
+      request.userId = faker.random.alphaNumeric(24);
+      scoreRepository.updateScore = jest.fn(() => Score.parse({ id: faker.random.alphaNumeric(24) }));
 
       await scoreController.updateScore(request, response);
 
@@ -95,7 +95,7 @@ describe('Score Controller', () => {
     });
 
     it('Return 200, if general link successfully found', async () => {
-      request.userId = faker.string.alphanumeric(24);
+      request.userId = faker.random.alphaNumeric(24);
       const limit = request.query.limit as string;
       const skip = request.query.skip as string;
       const sort = createSortMap('-date');
@@ -127,7 +127,7 @@ describe('Score Controller', () => {
     });
 
     it('Return 204, if score successfully removed', async () => {
-      request.userId = faker.string.alphanumeric(24);
+      request.userId = faker.random.alphaNumeric(24);
       const scoreId = request.query.scoreId;
       scoreRepository.removeScore = jest.fn(() => Score.parse({ id: scoreId }));
 
@@ -138,7 +138,7 @@ describe('Score Controller', () => {
     });
 
     it('Return 404 if there is no registered score', async () => {
-      request.userId = faker.string.alphanumeric(24);
+      request.userId = faker.random.alphaNumeric(24);
       const scoreId = request.query.scoreId;
       scoreRepository.removeScore = jest.fn(() => Score.parse(null));
 
