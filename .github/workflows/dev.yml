@@ -51,9 +51,10 @@ jobs:
   #     - name: Test unit
   #       run: yarn test:unit:action
   auth-test:
-    uses: './.github/workflows/action.yml'
+    uses: ./.github/workflows/integration.yml
     with:
       TEST_FILE: auth.test.ts
+    secrets: inherit
     # environment: test
     # runs-on: ubuntu-latest
     # needs: unit-test

@@ -8,10 +8,10 @@ on:
         type: string
 
 jobs:
-  reusable_workflow_job:
-    env: 
+  integration:
+    name: ${{ inputs.TEST_FILE }}
+    env:
       TEST_FILE: ${{ inputs.TEST_FILE }}
-    name: reusable
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
