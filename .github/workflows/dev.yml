@@ -55,12 +55,12 @@ jobs:
     environment: test
     runs-on: ubuntu-latest
     steps:
-
-      - uses: ./.github/workflows/reusable.yml
+      uses: ./.github/workflows/reusable.yml
       # env: 
       #   TEST_FILE: auth.test.ts
-        with:
-          TEST_FILE: auth.test.ts
+      with:
+        TEST_FILE: auth.test.ts
+      secrets: inherit
     name: auth integration test
     # steps:
     #   - uses: actions/checkout@v3
