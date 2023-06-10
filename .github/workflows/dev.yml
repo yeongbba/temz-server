@@ -67,8 +67,8 @@ jobs:
         uses: supercharge/mongodb-github-action@1.9.0
         with:
           mongodb-version: 6.0
-      - name: Setup Redis with password
-        uses: getong/redis-action@v1
+      - name: Setup Redis
+        uses: zhulik/redis-action@1.1.0
       - name: rebuild
         run: yarn rebuild
       - name: Integration Test 
