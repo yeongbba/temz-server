@@ -10,6 +10,36 @@ jobs:
     environment: test
     name: Test
     runs-on: ubuntu-latest
+    env:
+      IS_TEST: ${{ secrets.IS_TEST }}
+      ACCESS_SECRET: ${{ secrets.ACCESS_SECRET }}
+      ACCESS_EXPIRES_SEC: ${{ secrets.ACCESS_EXPIRES_SEC }}
+      REFRESH_SECRET: ${{ secrets.REFRESH_SECRET }}
+      REFRESH_EXPIRES_SEC: ${{ secrets.REFRESH_EXPIRES_SEC }}
+      ACCESS_TOKEN_KEY: ${{ secrets.ACCESS_TOKEN_KEY }}
+      REFRESH_TOKEN_KEY: ${{ secrets.REFRESH_TOKEN_KEY }}
+      BCRYPT_SALT_ROUNDS: ${{ secrets.BCRYPT_SALT_ROUNDS }}
+      HOST_PORT: ${{ secrets.HOST_PORT }}
+      DB_HOST: ${{ secrets.DB_HOST }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      REDIS_URL: ${{ secrets.REDIS_URL }}
+      RATE_LIMIT_DB: ${{ secrets.RATE_LIMIT_DB }}
+      VERIFY_CODE_DB: ${{ secrets.VERIFY_CODE_DB }}
+      CORS_ALLOW_ORIGIN: ${{ secrets.CORS_ALLOW_ORIGIN }}
+      CSRF_SECRET_KEY: ${{ secrets.CSRF_SECRET_KEY }}
+      CSRF_TOKEN_KEY: ${{ secrets.CSRF_TOKEN_KEY }}
+      RATE_LIMIT_WINDOW_MS: ${{ secrets.RATE_LIMIT_WINDOW_MS }}
+      RATE_LIMIT_MAX_REQUEST: ${{ secrets.RATE_LIMIT_MAX_REQUEST }}
+      SENS_HOST_PHONE: ${{ secrets.SENS_HOST_PHONE }}
+      SENS_SERVICE_ID: ${{ secrets.SENS_SERVICE_ID }}
+      SENS_ACCESS_KEY: ${{ secrets.SENS_ACCESS_KEY }}
+      SENS_SECRET_KEY: ${{ secrets.SENS_SECRET_KEY }}
+      VERIFICATION_ALLOW_COUNT: ${{ secrets.VERIFICATION_ALLOW_COUNT }}
+      VERIFICATION_GENERAL_EXPIRE_MINUTE: ${{ secrets.VERIFICATION_GENERAL_EXPIRE_MINUTE }}
+      VERIFICATION_BLOCK_EXPIRE_MINUTE: ${{ secrets.VERIFICATION_BLOCK_EXPIRE_MINUTE }}
+      TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+      TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+      TWILIO_SERVICE_SID: ${{ secrets.TWILIO_SERVICE_SID }}
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js 16.16.0
@@ -20,33 +50,4 @@ jobs:
         run: yarn rebuild
       - name: Test unit
         run: yarn test:unit:gh
-        env:
-          IS_TEST: ${{ secrets.IS_TEST }}
-          ACCESS_SECRET: ${{ secrets.ACCESS_SECRET }}
-          ACCESS_EXPIRES_SEC: ${{ secrets.ACCESS_EXPIRES_SEC }}
-          REFRESH_SECRET: ${{ secrets.REFRESH_SECRET }}
-          REFRESH_EXPIRES_SEC: ${{ secrets.REFRESH_EXPIRES_SEC }}
-          ACCESS_TOKEN_KEY: ${{ secrets.ACCESS_TOKEN_KEY }}
-          REFRESH_TOKEN_KEY: ${{ secrets.REFRESH_TOKEN_KEY }}
-          BCRYPT_SALT_ROUNDS: ${{ secrets.BCRYPT_SALT_ROUNDS }}
-          HOST_PORT: ${{ secrets.HOST_PORT }}
-          DB_HOST: ${{ secrets.DB_HOST }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          REDIS_URL: ${{ secrets.REDIS_URL }}
-          RATE_LIMIT_DB: ${{ secrets.RATE_LIMIT_DB }}
-          VERIFY_CODE_DB: ${{ secrets.VERIFY_CODE_DB }}
-          CORS_ALLOW_ORIGIN: ${{ secrets.CORS_ALLOW_ORIGIN }}
-          CSRF_SECRET_KEY: ${{ secrets.CSRF_SECRET_KEY }}
-          CSRF_TOKEN_KEY: ${{ secrets.CSRF_TOKEN_KEY }}
-          RATE_LIMIT_WINDOW_MS: ${{ secrets.RATE_LIMIT_WINDOW_MS }}
-          RATE_LIMIT_MAX_REQUEST: ${{ secrets.RATE_LIMIT_MAX_REQUEST }}
-          SENS_HOST_PHONE: ${{ secrets.SENS_HOST_PHONE }}
-          SENS_SERVICE_ID: ${{ secrets.SENS_SERVICE_ID }}
-          SENS_ACCESS_KEY: ${{ secrets.SENS_ACCESS_KEY }}
-          SENS_SECRET_KEY: ${{ secrets.SENS_SECRET_KEY }}
-          VERIFICATION_ALLOW_COUNT: ${{ secrets.VERIFICATION_ALLOW_COUNT }}
-          VERIFICATION_GENERAL_EXPIRE_MINUTE: ${{ secrets.VERIFICATION_GENERAL_EXPIRE_MINUTE }}
-          VERIFICATION_BLOCK_EXPIRE_MINUTE: ${{ secrets.VERIFICATION_BLOCK_EXPIRE_MINUTE }}
-          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
-          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
-          TWILIO_SERVICE_SID: ${{ secrets.TWILIO_SERVICE_SID }}
+
