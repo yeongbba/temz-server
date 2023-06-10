@@ -16,7 +16,7 @@ import { formatDate } from '../common.util';
 export const fakeTraffic = (useId: boolean = true) => ({
   id: useId ? new Mongoose.Types.ObjectId().toString() : undefined,
   view: parseInt(faker.string.numeric(2)),
-  date: formatDate(faker.date.past({ years: 3 })),
+  date: formatDate(faker.date.past(3)),
 });
 
 export const fakeTotalTraffic = (useId: boolean = true) => ({
