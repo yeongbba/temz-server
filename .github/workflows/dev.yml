@@ -36,20 +36,20 @@ env:
   TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
   TWILIO_SERVICE_SID: ${{ secrets.TWILIO_SERVICE_SID }}
 jobs:
-  # unit-test:
-  #   environment: test
-  #   name: unit test
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Use Node.js 16.16.0
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 16.16.0
-  #     - name: rebuild
-  #       run: yarn rebuild
-  #     - name: Test unit
-  #       run: yarn test:unit:action
+  unit-test:
+    environment: test
+    name: unit test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 16.16.0
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.16.0
+      - name: rebuild
+        run: yarn rebuild
+      - name: Test unit
+        run: yarn test:unit:action
   auth-test:
     uses: ./.github/workflows/integration.yml
     with:
