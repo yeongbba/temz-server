@@ -38,7 +38,6 @@ env:
   TWILIO_SERVICE_SID: ${{ secrets.TWILIO_SERVICE_SID }}
 jobs:
   integration:
-    needs: unit-test
     environment: test
     name: ${{ inputs.TEST_FILE }}
     env:
