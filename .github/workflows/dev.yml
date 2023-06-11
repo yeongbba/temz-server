@@ -62,53 +62,33 @@ jobs:
     with:
       TEST_FILE: bookmark.test.ts
     secrets: inherit
-    # runs-on: ubuntu-latest
-    # needs: unit-test
-    # name: auth integration test
-    # steps:
-    #   - uses: actions/checkout@v3
-    #   - name: Use Node.js 16.16.0
-    #     uses: actions/setup-node@v3
-    #     with:
-    #       node-version: 16.16.0
-    #   - name: Start MongoDB
-    #     uses: supercharge/mongodb-github-action@1.9.0
-    #     with:
-    #       mongodb-version: 6.0
-    #   - name: Setup Redis
-    #     uses: zhulik/redis-action@1.1.0
-    #   - name: rebuild
-    #     run: yarn rebuild
-    #   - name: Integration Test 
-    #     run: yarn test:integration:action
-    #   - name: If failure, test one more time
-    #     if: failure()
-    #     run: yarn test:integration:action
-  # bookmark-test:
-  #   needs: unit-test
-  #   environment: test
-  #   env: 
-  #     TEST_FILE: bookmark.test.ts
-  #   name: bookmark integration test
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Use Node.js 16.16.0
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 16.16.0
-  #     - name: Start MongoDB
-  #       uses: supercharge/mongodb-github-action@1.9.0
-  #       with:
-  #         mongodb-version: 6.0
-  #     - name: Setup Redis with password
-  #       uses: getong/redis-action@v1
-  #       with:
-  #         redis password: ${{ secrets.REDIS_PW }}
-  #     - name: rebuild
-  #       run: yarn rebuild
-  #     - name: Integration Test 
-  #       run: yarn test:integration:action
-  #     - name: If failure, test one more time
-  #       if: failure()
-  #       run: yarn test:integration:action
+  score-test:
+    needs: unit-test
+    uses: ./.github/workflows/integration.yml
+    with:
+      TEST_FILE: score.test.ts
+    secrets: inherit
+  equipment-test:
+    needs: unit-test
+    uses: ./.github/workflows/integration.yml
+    with:
+      TEST_FILE: equipment.test.ts
+    secrets: inherit
+  link-test:
+    needs: unit-test
+    uses: ./.github/workflows/integration.yml
+    with:
+      TEST_FILE: link.test.ts
+    secrets: inherit
+  verify-test:
+    needs: unit-test
+    uses: ./.github/workflows/integration.yml
+    with:
+      TEST_FILE: verify.test.ts
+    secrets: inherit
+  traffic-test:
+    needs: unit-test
+    uses: ./.github/workflows/integration.yml
+    with:
+      TEST_FILE: traffic.test.ts
+    secrets: inherit
