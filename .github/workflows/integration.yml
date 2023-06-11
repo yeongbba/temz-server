@@ -59,6 +59,3 @@ jobs:
         run: yarn rebuild
       - name: Integration Test 
         run: yarn test:integration:action
-      - name: If failure, test one more time
-        if: failure()
-        run: yarn test:integration:action
