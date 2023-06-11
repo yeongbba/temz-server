@@ -41,7 +41,6 @@
     "redis": "^4.6.5",
     "socket.io": "^4.6.0",
     "swagger-ui-express": "^4.6.2",
-    "twilio": "^4.7.2",
     "yamljs": "^0.3.0"
   },
   "devDependencies": {
