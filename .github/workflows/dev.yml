@@ -50,15 +50,16 @@ jobs:
         run: yarn rebuild
       - name: Test unit
         run: yarn test:unit:action
-  integration-test:
-    - uses: ./.github/workflows/integration.yml
-      with:
-        TEST_FILE: auth.test.ts
-      secrets: inherit
-    - uses: ./.github/workflows/integration.yml
-      with:
-        TEST_FILE: bookmark.test.ts
-      secrets: inherit
+  auth-integration-test:
+    uses: ./.github/workflows/integration.yml
+    with:
+      TEST_FILE: auth.test.ts
+    secrets: inherit
+  bookmark-integration-test:
+    uses: ./.github/workflows/integration.yml
+    with:
+      TEST_FILE: bookmark.test.ts
+    secrets: inherit
     # runs-on: ubuntu-latest
     # needs: unit-test
     # name: auth integration test
