@@ -1,9 +1,9 @@
 name: deploy to AWS
 on:
-  push:
-    branches: [ main ]
   pull_request:
     branches: [ main ]
+    types:
+      - closed
 
 env:
   DOCKER_IMAGE: ghcr.io/${{ github.actor }}/temz-server-deploy
@@ -13,6 +13,7 @@ env:
 
 jobs:
   build:
+    if: github.event.pull_request.merged == true
     name: Build
     runs-on: ubuntu-latest
     steps:
@@ -41,6 +42,7 @@ jobs:
           push: true
           tags: ${{ env.DOCKER_IMAGE }}:latest
   deploy:
+    if: github.event.pull_request.merged == true
     needs: build
     name: Deploy
     runs-on: [ self-hosted, label-temz ]
