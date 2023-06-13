@@ -57,11 +57,6 @@ export const config = {
     generalExpireMinute: parseInt(required('VERIFICATION_GENERAL_EXPIRE_MINUTE', 180)),
     blockExpireMinute: parseInt(required('VERIFICATION_BLOCK_EXPIRE_MINUTE', 600)),
   },
-  twilio: {
-    accountSid: required('TWILIO_ACCOUNT_SID'),
-    serviceSid: required('TWILIO_SERVICE_SID'),
-    authToken: required('TWILIO_AUTH_TOKEN'),
-  },
   environment: {
     test: required('IS_TEST') === 'true' ? true : false,
   },
