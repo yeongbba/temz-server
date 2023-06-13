@@ -1,4 +1,4 @@
-name: deploy to AWS
+name: CD
 on:
   pull_request:
     branches: [ main ]
