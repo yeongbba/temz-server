@@ -47,6 +47,7 @@ jobs:
           echo VERIFICATION_ALLOW_COUNT=${{ secrets.VERIFICATION_ALLOW_COUNT }}\ >> .env
           echo VERIFICATION_GENERAL_EXPIRE_MINUTE=${{ secrets.VERIFICATION_GENERAL_EXPIRE_MINUTE }}\ >> .env
           echo VERIFICATION_BLOCK_EXPIRE_MINUTE=${{ secrets.VERIFICATION_BLOCK_EXPIRE_MINUTE }}\ >> .env
+          tail .env
       - name: Set up docker buildx
         id: buildx
         uses: docker/setup-buildx-action@v1
