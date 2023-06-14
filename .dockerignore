@@ -1,4 +1,4 @@
 .vscode/
 dist/
 coverage/
-.env.test/
+.env.test
