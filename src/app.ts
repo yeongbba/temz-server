@@ -88,7 +88,7 @@ export async function startServer(port?: number): Promise<ServerInfo> {
     }
   });
 
-  console.log(`Server is started to listen ${port} port`);
+  console.log(`Server is started to listen ${port} ports`);
   const server = app.listen(port);
   initSocket(server);
   return { server, db, redis };
