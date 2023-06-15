@@ -85,5 +85,5 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Docker run
         run: |
-          docker stop ${{ env.NAME }} && docker rm ${{ env.NAME }} && docker rmi ${{ env.DOCKER_IMAGE }}:latest
+          docker stop ${{ env.NAME }} && docker rm ${{ env.NAME }} && docker rmi --force ${{ env.DOCKER_IMAGE }}:latest
           docker run -d -p ${{ env.HOST_PORT }}:${{ env.HOST_PORT }} --name ${{ env.NAME }} --restart always ${{ env.DOCKER_IMAGE }}:latest
