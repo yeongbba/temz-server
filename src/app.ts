@@ -32,23 +32,19 @@ export async function startServer(port?: number): Promise<ServerInfo> {
   const verifyCodeDB = await Redis.createConnection(config.redis.url, parseInt(config.redis.verifyCodeDB));
   const redis = { rateLimitDB, verifyCodeDB };
 
+  const openAPIDocument = createOpenAPIDoc();
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openAPIDocument));
+  app.use(validator(openAPIDocument));
+
   app.use(express.json());
   app.use(cookieParser());
-  app.use(
-    helmet({
-      crossOriginOpenerPolicy: false,
-    })
-  );
+  app.use(helmet());
   app.use(cors(corsOption));
 
   app.use(limiter(rateLimitDB.client));
   if (!config.environment.test) {
     app.use(morgan('tiny'));
   }
-
-  const openAPIDocument = createOpenAPIDoc();
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openAPIDocument));
-  app.use(validator(openAPIDocument));
 
   app.use((req: Request, res: Response) => {
     if (!config.environment.test) {
