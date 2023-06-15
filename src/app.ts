@@ -27,8 +27,6 @@ const corsOption = {
 
 export async function startServer(port?: number): Promise<ServerInfo> {
   const app = express();
-  console.log('mongo: ', config.db.host);
-  console.log('redis: ', config.redis.url);
   const db = await MongoDB.createConnection(config.db.host, config.db.dbName);
   const rateLimitDB = await Redis.createConnection(config.redis.url, parseInt(config.redis.rateLimitDB));
   const verifyCodeDB = await Redis.createConnection(config.redis.url, parseInt(config.redis.verifyCodeDB));
