@@ -35,11 +35,9 @@ export async function startServer(port?: number): Promise<ServerInfo> {
   app.use(express.json());
   app.use(cookieParser());
   app.use(
-    helmet(
-      helmet({
-        crossOriginOpenerPolicy: false,
-      })
-    )
+    helmet({
+      crossOriginOpenerPolicy: false,
+    })
   );
   app.use(cors(corsOption));
 
