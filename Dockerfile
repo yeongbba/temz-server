@@ -57,7 +57,7 @@ ENV VERIFICATION_BLOCK_EXPIRE_MINUTE = $VERIFICATION_BLOCK_EXPIRE_MINUTE
 WORKDIR /app
 COPY . /app
 
-RUN yarn build
+RUN yarn install
 RUN mkdir dist/src/api && cp -r src/api/ dist/src/api/
 
 CMD [ "yarn", "run", "start:prod"]
