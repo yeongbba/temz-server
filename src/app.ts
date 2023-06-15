@@ -34,7 +34,13 @@ export async function startServer(port?: number): Promise<ServerInfo> {
 
   app.use(express.json());
   app.use(cookieParser());
-  app.use(helmet());
+  app.use(
+    helmet(
+      helmet({
+        crossOriginOpenerPolicy: false,
+      })
+    )
+  );
   app.use(cors(corsOption));
 
   app.use(limiter(rateLimitDB.client));
