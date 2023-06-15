@@ -18,36 +18,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Create .env file
-        run: |
-          touch .env
-          echo IS_TEST=${{ secrets.IS_TEST }}\ >> .env
-          echo ACCESS_SECRET=${{ secrets.ACCESS_SECRET }}\ >> .env
-          echo REFRESH_SECRET=${{ secrets.REFRESH_SECRET }}\ >> .env
-          echo ACCESS_EXPIRES_SEC=${{ secrets.ACCESS_EXPIRES_SEC }}\ >> .env
-          echo REFRESH_EXPIRES_SEC=${{ secrets.REFRESH_EXPIRES_SEC }}\ >> .env
-          echo ACCESS_TOKEN_KEY=${{ secrets.ACCESS_TOKEN_KEY }}\ >> .env
-          echo REFRESH_TOKEN_KEY=${{ secrets.REFRESH_TOKEN_KEY }}\ >> .env
-          echo BCRYPT_SALT_ROUNDS=${{ secrets.BCRYPT_SALT_ROUNDS }}\ >> .env
-          echo HOST_PORT=${{ secrets.HOST_PORT }}\ >> .env
-          echo DB_HOST=${{ secrets.DB_HOST }}\ >> .env
-          echo DB_NAME=${{ secrets.DB_NAME }}\ >> .env
-          echo REDIS_URL=${{ secrets.REDIS_URL }}\ >> .env
-          echo RATE_LIMIT_DB=${{ secrets.RATE_LIMIT_DB }}\ >> .env
-          echo VERIFY_CODE_DB=${{ secrets.VERIFY_CODE_DB }}\ >> .env
-          echo CORS_ALLOW_ORIGIN=${{ secrets.CORS_ALLOW_ORIGIN }}\ >> .env
-          echo CSRF_SECRET_KEY=${{ secrets.CSRF_SECRET_KEY }}\ >> .env
-          echo CSRF_TOKEN_KEY=${{ secrets.CSRF_TOKEN_KEY }}\ >> .env
-          echo RATE_LIMIT_WINDOW_MS=${{ secrets.RATE_LIMIT_WINDOW_MS }}\ >> .env
-          echo RATE_LIMIT_MAX_REQUEST=${{ secrets.RATE_LIMIT_MAX_REQUEST }}\ >> .env
-          echo SENS_HOST_PHONE=${{ secrets.SENS_HOST_PHONE }}\ >> .env
-          echo SENS_SERVICE_ID=${{ secrets.SENS_SERVICE_ID }}\ >> .env
-          echo SENS_ACCESS_KEY=${{ secrets.SENS_ACCESS_KEY }}\ >> .env
-          echo SENS_SECRET_KEY=${{ secrets.SENS_SECRET_KEY }}\ >> .env
-          echo VERIFICATION_ALLOW_COUNT=${{ secrets.VERIFICATION_ALLOW_COUNT }}\ >> .env
-          echo VERIFICATION_GENERAL_EXPIRE_MINUTE=${{ secrets.VERIFICATION_GENERAL_EXPIRE_MINUTE }}\ >> .env
-          echo VERIFICATION_BLOCK_EXPIRE_MINUTE=${{ secrets.VERIFICATION_BLOCK_EXPIRE_MINUTE }}\ >> .env
-          ls -al
       - name: Set up docker buildx
         id: buildx
         uses: docker/setup-buildx-action@v1
@@ -71,6 +41,33 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags: ${{ env.DOCKER_IMAGE }}:latest
+          build-args: |
+            IS_TEST=${{ secrets.IS_TEST }}
+            ACCESS_SECRET=${{ secrets.ACCESS_SECRET }}
+            REFRESH_SECRET=${{ secrets.REFRESH_SECRET }}
+            ACCESS_EXPIRES_SEC=${{ secrets.ACCESS_EXPIRES_SEC }}
+            REFRESH_EXPIRES_SEC=${{ secrets.REFRESH_EXPIRES_SEC }}
+            ACCESS_TOKEN_KEY=${{ secrets.ACCESS_TOKEN_KEY }}
+            REFRESH_TOKEN_KEY=${{ secrets.REFRESH_TOKEN_KEY }}
+            BCRYPT_SALT_ROUNDS=${{ secrets.BCRYPT_SALT_ROUNDS }}
+            HOST_PORT=${{ secrets.HOST_PORT }}
+            DB_HOST=${{ secrets.DB_HOST }}
+            DB_NAME=${{ secrets.DB_NAME }}
+            REDIS_URL=${{ secrets.REDIS_URL }}
+            RATE_LIMIT_DB=${{ secrets.RATE_LIMIT_DB }}
+            VERIFY_CODE_DB=${{ secrets.VERIFY_CODE_DB }}
+            CORS_ALLOW_ORIGIN=${{ secrets.CORS_ALLOW_ORIGIN }}
+            CSRF_SECRET_KEY=${{ secrets.CSRF_SECRET_KEY }}
+            CSRF_TOKEN_KEY=${{ secrets.CSRF_TOKEN_KEY }}
+            RATE_LIMIT_WINDOW_MS=${{ secrets.RATE_LIMIT_WINDOW_MS }}
+            RATE_LIMIT_MAX_REQUEST=${{ secrets.RATE_LIMIT_MAX_REQUEST }}
+            SENS_HOST_PHONE=${{ secrets.SENS_HOST_PHONE }}
+            SENS_SERVICE_ID=${{ secrets.SENS_SERVICE_ID }}
+            SENS_ACCESS_KEY=${{ secrets.SENS_ACCESS_KEY }}
+            SENS_SECRET_KEY=${{ secrets.SENS_SECRET_KEY }}
+            VERIFICATION_ALLOW_COUNT=${{ secrets.VERIFICATION_ALLOW_COUNT }}
+            VERIFICATION_GENERAL_EXPIRE_MINUTE=${{ secrets.VERIFICATION_GENERAL_EXPIRE_MINUTE }}
+            VERIFICATION_BLOCK_EXPIRE_MINUTE=${{ secrets.VERIFICATION_BLOCK_EXPIRE_MINUTE }}
   deploy:
     if: github.event.pull_request.merged == true
     needs: build
