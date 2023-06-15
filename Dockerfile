@@ -58,6 +58,7 @@ WORKDIR /app
 COPY . /app
 
 RUN yarn install
+RUN yarn build
 RUN mkdir dist/src/api && cp -r src/api/ dist/src/api/
 
 CMD [ "yarn", "run", "start:prod"]
