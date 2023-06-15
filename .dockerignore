@@ -1,5 +1,0 @@
-.vscode/
-dist/
-coverage/
-.env.test
-.pnp.*
